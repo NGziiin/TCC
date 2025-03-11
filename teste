@@ -1,9 +1,23 @@
 from tkinter import *
 
-janela = Tk()
+def on_enter(e):
+    e.widget.config(bg="lightblue", fg="black")  # Muda a cor do botão que recebeu o evento
 
-janela.geometry('1920x1040')
-janela.state('zoomed')
-janela.configure(bg='blue')
+def on_leave(e):
+    e.widget.config(bg="blue", fg="white")  # Volta à cor original
+
+janela = Tk()
+janela.geometry("300x300")
+
+botoes = []  # Lista para armazenar os botões
+
+for i in range(4):  # Criando 5 botões automaticamente
+    btn = Button(janela, text=f"Botão {i+1}", font=("Arial", 12), bg="blue", fg="white")
+    btn.pack(pady=5, fill=X, padx=20)  # Organiza os botões na interface
+
+    btn.bind("<Enter>", on_enter)  # Aplica efeito de hover
+    btn.bind("<Leave>", on_leave)  # Aplica efeito de saída
+
+    botoes.append(btn)  # Adiciona o botão à lista
 
 janela.mainloop()
