@@ -1,0 +1,65 @@
+import wx
+
+class MyFrame(wx.Frame):
+    def __init__(self, *args, **kw):
+        super(MyFrame, self).__init__(*args, **kw)
+        self.SetTitle("Exemplo com Vários Painéis")
+        self.SetSize((800, 600))
+
+        # Painel principal
+        main_panel = wx.Panel(self)
+        main_sizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        # Painel da esquerda
+        left_panel = wx.Panel(main_panel)
+        left_panel.SetBackgroundColour((200, 200, 200))
+        left_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        # Botões no painel esquerdo
+        btn1 = wx.Button(left_panel, label="Botão 1")
+        btn2 = wx.Button(left_panel, label="Botão 2")
+        btn3 = wx.Button(left_panel, label="Botão 3")
+        left_sizer.Add(btn1, 0, wx.ALL, 5)
+        left_sizer.Add(btn2, 0, wx.ALL, 5)
+        left_sizer.Add(btn3, 0, wx.ALL, 5)
+
+        # Ajustar o layout do painel esquerdo
+        left_panel.SetSizer(left_sizer)
+
+        # Painel da direita
+        right_panel = wx.Panel(main_panel)
+        right_panel.SetBackgroundColour((240, 240, 240))
+        right_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        # Texto e botão no painel direito
+        static_text = wx.StaticText(right_panel, label="Painel da Direita")
+        right_sizer.Add(static_text, 0, wx.ALL, 10)
+
+        btn4 = wx.Button(right_panel, label="Clique Aqui")
+        btn4.Bind(wx.EVT_BUTTON, self.on_button_click)
+        right_sizer.Add(btn4, 0, wx.ALL, 10)
+
+        # Ajustar o layout do painel direito
+        right_panel.SetSizer(right_sizer)
+
+        # Adicionar os painéis ao sizer principal
+        main_sizer.Add(left_panel, 1, wx.EXPAND | wx.ALL, 5)
+        main_sizer.Add(right_panel, 2, wx.EXPAND | wx.ALL, 5)
+
+        # Configurar o sizer principal no painel principal
+        main_panel.SetSizer(main_sizer)
+
+        self.Centre()
+
+    def on_button_click(self, event):
+        wx.MessageBox("Você clicou no botão do Painel Direito!", "Mensagem", wx.OK | wx.ICON_INFORMATION)
+
+class MyApp(wx.App):
+    def OnInit(self):
+        frame = MyFrame(None)
+        frame.Show()
+        return True
+
+if __name__ == "__main__":
+    app = MyApp()
+    app.MainLoop()
