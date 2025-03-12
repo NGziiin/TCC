@@ -1,23 +1,23 @@
-from tkinter import *
+import tkinter as tk
+from tkinter import ttk
 
-def on_enter(e):
-    e.widget.config(bg="lightblue", fg="black")  # Muda a cor do botão que recebeu o evento
+# Cria a janela principal
+root = tk.Tk()
+root.title("Exemplo com LabelFrame")
 
-def on_leave(e):
-    e.widget.config(bg="blue", fg="white")  # Volta à cor original
+# Cria um LabelFrame para agrupar informações
+frame = ttk.LabelFrame(root, text="Informações")
+frame.pack(padx=10, pady=10, fill="both", expand=True)
 
-janela = Tk()
-janela.geometry("300x300")
+# Adiciona widgets dentro do LabelFrame
+label1 = ttk.Label(frame, text="Nome: Herick")
+label1.pack(anchor="w", padx=5, pady=5)
 
-botoes = []  # Lista para armazenar os botões
+label2 = ttk.Label(frame, text="Idade: 25")
+label2.pack(anchor="w", padx=5, pady=5)
 
-for i in range(4):  # Criando 5 botões automaticamente
-    btn = Button(janela, text=f"Botão {i+1}", font=("Arial", 12), bg="blue", fg="white")
-    btn.pack(pady=5, fill=X, padx=20)  # Organiza os botões na interface
+label3 = ttk.Label(frame, text="Cidade: Campos Belos")
+label3.pack(anchor="w", padx=5, pady=5)
 
-    btn.bind("<Enter>", on_enter)  # Aplica efeito de hover
-    btn.bind("<Leave>", on_leave)  # Aplica efeito de saída
-
-    botoes.append(btn)  # Adiciona o botão à lista
-
-janela.mainloop()
+# Exibe a janela
+root.mainloop()
