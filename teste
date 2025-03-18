@@ -1,23 +1,58 @@
-import tkinter as tk
-from tkinter import ttk
+from tkinter import *
 
-# Cria a janela principal
-root = tk.Tk()
-root.title("Exemplo com LabelFrame")
+class ListaProdutos:
+    def __init__(self, root):
+        self.root = root
 
-# Cria um LabelFrame para agrupar informações
-frame = ttk.LabelFrame(root, text="Informações")
-frame.pack(padx=10, pady=10, fill="both", expand=True)
+        # Frame principal
+        self.frame_principal = Frame(root)
+        self.frame_principal.pack(pady=10, padx=10, fill=BOTH, expand=True)
 
-# Adiciona widgets dentro do LabelFrame
-label1 = ttk.Label(frame, text="Nome: Herick")
-label1.pack(anchor="w", padx=5, pady=5)
+        # Canvas para permitir rolagem
+        self.canvas = Canvas(self.frame_principal)
+        self.scroll_y = Scrollbar(self.frame_principal, orient=VERTICAL, command=self.canvas.yview)
+        self.canvas.configure(yscrollcommand=self.scroll_y.set)
 
-label2 = ttk.Label(frame, text="Idade: 25")
-label2.pack(anchor="w", padx=5, pady=5)
+        # Frame onde os produtos serão exibidos
+        self.frame_lista = Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.frame_lista, anchor="nw")
 
-label3 = ttk.Label(frame, text="Cidade: Campos Belos")
-label3.pack(anchor="w", padx=5, pady=5)
+        # Empacotamento dos widgets
+        self.canvas.pack(side=LEFT, fill=BOTH, expand=True)
+        self.scroll_y.pack(side=RIGHT, fill=Y)
 
-# Exibe a janela
-root.mainloop()
+        # Título da lista
+        Label(self.frame_lista, text="Produtos Registrados", font=("Arial", 14, "bold")).pack(pady=5)
+
+        # Botão para adicionar produtos (simulando um registro)
+        self.entry_nome = Entry(root, font=("Arial", 12))
+        self.entry_nome.pack(pady=5)
+
+        self.btn_adicionar = Button(root, text="Registrar Produto", font=("Arial", 12, "bold"), command=self.adicionar_produto)
+        self.btn_adicionar.pack(pady=5)
+
+        self.produtos = []  # Lista para armazenar os itens
+
+    def adicionar_produto(self):
+        """Adiciona um novo produto à lista"""
+        nome_produto = self.entry_nome.get()
+        if nome_produto:
+            lbl = Label(self.frame_lista, text=f"• {nome_produto}", font=("Arial", 12), bg="white", anchor="w", padx=10, pady=2)
+            lbl.pack(fill=X, pady=2)
+
+            self.produtos.append(lbl)  # Armazena a referência para futuras ações
+            self.entry_nome.delete(0, END)  # Limpa o campo de entrada
+
+            # Atualiza a área de rolagem
+            self.frame_lista.update_idletasks()
+            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+# Criando a janela principal
+janela = Tk()
+janela.geometry("400x400")
+janela.title("Lista de Produtos")
+
+# Criando a lista de produtos dinâmica
+lista_produtos = ListaProdutos(janela)
+
+janela.mainloop()
