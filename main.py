@@ -18,8 +18,8 @@ def imports():
     from gui.principal import janelainicial
     from gui.vendas import janela_vendas
 
-def janela_inicial(frameinfo, frame):
-    frame_clear(frame)
+def janela_inicial(frameinfo):
+    frame_clear(frameinfo)
     imports()
     janelainicial(frameinfo)
 
@@ -61,6 +61,7 @@ def botoes(framebutton, frameinfo):
         btn.bind("<Leave>", on_leave)
     
 #inicio do software
+
 janela = Tk()
 
 janela.geometry('1920x1040')
@@ -74,7 +75,7 @@ frameinfo = Frame(janela, bg='white')
 frameinfo.place(relheight=0.99, relwidth=0.842, relx=0.155, rely=0.005)
 
 botoes(framebutton, frameinfo)
-janela_inicial(frameinfo, frame)
+janela_inicial(frameinfo)
 
 janela.protocol("WM_DELETE_WINDOW", close_app)
 janela.mainloop()
