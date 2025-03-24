@@ -14,7 +14,6 @@ def janelainicial(frameinfo):
     fig, ax = plt.subplots(figsize=(4,3), layout='constrained')
     data_atual = datetime.now()
     datas = [data_atual.strftime('%d/%m/%Y')]
-    print(datas)
     ax.bar(datas, np.random.rand(len(datas)))
     ax.set_title("GRÁFICO DE VENDAS")
 

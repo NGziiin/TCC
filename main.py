@@ -15,8 +15,10 @@ def imports():
     sys.path.append(os.path.join(gui_base, 'gui'))
     global janelainicial
     global janela_vendas
+    global janela_clientes
     from gui.principal import janelainicial
     from gui.vendas import janela_vendas
+    from gui.clientes import janela_clientes
 
 def janela_inicial(frameinfo):
     frame_clear(frameinfo)
@@ -34,8 +36,10 @@ def abrir_estoque():
 def abrir_registro():
     return
 
-def abrir_clientes():
-    return
+def abrir_clientes(frameinfo):
+    frame_clear(frameinfo)
+    imports()
+    janela_clientes(frameinfo)
 
 def botoes(framebutton, frameinfo):
 
