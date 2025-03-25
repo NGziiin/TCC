@@ -64,8 +64,8 @@ def botoes(framebutton, frameinfo):
         btn.bind("<Enter>", on_enter)
         btn.bind("<Leave>", on_leave)
     
-#inicio do software
 
+#inicio do software
 janela = Tk()
 
 janela.geometry('1920x1040')
