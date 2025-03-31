@@ -13,3 +13,7 @@ def janela_clientes(frameinfo):
 
     client_history = Button(frameinfo, text='HISTÓRICO', font=('arial', 20, 'bold'), bg='white', fg='black', border=0)
     client_history.place(y=144, x=930)
+
+    search_clients = Entry(framelist, font=('arial', 20), bg='white', fg='black')
+    search_clients.place(y=50, x=0, width=800, height=30)
+    search_clients.insert(0, 'BUSCAR CLIENTE')
