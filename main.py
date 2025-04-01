@@ -16,9 +16,10 @@ def imports():
     global janelainicial
     global janela_vendas
     global janela_clientes
+    global lista_clientes
     from gui.principal import janelainicial
     from gui.vendas import janela_vendas
-    from gui.clientes import janela_clientes
+    from gui.clientes import janela_clientes, lista_clientes
 
 def janela_inicial(frameinfo):
     frame_clear(frameinfo)
@@ -40,6 +41,7 @@ def abrir_clientes(frameinfo):
     frame_clear(frameinfo)
     imports()
     janela_clientes(frameinfo)
+    lista_clientes(frameinfo)
 
 def botoes(framebutton, frameinfo):
 
