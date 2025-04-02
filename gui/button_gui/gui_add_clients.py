@@ -9,7 +9,7 @@ def imports():
    global add_list
    from services.add_clients import add_list
 
-def window_register():
+def window_register(frameclients):
    
    janela = Toplevel()
 
