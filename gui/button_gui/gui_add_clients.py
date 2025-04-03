@@ -9,16 +9,24 @@ def imports():
    global add_list
    from services.add_clients import add_list
 
-def window_register(frameclients):
+def window_register(frame_nome, frame_sobrenome):
    
    janela = Toplevel()
 
    imports()
 
+   #configurações da janela
    janela.geometry('400x400')
    janela.title('registrar cliente')
 
-   btn = Button(janela, text='teste', font=('arial', 16), bg='white', fg='black', border=0, command=partial(add_list, frameclients))
+   #entrys das informações
+   entry_name = Entry(janela, font=('arial', 16), bg='white', fg='black')
+   entry_name.pack(pady=10, fill=X)
+
+   entry_secname = Entry(janela, font=('arial', 16), bg='white', fg='black')
+   entry_secname.pack(pady=2, fill=X)
+
+   btn = Button(janela, text='teste', font=('arial', 16), bg='white', fg='black', border=0, command=partial(add_list, janela, frame_nome, entry_name, entry_secname, frame_sobrenome))
    btn.pack(pady=10, fill=X)
 
    janela.mainloop()

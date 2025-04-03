@@ -11,18 +11,39 @@ def imports():
     sys.path.append(os.path.join(gui_for_button, 'button_gui'))
     global window_register
     from button_gui.gui_add_clients import window_register
+
+def frame_lista_clientes(frameclients):
+    global frame_nome
+    global frame_sobrenome
+
+    frame_nome = Frame(frameclients, bg='black', border=0)
+    frame_nome.place(relwidth=0.4, rely=0, relx=0)
+    inicial_nome = Label(frame_nome, text='Nome', font=('arial', 16), bg='white', fg='black')
+    inicial_nome.pack(anchor='w', pady=0, fill=X)
+
+    frame_sobrenome = Frame(frameclients, bg='black', border=0)
+    frame_sobrenome.place(relwidth=0.4, rely=0, relx=0.401)
+    inicial_sobrenome = Label(frame_sobrenome, text='CPF', font=('arial', 16), bg='white', fg='black')
+    inicial_sobrenome.pack(anchor='w', pady=0, fill=X)
+
     
 def janela_clientes(frameinfo):
 
     imports()
 
+    #frame onde mostra o nome dos clientes
     frameclients = Frame(frameinfo, bg='white', border=0)
     frameclients.place(relheight=0.9, relwidth=0.99, rely=0.25, relx=0.005)
     
+    #frame onde mostra as opções da lista
     framelist = Frame(frameinfo, bg='green', border=0)
     framelist.place(relheight=0.05, relwidth=1, rely=0.2)
 
-    register_button = Button(frameinfo, text='REGISTRAR', font=('arial', 20, 'bold'), bg='white', fg='black', border=0, command=partial(window_register, frameclients))
+    #frames da tabela
+    frame_lista_clientes(frameclients)
+
+    #configurações da janela
+    register_button = Button(frameinfo, text='REGISTRAR', font=('arial', 20, 'bold'), bg='white', fg='black', border=0, command=partial(window_register, frame_nome, frame_sobrenome))
     register_button.place(y=144, x=530)
 
     view_client_button = Button(frameinfo, text='VISUALIZAR', font=('arial', 20, 'bold'), bg='white', fg='black', border=0)
