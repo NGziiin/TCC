@@ -14,17 +14,23 @@ def imports():
 
 def frame_lista_clientes(frameclients):
     global frame_nome
-    global frame_sobrenome
+    global frame_cpf
+    global frame_cidade
 
     frame_nome = Frame(frameclients, bg='black', border=0)
     frame_nome.place(relwidth=0.4, rely=0, relx=0)
     inicial_nome = Label(frame_nome, text='Nome', font=('arial', 16), bg='white', fg='black')
     inicial_nome.pack(anchor='w', pady=0, fill=X)
 
-    frame_sobrenome = Frame(frameclients, bg='black', border=0)
-    frame_sobrenome.place(relwidth=0.4, rely=0, relx=0.401)
-    inicial_sobrenome = Label(frame_sobrenome, text='CPF', font=('arial', 16), bg='white', fg='black')
+    frame_cpf = Frame(frameclients, bg='black', border=0)
+    frame_cpf.place(relwidth=0.15, rely=0, relx=0.401)
+    inicial_sobrenome = Label(frame_cpf, text='CPF', font=('arial', 16), bg='white', fg='black')
     inicial_sobrenome.pack(anchor='w', pady=0, fill=X)
+
+    frame_cidade = Frame(frameclients, bg='black', border=0)
+    frame_cidade.place(relwidth=0.15, rely=0, relx=0.551)
+    inicial_cidade = Label(frame_cidade, text='Cidade', font=('arial', 16), bg='white', fg='black')
+    inicial_cidade.pack(anchor='w', pady=0, fill=X)
 
     
 def janela_clientes(frameinfo):
@@ -43,7 +49,7 @@ def janela_clientes(frameinfo):
     frame_lista_clientes(frameclients)
 
     #configurações da janela
-    register_button = Button(frameinfo, text='REGISTRAR', font=('arial', 20, 'bold'), bg='white', fg='black', border=0, command=partial(window_register, frame_nome, frame_sobrenome))
+    register_button = Button(frameinfo, text='REGISTRAR', font=('arial', 20, 'bold'), bg='white', fg='black', border=0, command=partial(window_register, frame_nome, frame_cpf, frame_cidade))
     register_button.place(y=144, x=530)
 
     view_client_button = Button(frameinfo, text='VISUALIZAR', font=('arial', 20, 'bold'), bg='white', fg='black', border=0)

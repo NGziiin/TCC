@@ -16,7 +16,6 @@ def imports():
     global janelainicial
     global janela_vendas
     global janela_clientes
-    global lista_clientes
     from gui.principal import janelainicial
     from gui.vendas import janela_vendas
     from gui.clientes import janela_clientes
