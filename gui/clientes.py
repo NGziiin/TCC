@@ -16,6 +16,10 @@ def frame_lista_clientes(frameclients):
     global frame_nome
     global frame_cpf
     global frame_cidade
+    global frame_estado
+
+    canvas = Canvas(frameclients, bg='black', border=0)
+    canvas.pack(expand=True, fill=BOTH, side=LEFT)
 
     frame_nome = Frame(frameclients, bg='black', border=0)
     frame_nome.place(relwidth=0.4, rely=0, relx=0)
@@ -32,6 +36,10 @@ def frame_lista_clientes(frameclients):
     inicial_cidade = Label(frame_cidade, text='Cidade', font=('arial', 16), bg='white', fg='black')
     inicial_cidade.pack(anchor='w', pady=0, fill=X)
 
+    frame_estado = Frame(frameclients, bg='black', border=0)
+    frame_estado.place(relwidth=0.15, rely=0, relx=0.701)
+    inicial_estado = Label(frame_estado, text='Estado', font=('arial', 16), bg='white', fg='black')
+    inicial_estado.pack(anchor='w', pady=0, fill=X)
     
 def janela_clientes(frameinfo):
 
