@@ -133,6 +133,13 @@ class Ui_Form(object):
         self.graphic = QtWidgets.QWidget(self.frame)
         self.graphic.setGeometry(QtCore.QRect(460, 370, 321, 241))
         self.graphic.setObjectName("graphic")
+        self.textgraphic = QtWidgets.QLabel(self.graphic)
+        self.textgraphic.setGeometry(QtCore.QRect(0, 0, 321, 241))
+        font = QtGui.QFont()
+        font.setPointSize(16)
+        self.textgraphic.setFont(font)
+        self.textgraphic.setAlignment(QtCore.Qt.AlignCenter)
+        self.textgraphic.setObjectName("texto")
 
         self.register_product = QtWidgets.QWidget(self.frame)
         self.register_product.setGeometry(QtCore.QRect(460, 710, 321, 241))
@@ -181,3 +188,4 @@ class Ui_Form(object):
 
         self.welcome.setText(_translate("Form", "<html><head/><body><p><span style=\" font-weight:600;\">BEM-VINDO(A) AO SOFTWARE</span></p></body></html>"))
         self.inicialpagina.setText(_translate("Form", "PAGINA INICIAL"))
+
