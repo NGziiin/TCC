@@ -28,7 +28,6 @@ def validar_cpf(cpf):
     digito2 = calcular_digito(cpf[:10], peso2)
     return cpf[-2:] == f"{digito1}{digito2}"
 
-
 def add_list(janela, frame_nome, entry_name, entry_secname, frame_cpf, entry_cpf, frame_cidade, select_cidade, select_estado, frame_estado):
 
     #strinvar

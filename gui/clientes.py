@@ -50,7 +50,7 @@ def janela_clientes(frameinfo):
     frameclients.place(relheight=0.9, relwidth=0.99, rely=0.25, relx=0.005)
     
     #frame onde mostra as opções da lista
-    framelist = Frame(frameinfo, bg='green', border=0)
+    framelist = Frame(frameinfo, bg='white', border=0)
     framelist.place(relheight=0.05, relwidth=1, rely=0.2)
 
     #frames da tabela
