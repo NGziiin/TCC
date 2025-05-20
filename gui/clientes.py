@@ -8,9 +8,11 @@ def imports():
 
     ## janela dos botões adicionados
     gui_for_button = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
-    sys.path.append(os.path.join(gui_for_button, 'button_gui'))
+    sys.path.append(os.path.join(gui_for_button, 'button_clients'))
     global window_register
-    from button_gui.gui_add_clients import window_register
+    global StartUI
+    from button_clients.gui_add_clients import window_register
+    from button_clients.gui_view_clients import StartUI
 
 def frame_lista_clientes(frameclients):
     global frame_nome
@@ -60,14 +62,14 @@ def janela_clientes(frameinfo):
     register_button = Button(frameinfo, text='REGISTRAR', font=('arial', 20, 'bold'), bg='white', fg='black', border=0, command=partial(window_register, frame_nome, frame_cpf, frame_cidade, frame_estado))
     register_button.place(y=144, x=530)
 
-    view_client_button = Button(frameinfo, text='VISUALIZAR', font=('arial', 20, 'bold'), bg='white', fg='black', border=0)
+    view_client_button = Button(frameinfo, text='VISUALIZAR', font=('arial', 20, 'bold'), bg='white', fg='black', border=0, command=lambda: StartUI())
     view_client_button.place(y=144, x=730)
 
     client_history = Button(frameinfo, text='HISTÓRICO', font=('arial', 20, 'bold'), bg='white', fg='black', border=0)
     client_history.place(y=144, x=930)
 
-    search_clients = Entry(framelist, font=('arial', 20), bg='white', fg='black')
-    search_clients.place(y=10, x=10, width=800, height=30)
+    search_clients = Entry(framelist, font=('arial', 10), bg='white', fg='black')
+    search_clients.place(y=10, x=300, width=800, height=30)
 
-    btn_client_search = Button(framelist, text='BUSCAR', font=('arial', 16), bg='white', fg='black', border=0)
+    btn_client_search = Button(framelist, text='BUSCAR', font=('arial', 16), bg='green', fg='white', border=0)
     btn_client_search.place(y=10, x=820, width=150, height=30)

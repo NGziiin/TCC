@@ -70,7 +70,7 @@ janela = Tk()
 
 janela.geometry('1920x1040')
 janela.state('zoomed')
-janela.configure(bg='blue')
+janela.configure(bg='#fafafa')
 
 framebutton = Frame(janela, bg='white')
 framebutton.place(relheight=0.99, relwidth=0.15, relx=0.002, rely=0.005)

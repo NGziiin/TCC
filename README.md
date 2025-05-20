@@ -1,6 +1,50 @@
-# TCC
-repositório para meu tcc
+# TCC - Controle de Estoque para Lojas
 
-A ideia desse tema é criar um software onde a loja consiga fazer um controle de estoque de materiais/produtos, a ideia é que esse software auxilie as lojas em questão de saber o quantitativo de materiais e consiga controlar o valor de cada produto. O objetivo é que assim que realizar uma venda automaticamente dentro do controle de estoque seja reduzido a quantidade de material disponível e assim que chegar em uma margem baixa de material. Alertar avisando que o estoque daquele produto específico está baixo. Dentro do software seria possível: cadastrar produto, registrar vendas, atualização automática, alerta de estoque, controle de preço.
+Repositório para meu Trabalho de Conclusão de Curso (TCC).
 
-linguagens: Python [tkinter, matplotlib, canvas] (Frontend), Python (BackEnd) e SQLite3 (Banco de Dados)
+## Descrição do Projeto
+
+Este projeto consiste em um software para controle de estoque de materiais e produtos em lojas. O objetivo é auxiliar os lojistas a monitorar o quantitativo de materiais, controlar o valor de cada produto e automatizar processos relacionados às vendas.
+
+O sistema reduz automaticamente a quantidade disponível de material no estoque após a realização de uma venda, garantindo maior controle e evitando falta de produtos. Além disso, o software gera alertas quando o estoque de um produto específico estiver baixo, permitindo reposição eficiente.
+
+### Funcionalidades previstas
+
+- Cadastro de produtos;
+- Registro e atualização de vendas;
+- Atualização automática do estoque;
+- Alertas de estoque baixo;
+- Controle de preços.
+
+## Tecnologias utilizadas
+
+- Linguagem: Python
+- Framework para interface gráfica: Tkinter
+- Visualização gráfica: Matplotlib e Canvas
+- Banco de dados: SQLite3
+
+---
+
+## Como executar o projeto
+
+1. Clone o repositório
+2. Instale as dependências necessárias (caso tenha)
+3. Execute o arquivo `main.py`
+
+---
+
+## Estrutura do projeto
+
+- `database/` - scripts para manipulação do banco de dados
+- `gui/` - interfaces gráficas
+- `services/` - regras de negócio e lógica da aplicação
+- `main.py` - ponto de entrada do sistema
+
+---
+
+## Contato
+
+Herick Müller - herickminecraftano@gmail.com
+
+---
+
