@@ -1,55 +1,71 @@
 from tkinter import *
 
 def janela_vendas(frameinfo):
-    # Limpar frame caso tenha algo
-    for widget in frameinfo.winfo_children():
-        widget.destroy()
+
+    # Frame principal
+    main_frame = Frame(frameinfo, bg='white')
+    main_frame.pack(fill='both', expand=True, padx=20, pady=20)
 
     # Título
-    titulo = Label(frameinfo, text='Realizar Venda', font=('Arial', 24, 'bold'), bg='white')
-    titulo.place(x=30, y=20)
+    Label(main_frame, text='Realizar Venda', font=('Arial', 28, 'bold'), bg='white').pack(anchor='w', pady=(0, 20))
 
-    # Código do produto
-    Label(frameinfo, text='Código do Produto:', font=('Arial', 12), bg='white').place(x=30, y=100)
-    entry_codigo = Entry(frameinfo, font=('Arial', 12))
-    entry_codigo.place(x=180, y=100, width=200)
+    # Frame - Código do produto
+    frame_codigo = Frame(main_frame, bg='white')
+    frame_codigo.pack(fill='x', pady=5)
+    Label(frame_codigo, text='Código do Produto:', font=('Arial', 14), bg='white').pack(side='left')
+    Entry(frame_codigo, font=('Arial', 14)).pack(side='left', padx=10, fill='x', expand=True)
 
-    # Nome do produto
-    Label(frameinfo, text='Nome:', font=('Arial', 12), bg='white').place(x=30, y=150)
-    entry_nome = Entry(frameinfo, font=('Arial', 12), state='disabled')
-    entry_nome.place(x=180, y=150, width=400)
+    # Frame - Nome do produto
+    frame_nome = Frame(main_frame, bg='white')
+    frame_nome.pack(fill='x', pady=5)
+    Label(frame_nome, text='Nome:', font=('Arial', 14), bg='white').pack(side='left')
+    Entry(frame_nome, font=('Arial', 14), state='disabled').pack(side='left', padx=61, fill='x', expand=True)
 
-    # Preço unitário
-    Label(frameinfo, text='Preço Unitário:', font=('Arial', 12), bg='white').place(x=30, y=200)
-    entry_preco = Entry(frameinfo, font=('Arial', 12), state='disabled')
-    entry_preco.place(x=180, y=200, width=200)
+    # Frame - Preço unitário
+    frame_preco = Frame(main_frame, bg='white')
+    frame_preco.pack(fill='x', pady=5)
+    Label(frame_preco, text='Preço Unitário:', font=('Arial', 14), bg='white').pack(side='left')
+    Entry(frame_preco, font=('Arial', 14), state='disabled').pack(side='left', padx=36, fill='x', expand=True)
 
-    # Quantidade
-    Label(frameinfo, text='Quantidade:', font=('Arial', 12), bg='white').place(x=30, y=250)
-    entry_quantidade = Entry(frameinfo, font=('Arial', 12))
-    entry_quantidade.place(x=180, y=250, width=100)
+    # Frame - Quantidade e botão adicionar
+    frame_quantidade = Frame(main_frame, bg='white')
+    frame_quantidade.pack(fill='x', pady=5)
+    Label(frame_quantidade, text='Quantidade:', font=('Arial', 14), bg='white').pack(side='left')
+    Entry(frame_quantidade, font=('Arial', 14), width=10).pack(side='left', padx=10)
+    Button(frame_quantidade, text='Adicionar à venda', font=('Arial', 14, 'bold'),
+           bg='green', fg='white', cursor='hand2').pack(side='left', padx=30)
 
-    # Botão adicionar
-    btn_adicionar = Button(frameinfo, text='Adicionar à venda', font=('Arial', 12, 'bold'),
-                           bg='green', fg='white', cursor='hand2')
-    btn_adicionar.place(x=320, y=250, width=180, height=30)
+    # Itens da venda
+    Label(main_frame, text='Itens da Venda:', font=('Arial', 16, 'bold'), bg='white').pack(anchor='w', pady=(20, 5))
+    listbox = Listbox(main_frame, font=('Arial', 13))
+    listbox.pack(fill='both', expand=True)
 
-    # Lista de itens adicionados
-    Label(frameinfo, text='Itens da Venda:', font=('Arial', 14, 'bold'), bg='white').place(x=30, y=310)
-    listbox = Listbox(frameinfo, font=('Arial', 12))
-    listbox.place(x=30, y=340, width=800, height=300)
+    # Frame total e botões
+    frame_total = Frame(main_frame, bg='white')
+    frame_total.pack(fill='x', pady=15)
+    Label(frame_total, text='TOTAL:', font=('Arial', 18, 'bold'), bg='white').pack(side='left')
+    Entry(frame_total, font=('Arial', 18, 'bold'), state='disabled', justify='center', width=10).pack(side='left', padx=10)
+    Button(frame_total, text='Finalizar Venda', font=('Arial', 16, 'bold'),
+           bg='green', fg='white', cursor='hand2').pack(side='right', padx=10)
+    Button(frame_total, text='Cancelar', font=('Arial', 16, 'bold'),
+           bg='red', fg='white', cursor='hand2').pack(side='right')
 
-    # Total
-    Label(frameinfo, text='TOTAL:', font=('Arial', 14, 'bold'), bg='white').place(x=900, y=340)
-    entry_total = Entry(frameinfo, font=('Arial', 16, 'bold'), state='disabled', justify='center')
-    entry_total.place(x=980, y=340, width=200, height=40)
+    # Resumo da venda
+    Label(main_frame, text='Resumo da Venda:', font=('Arial', 15, 'bold'), bg='white').pack(anchor='w', pady=(10, 5))
 
-    # Botão Finalizar Venda
-    btn_finalizar = Button(frameinfo, text='Finalizar Venda', font=('Arial', 14, 'bold'),
-                           bg='green', fg='white', cursor='hand2')
-    btn_finalizar.place(x=980, y=420, width=200, height=40)
+    frame_resumo = Frame(main_frame, bg='white')
+    frame_resumo.pack(fill='x', pady=5)
 
-    # Botão Cancelar
-    btn_cancelar = Button(frameinfo, text='Cancelar', font=('Arial', 14, 'bold'),
-                          bg='red', fg='white', cursor='hand2')
-    btn_cancelar.place(x=980, y=480, width=200, height=40)
+    Label(frame_resumo, text='Itens:', font=('Arial', 12), bg='white').pack(side='left')
+    Entry(frame_resumo, font=('Arial', 12), width=5, state='disabled').pack(side='left', padx=5)
+
+    Label(frame_resumo, text='Quantidade Total:', font=('Arial', 12), bg='white').pack(side='left', padx=10)
+    Entry(frame_resumo, font=('Arial', 12), width=7, state='disabled').pack(side='left', padx=5)
+
+    Label(frame_resumo, text='Cliente:', font=('Arial', 12), bg='white').pack(side='left', padx=10)
+    Entry(frame_resumo, font=('Arial', 12), width=25).pack(side='left', padx=5)
+
+    Label(frame_resumo, text='Forma de Pagamento:', font=('Arial', 12), bg='white').pack(side='left', padx=10)
+    pagamento = StringVar(value='Dinheiro')
+    OptionMenu(frame_resumo, pagamento, 'Dinheiro', 'Cartão', 'PIX', 'Outro').pack(side='left')
+

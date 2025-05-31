@@ -1,58 +1,52 @@
 from tkinter import *
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from datetime import *
 
 def janelainicial(frameinfo):
-    welcome = Label(frameinfo, text='Bem Vindo(a) ao Software', font=('arial', 30, 'bold'), bg=frameinfo.cget('bg'))
-    welcome.pack(padx=5, pady=65)
-    resume = Label(frameinfo, text='RESUMO', font=('arial', 40, 'bold'), bg=frameinfo.cget('bg'))
-    resume.pack(padx=5, pady=2)
 
-    #gráfico
-    fig, ax = plt.subplots(figsize=(4,3), layout='constrained')
-    data_atual = datetime.now()
-    datas = [data_atual.strftime('%d/%m/%Y')]
-    ax.bar(datas, np.random.rand(len(datas)))
-    ax.set_title("GRÁFICO DE VENDAS")
+    # Frame principal
+    main_frame = Frame(frameinfo, bg='white')
+    main_frame.pack(fill='both', expand=True, padx=20, pady=20)
 
-    canvas = FigureCanvasTkAgg(fig, master=frameinfo)
-    canvas_widget = canvas.get_tk_widget()
-    canvas_widget.place(x=300, y=320)
+    # Título
+    Label(main_frame, text='Resumo do Sistema', font=('Arial', 22, 'bold'), bg='white').pack(anchor='w', pady=(0, 20))
 
-    #clientes
-    clientes = LabelFrame(frameinfo, bg='white', border=2)
-    clientes.place(relheight=0.26, relwidth=0.22, x=900, y=340)
+    # Frame de indicadores
+    frame_indicadores = Frame(main_frame, bg='white')
+    frame_indicadores.pack(fill='x', pady=10)
 
-    text_clientes = Label(clientes, text='CLIENTES', font=('arial', 20, 'bold'), bg=clientes.cget('bg'))
-    text_clientes.pack(anchor='center', pady=5)
+    # Produto registrado
+    frame_produtos = Frame(frame_indicadores, bg='#f0f0f0', bd=2, relief='groove')
+    frame_produtos.pack(side='left', expand=True, fill='both', padx=5)
+    Label(frame_produtos, text='Produtos Registrados', font=('Arial', 12, 'bold'), bg='#f0f0f0').pack(pady=(10,0))
+    Label(frame_produtos, text='245', font=('Arial', 16), bg='#f0f0f0', fg='blue').pack(pady=(5, 10))
 
-    clientes_count = StringVar()
-    clientes_count.set(2)
-    clientes_quantidade = Label(clientes, textvariable=clientes_count, font=('arial', 100, 'bold'), bg=clientes.cget('bg'))
-    clientes_quantidade.pack(anchor='center', pady=10)
+    # Vendas realizadas
+    frame_vendas = Frame(frame_indicadores, bg='#f0f0f0', bd=2, relief='groove')
+    frame_vendas.pack(side='left', expand=True, fill='both', padx=5)
+    Label(frame_vendas, text='Vendas Realizadas', font=('Arial', 12, 'bold'), bg='#f0f0f0').pack(pady=(10,0))
+    Label(frame_vendas, text='158', font=('Arial', 16), bg='#f0f0f0', fg='green').pack(pady=(5, 10))
 
-    #produtos
-    produtos = LabelFrame(frameinfo, bg=clientes.cget('bg'), border=2)
-    produtos.place(relheight=0.26, relwidth=0.22, x=342, y=660)
+    # Estoque baixo
+    frame_estoque_baixo = Frame(frame_indicadores, bg='#f0f0f0', bd=2, relief='groove')
+    frame_estoque_baixo.pack(side='left', expand=True, fill='both', padx=5)
+    Label(frame_estoque_baixo, text='Estoque Baixo', font=('Arial', 12, 'bold'), bg='#f0f0f0').pack(pady=(10,0))
+    Label(frame_estoque_baixo, text='12 produtos', font=('Arial', 16), bg='#f0f0f0', fg='red').pack(pady=(5, 10))
 
-    text_produtos = Label(produtos, text='PRODUTOS REGISTRADOS', font=('arial', 18, 'bold'), bg=produtos.cget('bg'))
-    text_produtos.pack(anchor='center', pady=5)
+    # Avisos / Notificações
+    frame_avisos = Frame(main_frame, bg='white')
+    frame_avisos.pack(fill='both', expand=True, pady=(20, 0))
 
-    produtos_count = StringVar()
-    produtos_count.set('40 Mil')
-    produtos_quantidade = Label(produtos, textvariable=produtos_count, font=('arial', 75, 'bold'), bg=produtos.cget('bg'))
-    produtos_quantidade.pack(anchor='center', pady=35)
+    Label(frame_avisos, text='Avisos Importantes:', font=('Arial', 14, 'bold'), bg='white').pack(anchor='w')
 
-    #aletas 
-    alertas = LabelFrame(frameinfo, bg='white', border=2)
-    alertas.place(relheight=0.26, relwidth=0.22, x=900, y=660)
+    text_avisos = Text(frame_avisos, height=6, font=('Arial', 12), bg='#fdfdfd', wrap='word')
+    text_avisos.pack(fill='both', expand=True, pady=5)
 
-    text_alertas = Label(alertas, text='ALERTAS', font=('arial', 20, 'bold'), bg=alertas.cget('bg'))
-    text_alertas.pack(anchor='center', pady=5)
-    alertas_count = StringVar()
-    alertas_count.set(0)
+    avisos_exemplo = [
+        "\n⚠️ Produto 'Borracha' está com estoque crítico (2 unidades).\n",
+        "✅ Nova venda registrada: Caneta Azul - 20 unidades.\n",
+        "📦 Produto 'Apontador' foi adicionado com sucesso.\n"
+    ]
 
-    alertas_quantidade = Label(alertas, textvariable=alertas_count, font=('arial', 100, 'bold'), bg=alertas.cget('bg'))
-    alertas_quantidade.pack(anchor='center', pady=35)
+    for aviso in avisos_exemplo:
+        text_avisos.insert(END, aviso + '\n')
+
+    text_avisos.config(state='disabled')
