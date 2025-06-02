@@ -10,17 +10,17 @@ from Gui_TopLevel import Storage_Control
 def janela_estoque(frameinfo):
 
     # Frame principal de tudo
-    main_frame = Frame(frameinfo, bg='white')
+    main_frame = Frame(frameinfo, bg='#F8FAFC')
     main_frame.pack(fill='both', expand=True, padx=20, pady=20)
 
     # Título
-    Label(main_frame, text='Controle de Estoque', font=('Arial', 24, 'bold'), bg='white').pack(anchor='w', pady=(0, 20))
+    Label(main_frame, text='Controle de Estoque', font=('Arial', 24, 'bold'), bg=main_frame.cget('bg')).pack(anchor='w', pady=(0, 20))
 
     # Frame de pesquisa
-    frame_pesquisa = Frame(main_frame, bg='white')
+    frame_pesquisa = Frame(main_frame, bg=main_frame.cget('bg'))
     frame_pesquisa.pack(fill='x', pady=5)
 
-    Label(frame_pesquisa, text='Pesquisar Produto:', font=('Arial', 12), bg='white').pack(side='left')
+    Label(frame_pesquisa, text='Pesquisar Produto:', font=('Arial', 12), bg=main_frame.cget('bg')).pack(side='left')
     entry_pesquisa = Entry(frame_pesquisa, font=('Arial', 12))
     entry_pesquisa.pack(side='left', fill='x', expand=True, padx=10)
     Button(frame_pesquisa, text='Buscar', font=('Arial', 11, 'bold'), bg='gray', fg='white', cursor='hand2').pack(
@@ -31,7 +31,7 @@ def janela_estoque(frameinfo):
            fg='white', cursor='hand2', command= partial(Storage_Control.abrir_gerenciador_estoque)).pack(side='left', padx=5)
 
     # Label da lista
-    Label(main_frame, text='Produtos em Estoque:', font=('Arial', 14, 'bold'), bg='white').pack(anchor='w',
+    Label(main_frame, text='Produtos em Estoque:', font=('Arial', 14, 'bold'), bg=main_frame.cget('bg')).pack(anchor='w',
                                                                                                 pady=(20, 5))
 
     # Lista de produtos
@@ -39,14 +39,14 @@ def janela_estoque(frameinfo):
     listbox.pack(fill='both', expand=True)
 
     # Frame de atualização de estoque
-    frame_estoque = Frame(main_frame, bg='white')
+    frame_estoque = Frame(main_frame, bg=main_frame.cget('bg'))
     frame_estoque.pack(fill='x', pady=15)
 
     # Frame do aviso de estoque baixo
-    frame_aviso = Frame(main_frame, bg='white')
+    frame_aviso = Frame(main_frame, bg=main_frame.cget('bg'))
     frame_aviso.pack(fill='x')
 
-    Label(frame_aviso, text='Aviso de Estoque Baixo (Qtd mínima):', font=('Arial', 12), bg='white').pack(side='left')
+    Label(frame_aviso, text='Aviso de Estoque Baixo (Qtd mínima):', font=('Arial', 12), bg=main_frame.cget('bg')).pack(side='left')
     entry_estoque_baixo = Entry(frame_aviso, font=('Arial', 12))
     entry_estoque_baixo.pack(side='left', padx=10)
     Button(frame_aviso, text='Salvar', font=('Arial', 12, 'bold'),

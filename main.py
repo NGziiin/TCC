@@ -75,7 +75,7 @@ janela = Tk()
 
 janela.geometry('1920x1040')
 janela.state('zoomed')
-janela.configure(bg='#F97316')
+janela.configure(bg="#F8FAFC")
 janela.title("sistema de estoque - Lojas TCC & LTDA")
 
 framebutton = Frame(janela, bg=janela.cget('bg'))
