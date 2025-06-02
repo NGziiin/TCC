@@ -10,7 +10,7 @@ from Gui_TopLevel import Storage_Control
 def janela_estoque(frameinfo):
 
     # Frame principal de tudo
-    main_frame = Frame(frameinfo, bg='#F8FAFC')
+    main_frame = Frame(frameinfo, bg='white')
     main_frame.pack(fill='both', expand=True, padx=20, pady=20)
 
     # Título

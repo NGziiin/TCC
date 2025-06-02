@@ -1,9 +1,9 @@
 from tkinter import *
+
+import customtkinter
+from customtkinter import *
 import sys
 import os
-
-from gui.registro_produto import janela_registro_produto
-
 
 def close_app():
     janela.quit()
@@ -49,40 +49,31 @@ def janela_relatorio(frameinfo):
 
 def botoes(framebutton, frameinfo):
 
-    def on_enter(e):
-        e.widget.config(bg='#fafafa', fg='black')
-    
-    def on_leave(e):
-        e.widget.config(bg='#E5E7EB', fg='black')
-
-    texto_botões = {'Principal' : janela_inicial,
-                    'Vendas' : abrir_vendas, 
-                    'Estoque' : abrir_estoque,
-                    'Relatório': janela_relatorio}
+    texto_botões = {'PRINCIPAL' : janela_inicial,
+                    'VENDAS' : abrir_vendas,
+                    'ESTOQUE' : abrir_estoque,
+                    'RELATÓRIO': janela_relatorio}
 
     frame_botões = Frame(framebutton, bg=framebutton.cget('bg'))
     frame_botões.pack(expand=True, fill=X)
 
     for texto, funcao in texto_botões.items():
-        btn = Button(frame_botões, text=texto, font=('arial', 16), border=0, bg='#E5E7EB', fg='black', command=lambda f=frameinfo, func=funcao: func(f))
+        btn = customtkinter.CTkButton(frame_botões, text=texto, font=('arial', 18, 'bold'), height=50, text_color='black', hover_color='#FFF7ED',  fg_color='#F97316', command=lambda f=frameinfo, func=funcao: func(f))
         btn.pack(pady=10, fill=X)
-        btn.bind("<Enter>", on_enter)
-        btn.bind("<Leave>", on_leave)
-    
 
 #inicio do software
-janela = Tk()
+janela = CTk()
 
 janela.geometry('1920x1040')
-janela.state('zoomed')
+janela.after(100, lambda: janela.wm_state('zoomed'))
 janela.configure(bg="#F8FAFC")
 janela.title("sistema de estoque - Lojas TCC & LTDA")
 
 framebutton = Frame(janela, bg=janela.cget('bg'))
 framebutton.place(relheight=0.99, relwidth=0.15, relx=0.002, rely=0.005)
 
-frameinfo = Frame(janela, bg=janela.cget('bg'))
-frameinfo.place(relheight=0.99, relwidth=0.842, relx=0.155, rely=0.005)
+frameinfo = Frame(janela, bg='white')
+frameinfo.place(relheight=1, relwidth=0.848, relx=0.155, rely=0)
 
 botoes(framebutton, frameinfo)
 janela_inicial(frameinfo)
