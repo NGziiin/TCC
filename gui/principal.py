@@ -47,6 +47,6 @@ def janelainicial(frameinfo):
     ]
 
     for aviso in avisos_exemplo:
-        text_avisos.insert(END, '\n' + aviso + '\n\n')
+        text_avisos.insert(END, '\n' + aviso + '\n')
 
     text_avisos.config(state='disabled')

@@ -5,6 +5,7 @@ def abrir_gerenciador_estoque():
     janela.title("Gerenciar Estoque")
     janela.geometry("500x400")
     janela.configure(bg='white')
+    janela.resizable(False, False)
 
     Label(janela, text="Gerenciar Estoque", font=('Arial', 20, 'bold'), bg='white').pack(pady=15)
 
