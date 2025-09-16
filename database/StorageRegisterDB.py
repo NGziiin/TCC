@@ -10,7 +10,7 @@ class StorageRegisterDB:
         self.cursor = self.connection.cursor()
         self.create_table()
 
-    def create_table(self):
+    def CreateStorageDB(self):
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS storage (
                 id INTEGER PRIMARY KEY,
@@ -23,7 +23,7 @@ class StorageRegisterDB:
         self.connection.commit()
         self.connection.close()
 
-    def teste(self):
+    def AddStorageDB(self):
         connection = sqlite3.connect(StorageDbPath)
         cursor = connection.cursor()
         codigo = [random.randint(0, 5000) for _ in range(7)]
@@ -50,4 +50,4 @@ class StorageRegisterDB:
 
 
 #StorageRegisterDB()
-StorageRegisterDB.teste(self=True)
+StorageRegisterDB.AddStorageDB(self=True)
