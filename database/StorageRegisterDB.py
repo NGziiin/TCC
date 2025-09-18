@@ -1,5 +1,5 @@
 import sqlite3 as sqlite3
-import os, random
+import os, messagebox
 
 Storage_DB = 'StorageDb.db'
 StorageDbPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), Storage_DB)
@@ -23,15 +23,16 @@ class StorageRegisterDB:
         self.connection.commit()
         self.connection.close()
 
-    def AddStorageDB(CodRegister, NameRegister, AmountRegister, PriceRegister):
-        item1 = CodRegister.get()
-        item2 = NameRegister.get()
-        item3 = AmountRegister.get()
-        item4 = PriceRegister.get()
-
+    def AddStorageDB(CodRegister, NameRegister, AmountRegister, PriceRegister, janela):
+        CodRegister = int(CodRegister.get())
+        NameRegister = NameRegister.get()
+        AmountRegister = int(AmountRegister.get())
+        PriceRegister = int(PriceRegister.get())
         connection = sqlite3.connect(StorageDbPath)
         cursor = connection.cursor()
         cursor.execute('INSERT INTO storage (item_cod, item_name, item_quantidade, item_price) VALUES (?, ?, ?, ?)',
-                       (item1, item2, item3, item4))
+                       (CodRegister, NameRegister, AmountRegister, PriceRegister))
         connection.commit()
         cursor.close()
+        janela.destroy()
+        messagebox.showinfo('SUCESSO', 'Produto adicionado com sucesso')

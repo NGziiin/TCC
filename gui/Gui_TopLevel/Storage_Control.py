@@ -59,7 +59,7 @@ def janela_registro():
                                    fg_color="green", 
                                    hover_color="darkgreen", 
                                    width=120,
-                                   command=partial(StorageRegisterDB.AddStorageDB, CodRegister, NameRegister, AmountRegister, PriceRegister, janela.destroy()))
+                                   command=partial(StorageRegisterDB.AddStorageDB, CodRegister, NameRegister, AmountRegister, PriceRegister, janela))
      btn_confirmar.pack(side="left", padx=10)
 
      btn_cancelar = ctk.CTkButton(frame_botoes, 
