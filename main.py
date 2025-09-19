@@ -1,8 +1,8 @@
 from tkinter import *
 import customtkinter
 from customtkinter import *
-import sys
-import os
+import sys, os, threading
+from database.StorageRegisterDB import StorageRegisterClassDB
 
 def close_app():
     janela.quit()
@@ -76,6 +76,9 @@ frameinfo.place(relheight=1, relwidth=0.848, relx=0.155, rely=0)
 
 botoes(framebutton, frameinfo)
 janela_inicial(frameinfo)
+
+threading.Thread(target=StorageRegisterClassDB.LoadStorageDB, daemon=True).start()
+threading.Thread(target=StorageRegisterClassDB.CreateStorageDB, daemon=True).start()
 
 janela.protocol("WM_DELETE_WINDOW", close_app)
 janela.mainloop()

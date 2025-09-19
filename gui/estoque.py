@@ -1,5 +1,6 @@
 from functools import partial
 from tkinter import *
+from tkinter import ttk, Tk
 import sys
 import os
 
@@ -35,7 +36,27 @@ def janela_estoque(frameinfo):
                                                                                                 pady=(20, 5))
 
     # Lista de produtos
-    listbox = Listbox(main_frame, font=('Arial', 12))
+    listbox = ttk.Treeview(main_frame, columns=('name', 'quantidade', 'price'), show='headings')
+    
+    # Configuração das colunas
+    listbox.heading('name', text='Produto')
+    listbox.heading('quantidade', text='Quantidade no Estoque')
+    listbox.heading('price', text='Valor')
+    
+    listbox.column('name', width=200, anchor='w')
+    listbox.column('quantidade', width=150, anchor='center')
+    listbox.column('price', width=100, anchor='e')
+    
+    # Adicionando coluna #0 para o código
+    listbox['show'] = 'tree headings'
+    listbox.heading('#0', text='Código')
+    listbox.column('#0', width=80, anchor='center')
+    
+    # Inserindo dados de exemplo
+    listbox.insert('', 'center', text='001', values=('CAFÉ', 20, 'R$ 15,00'))
+    listbox.insert('', 'center', text='002', values=('AÇÚCAR', 35, 'R$ 4,50'))
+    listbox.insert('', 'center', text='003', values=('LEITE', 12, 'R$ 6,80'))
+
     listbox.pack(fill='both', expand=True)
 
     # Frame de atualização de estoque
