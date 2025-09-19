@@ -18,12 +18,10 @@ def imports():
     global janelainicial
     global janela_vendas
     global janela_estoque
-    global janela_registro_produto
     global aba_relatorios
     from gui.principal import janelainicial
     from gui.vendas import janela_vendas
     from gui.estoque import janela_estoque
-    from gui.registro_produto import janela_registro_produto
     from gui.relatorios import aba_relatorios
 
 def janela_inicial(frameinfo):
