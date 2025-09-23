@@ -1,14 +1,27 @@
 from functools import partial
 from tkinter import *
 from tkinter import ttk, Tk
-import sys
-import os
+import sys, os
+import threading
 
+# janela de top level do registro de estoque
 gui_topLevel = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.join(gui_topLevel, 'Gui_TopLevel'))
 from Gui_TopLevel import Storage_Control
 
+#banco de dados
+database_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database')
+from database.StorageRegisterDB import StorageRegisterClassDB
+
+def block_event(event):
+    listbox = event.widget
+    if listbox.identify_region(event.x, event.y) == "separator":
+        return "break"
+    return "break"
+
 def janela_estoque(frameinfo):
+
+    # CARREGA A TABELA DO BANCO DE DADOS
 
     # Frame principal de tudo
     main_frame = Frame(frameinfo, bg='white')
@@ -43,21 +56,17 @@ def janela_estoque(frameinfo):
     listbox.heading('quantidade', text='Quantidade no Estoque')
     listbox.heading('price', text='Valor')
     
-    listbox.column('name', width=200, anchor='w')
+    listbox.column('name', width=200, anchor='center')
     listbox.column('quantidade', width=150, anchor='center')
-    listbox.column('price', width=100, anchor='e')
+    listbox.column('price', width=100, anchor='center')
     
     # Adicionando coluna #0 para o código
     listbox['show'] = 'tree headings'
     listbox.heading('#0', text='Código')
-    listbox.column('#0', width=80, anchor='center')
-    
-    # Inserindo dados de exemplo
-    listbox.insert('', 'center', text='001', values=('CAFÉ', 20, 'R$ 15,00'))
-    listbox.insert('', 'center', text='002', values=('AÇÚCAR', 35, 'R$ 4,50'))
-    listbox.insert('', 'center', text='003', values=('LEITE', 12, 'R$ 6,80'))
+    listbox.column('#0', width=60, anchor='center')
 
     listbox.pack(fill='both', expand=True)
+    listbox.bind("<Button-1>", block_event)
 
     # Frame de atualização de estoque
     frame_estoque = Frame(main_frame, bg=main_frame.cget('bg'))
@@ -72,3 +81,5 @@ def janela_estoque(frameinfo):
     entry_estoque_baixo.pack(side='left', padx=10)
     Button(frame_aviso, text='Salvar', font=('Arial', 12, 'bold'),
            bg='green', fg='white', cursor='hand2').pack(side='left', padx=(10, 0))
+    
+    StorageRegisterClassDB.LoadStorageDB(listbox)

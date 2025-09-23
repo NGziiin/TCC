@@ -1,4 +1,5 @@
 import sqlite3 as sqlite3
+from tkinter import ttk
 import os, messagebox
 
 Storage_DB = 'StorageDb.db'
@@ -23,6 +24,17 @@ class StorageRegisterClassDB:
         connection.commit()
         connection.close()
 
+    def LoadStorageDB(listbox):
+        connection = sqlite3.connect(StorageDbPath)
+        cursor = connection.cursor()
+        cursor.execute('SELECT * FROM storage')
+        infos = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+        for linhas in infos:
+            id_, cod, produto, quantidade, preco = linhas
+            listbox.insert('', 'end', text=f'{cod}', values=(produto, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
+
     def AddStorageDB(CodRegister, NameRegister, AmountRegister, PriceRegister, janela):
         CodRegister = int(CodRegister.get())
         NameRegister = NameRegister.get()
@@ -36,17 +48,3 @@ class StorageRegisterClassDB:
         cursor.close()
         janela.destroy()
         messagebox.showinfo('SUCESSO', 'Produto registrado com sucesso')
-
-    def LoadStorageDB():
-        connection = sqlite3.connect(StorageDbPath)
-        cursor = connection.cursor()
-        cursor.execute('SELECT * FROM storage')
-        infos = cursor.fetchone()
-        connection.commit()
-        cursor.close()
-
-        #passando só a primeira linha
-        print(infos)
-        id_, cod, produto, quantidade, preco = infos
-        print(f'ID: {type(id_)}, CÓDIGO: {type(cod)}, PRODUTO: {type(produto)}, QUANTIDADE: {type(quantidade)}, PREÇO: {type(preco)}')
-        print(id_, cod, produto, quantidade, preco)
