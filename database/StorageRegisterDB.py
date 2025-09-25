@@ -33,7 +33,15 @@ class StorageRegisterClassDB:
         cursor.close()
         for linhas in infos:
             id_, cod, produto, quantidade, preco = linhas
-            listbox.insert('', 'end', text=f'{cod}', values=(produto, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
+            print(f'listbox: {listbox}')
+            #####ESSE IF SERVE PARA CARREGAR A FUNÇÃO MESMO QUE O LISTBOX RETORNE NULO 
+            ### PARA EVITAR DA ERRO DE DECLARAÇÃO DE VARIÁVEL 
+            #### POIS NEM SEMPRE VAI TER O LISTBOX
+            if listbox is not None: 
+                listbox.insert('', 'end', text=f'{cod}', values=(produto, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
+            ############################################################################
+
+            return linhas
 
     def AddStorageDB(CodRegister, NameRegister, AmountRegister, PriceRegister, janela):
         CodRegister = int(CodRegister.get())
