@@ -2,7 +2,7 @@ from tkinter import *
 import customtkinter
 from customtkinter import *
 import sys, os, threading
-from database.StorageRegisterDB import StorageRegisterClassDB
+from database.StorageRegisterDB import StorageRegisterClassDB, StorageLowLimitDB
 
 def close_app():
     janela.quit()
@@ -61,6 +61,9 @@ def botoes(framebutton, frameinfo):
 #inicio do software
 janela = CTk()
 
+threading.Thread(target=StorageRegisterClassDB.CreateStorageDB, daemon=True).start()
+threading.Thread(target=StorageLowLimitDB.CreateLowLimitDB, daemon=True).start()
+
 janela.geometry('1920x1040')
 janela.after(100, lambda: janela.wm_state('zoomed'))
 janela.configure(bg="#F8FAFC")
@@ -75,7 +78,6 @@ frameinfo.place(relheight=1, relwidth=0.848, relx=0.155, rely=0)
 botoes(framebutton, frameinfo)
 janela_inicial(frameinfo)
 
-threading.Thread(target=StorageRegisterClassDB.CreateStorageDB, daemon=True).start()
 
 janela.protocol("WM_DELETE_WINDOW", close_app)
 janela.mainloop()

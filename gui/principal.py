@@ -1,6 +1,20 @@
 from tkinter import *
+import os, sys
+
+function_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, function_path)
+from services.infosmain import Functions
 
 def janelainicial(frameinfo):
+
+    #Variáveis para registrar informações
+    CounterRegisterProdutcs = IntVar()
+    CounterRegisterProdutcs.set(Functions().LoadInfosRegistred()) #Valor do contador de produtos registrados
+    LowStockProducts = IntVar()
+    LowStockProducts.set(0) #Valor do contador de produtos com estoque baixo
+    SellRegister = IntVar()
+    SellRegister.set(0) #Valor do contador de vendas realizadas
+    ##############################################
 
     # Frame principal
     main_frame = Frame(frameinfo, bg='white')
@@ -17,19 +31,19 @@ def janelainicial(frameinfo):
     frame_produtos = Frame(frame_indicadores, bg='#f0f0f0', bd=2, relief='groove')
     frame_produtos.pack(side='left', expand=True, fill='both', padx=5)
     Label(frame_produtos, text='Produtos Registrados', font=('Arial', 12, 'bold'), bg='#f0f0f0').pack(pady=(10,0))
-    Label(frame_produtos, text='245', font=('Arial', 16), bg='#f0f0f0', fg='blue').pack(pady=(5, 10))
+    Label(frame_produtos, textvariable=CounterRegisterProdutcs, font=('Arial', 16), bg='#f0f0f0', fg='blue').pack(pady=(5, 10))
 
     # Vendas realizadas
     frame_vendas = Frame(frame_indicadores, bg='#f0f0f0', bd=2, relief='groove')
     frame_vendas.pack(side='left', expand=True, fill='both', padx=5)
     Label(frame_vendas, text='Vendas Realizadas', font=('Arial', 12, 'bold'), bg='#f0f0f0').pack(pady=(10,0))
-    Label(frame_vendas, text='158', font=('Arial', 16), bg='#f0f0f0', fg='green').pack(pady=(5, 10))
+    Label(frame_vendas, textvariable=SellRegister, font=('Arial', 16), bg='#f0f0f0', fg='green').pack(pady=(5, 10))
 
     # Estoque baixo
     frame_estoque_baixo = Frame(frame_indicadores, bg='#f0f0f0', bd=2, relief='groove')
     frame_estoque_baixo.pack(side='left', expand=True, fill='both', padx=5)
     Label(frame_estoque_baixo, text='Estoque Baixo', font=('Arial', 12, 'bold'), bg='#f0f0f0').pack(pady=(10,0))
-    Label(frame_estoque_baixo, text='12 produtos', font=('Arial', 16), bg='#f0f0f0', fg='red').pack(pady=(5, 10))
+    Label(frame_estoque_baixo, textvariable=LowStockProducts, font=('Arial', 16), bg='#f0f0f0', fg='red').pack(pady=(5, 10))
 
     # Avisos / Notificações
     frame_avisos = Frame(main_frame, bg=main_frame.cget('bg'))

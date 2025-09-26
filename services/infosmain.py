@@ -8,11 +8,9 @@ class Config:
     def imports(self):
         database_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         sys.path.insert(0, database_path)
-        print("Path adicionado:", database_path)
-
         from database.StorageRegisterDB import StorageRegisterClassDB
         VarDB = StorageRegisterClassDB.LoadStorageDB(listbox=None)
-        print("Banco carregado:", VarDB)
+        return VarDB
 
 
 class Functions(Config):
@@ -21,7 +19,15 @@ class Functions(Config):
         self.LoadInfosRegistred()
 
     def LoadInfosRegistred(self):
-        print('Oi novamente')
+        VarDB = self.imports()
+        CounterRegister = 0
+        if VarDB is None:
+            CounterRegister = 0
+            return CounterRegister
+        else:
+            for _ in VarDB:
+                CounterRegister += 1
+            return CounterRegister
 
 
 if __name__ == '__main__':

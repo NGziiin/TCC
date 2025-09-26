@@ -3,7 +3,9 @@ from tkinter import ttk
 import os, messagebox
 
 Storage_DB = 'StorageDb.db'
+LowLimit_DB = 'LowLimitDb.db'
 StorageDbPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), Storage_DB)
+LowLimitDbPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), LowLimit_DB)
 
 class StorageRegisterClassDB:
     def __init__(self):
@@ -33,15 +35,17 @@ class StorageRegisterClassDB:
         cursor.close()
         for linhas in infos:
             id_, cod, produto, quantidade, preco = linhas
-            print(f'listbox: {listbox}')
             #####ESSE IF SERVE PARA CARREGAR A FUNÇÃO MESMO QUE O LISTBOX RETORNE NULO 
             ### PARA EVITAR DA ERRO DE DECLARAÇÃO DE VARIÁVEL 
             #### POIS NEM SEMPRE VAI TER O LISTBOX
             if listbox is not None: 
                 listbox.insert('', 'end', text=f'{cod}', values=(produto, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
             ############################################################################
-
-            return linhas
+            elif listbox is None:
+                resultados = []
+                for linhas in infos:
+                    resultados.append(linhas)
+                return resultados
 
     def AddStorageDB(CodRegister, NameRegister, AmountRegister, PriceRegister, janela):
         CodRegister = int(CodRegister.get())
@@ -56,3 +60,19 @@ class StorageRegisterClassDB:
         cursor.close()
         janela.destroy()
         messagebox.showinfo('SUCESSO', 'Produto registrado com sucesso')
+
+class StorageLowLimitDB:
+    def __init__(self):
+        pass
+
+    def CreateLowLimitDB():
+        connection = sqlite3.connect(LowLimitDbPath)
+        cursor = connection.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS lowlimit (
+                id INTEGER PRIMARY KEY,
+                quantity_limit INTEGER NOT NULL
+            )
+        ''')
+        connection.commit()
+        connection.close()
