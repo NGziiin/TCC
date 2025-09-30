@@ -13,15 +13,61 @@ class StorageRegisterClassDB:
     def CreateStorageDB():
         connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS storage (
-                id SERIAL PRIMARY KEY,
-                item_cod INTEGER NOT NULL,
-                item_name TEXT NOT NULL,
-                item_quantidade INTEGER NOT NULL,
-                item_price INTEGER NOT NULL
-            )
-        ''')
+
+        #TABELA DE PRODUTO
+        cursor.execute('''CREATE TABLE IF NOT EXISTS produto (
+                       id SERIAL PRIMARY KEY,
+                       nome VARCHAR(100) NOT NULL,
+                       descricao TEXT,
+                       marca VARCHAR(50),
+                       margem_lucro NUMERIC(5,2)
+                       )''')
+        
+        #TABELA DE ESTOQUE
+        cursor.execute('''CREATE TABLE IF NOT EXISTS estoque (
+                       id SERIAL PRIMARY KEY,
+                       produto INT NOT NULL,
+                       qtd_atual INT NOT NULL,
+                       valor_venda NUMERIC(10,2),
+                       ultimo_valor_pago NUMERIC(10,2),
+                       CONSTRAINT fk_produto FOREIGN KEY(produto) REFERENCES produto(id)
+                       )''')
+        
+        #TABELA DE ENTRADA DE PRODUTO
+        cursor.execute('''CREATE TABLE IF NOT EXISTS entrada_produto (
+                       id SERIAL PRIMARY KEY,
+                       data DATE NOT NULL,
+                       descricao TEXT
+                       )''')
+        
+        #TABELA DE ITENS DE ENTRADA
+        cursor.execute('''CREATE TABLE IF NOT EXISTS itens_entrada (
+                       id SERIAL PRIMARY KEY,
+                       id_entrada INT NOT NULL,
+                       produto INT NOT NULL,
+                       qtd INT NOT NULL,
+                       valor_unitario NUMERIC(10,2),
+                       CONSTRAINT fk_entrada FOREIGN KEY (id_entrada) REFERENCES entrada_produto(id),
+                       CONSTRAINT fk_produto_entrada FOREIGN KEY (produto) REFERENCES produto(id)
+                       )''')
+        
+        #TABELA DE VENDA
+        cursor.execute('''CREATE TABLE IF NOT EXISTS venda (
+                       id SERIAL PRIMARY KEY,
+                       data DATE NOT NULL,
+                       total_venda NUMERIC(10,2)
+                       )''')
+        
+        #TABELA DE ITENS VENDA
+        cursor.execute('''CREATE TABLE IF NOT EXISTS itens_venda (
+                       id SERIAL PRIMARY KEY,
+                       id_venda INT NOT NULL,
+                       produto INT NOT NULL,
+                       qtd INT NOT NULL,
+                       valor_unitario NUMERIC(10,2),
+                       CONSTRAINT fk_venda FOREIGN KEY (id_venda) REFERENCES venda(id),
+                       CONSTRAINT fk_produto_venda FOREIGN KEY (produto) REFERENCES produto(id)
+                       )''')
         connection.commit()
         connection.close()
 
@@ -105,3 +151,6 @@ class StorageLowLimitDB:
                 entry_estoque_baixo.insert(0, result[0])
         except TypeError:
             entry_estoque_baixo.insert(0, '0')
+
+if __name__ == "__main__":
+    StorageRegisterClassDB.CreateStorageDB()
