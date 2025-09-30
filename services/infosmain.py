@@ -28,7 +28,3 @@ class Functions(Config):
             for _ in VarDB:
                 CounterRegister += 1
             return CounterRegister
-
-
-if __name__ == '__main__':
-    Functions()

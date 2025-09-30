@@ -11,7 +11,11 @@ from Gui_TopLevel import Storage_Control
 
 #banco de dados
 database_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database')
-from database.StorageRegisterDB import StorageRegisterClassDB
+from database.StorageRegisterDB import StorageRegisterClassDB, StorageLowLimitDB
+
+def change_config_estoque_baixo(event, entry_estoque_baixo):
+    entry_estoque_baixo.delete(0, 'end')
+    entry_estoque_baixo.config(fg='black')
 
 def block_event(event):
     listbox = event.widget
@@ -77,9 +81,13 @@ def janela_estoque(frameinfo):
     frame_aviso.pack(fill='x')
 
     Label(frame_aviso, text='Aviso de Estoque Baixo (Qtd mínima):', font=('Arial', 12), bg=main_frame.cget('bg')).pack(side='left')
-    entry_estoque_baixo = Entry(frame_aviso, font=('Arial', 12))
+    entry_estoque_baixo = Entry(frame_aviso, font=('Arial', 12), fg='#DCDCDC')
     entry_estoque_baixo.pack(side='left', padx=10)
     Button(frame_aviso, text='Salvar', font=('Arial', 12, 'bold'),
+           command=partial(StorageLowLimitDB.AddLowLimitDB, entry_estoque_baixo),
            bg='green', fg='white', cursor='hand2').pack(side='left', padx=(10, 0))
     
+    entry_estoque_baixo.bind('<Button-1>', lambda event: change_config_estoque_baixo(event, entry_estoque_baixo))
+    
     StorageRegisterClassDB.LoadStorageDB(listbox)
+    StorageLowLimitDB.LoadLowLimitDB(entry_estoque_baixo)
