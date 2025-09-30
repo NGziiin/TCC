@@ -1,10 +1,7 @@
-import sqlite3 as sqlite3
 import psycopg2
+from psycopg2 import errors
 from tkinter import ttk
-import os, messagebox
-
-#Storage_DB = 'StorageDb.db'
-#StorageDbPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), Storage_DB)
+import messagebox
 
 class StorageRegisterClassDB:
     def __init__(self):
@@ -74,23 +71,28 @@ class StorageRegisterClassDB:
     def LoadStorageDB(listbox):
         connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
-        cursor.execute('SELECT * FROM storage')
-        infos = cursor.fetchall()
-        connection.commit()
-        cursor.close()
-        for linhas in infos:
-            id_, cod, produto, quantidade, preco = linhas
-            #####ESSE IF SERVE PARA CARREGAR A FUNÇÃO MESMO QUE O LISTBOX RETORNE NULO 
-            ### PARA EVITAR DA ERRO DE DECLARAÇÃO DE VARIÁVEL 
-            #### POIS NEM SEMPRE VAI TER O LISTBOX
-            if listbox is not None: 
-                listbox.insert('', 'end', text=f'{cod}', values=(produto, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
-            ############################################################################
-            elif listbox is None:
-                resultados = []
-                for linhas in infos:
-                    resultados.append(linhas)
-                return resultados
+        try:
+            cursor.execute('SELECT * FROM estoque')
+            infos = cursor.fetchall()
+            connection.commit()
+            cursor.close()
+            for linhas in infos:
+                id_, cod, produto, quantidade, preco = linhas
+                #####ESSE IF SERVE PARA CARREGAR A FUNÇÃO MESMO QUE O LISTBOX RETORNE NULO 
+                ### PARA EVITAR DA ERRO DE DECLARAÇÃO DE VARIÁVEL 
+                #### POIS NEM SEMPRE VAI TER O LISTBOX
+                if listbox is not None: 
+                    listbox.insert('', 'end', text=f'{cod}', values=(produto, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
+                    ############################################################################
+                elif listbox is None:
+                    resultados = []
+                    for linhas in infos:
+                        resultados.append(linhas)
+                        return resultados
+                    
+        except errors.UndefinedTable:
+            cursor.close()
+            pass
 
     def AddStorageDB(CodRegister, NameRegister, AmountRegister, PriceRegister, janela):
         CodRegister = int(CodRegister.get())
@@ -99,7 +101,7 @@ class StorageRegisterClassDB:
         PriceRegister = float(PriceRegister.get().replace(',', '.'))
         connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
-        cursor.execute('INSERT INTO storage (item_cod, item_name, item_quantidade, item_price) VALUES (%s, %s, %s, %s)',
+        cursor.execute('INSERT INTO itens_entrada (id_entrada, produto, qtd, valor_unitario) VALUES (%s, %s, %s, %s)',
                        (CodRegister, NameRegister, AmountRegister, PriceRegister))
         connection.commit()
         cursor.close()
@@ -151,6 +153,3 @@ class StorageLowLimitDB:
                 entry_estoque_baixo.insert(0, result[0])
         except TypeError:
             entry_estoque_baixo.insert(0, '0')
-
-if __name__ == "__main__":
-    StorageRegisterClassDB.CreateStorageDB()
