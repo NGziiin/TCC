@@ -1,7 +1,7 @@
 import psycopg2
 from psycopg2 import errors
 from tkinter import ttk
-import messagebox
+import messagebox, datetime
 
 class StorageRegisterClassDB:
     def __init__(self):
@@ -94,15 +94,17 @@ class StorageRegisterClassDB:
             cursor.close()
             pass
 
-    def AddStorageDB(CodRegister, NameRegister, AmountRegister, PriceRegister, janela):
+    def AddStorageDB(CodRegister, NameRegister, AmountRegister, PriceRegister, DescriçaoRegister, janela):
+        Dateregister = datetime.date.today()
+        Dateregister = Dateregister.strftime('%d-%m-%Y') #SALVA A DATA NO NA TABELA entrada_produto NA COLUNA descrição
         CodRegister = int(CodRegister.get())
         NameRegister = NameRegister.get()
+        DescriçaoRegister = DescriçaoRegister.get()
         AmountRegister = int(AmountRegister.get())
         PriceRegister = float(PriceRegister.get().replace(',', '.'))
         connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
-        cursor.execute('INSERT INTO itens_entrada (id_entrada, produto, qtd, valor_unitario) VALUES (%s, %s, %s, %s)',
-                       (CodRegister, NameRegister, AmountRegister, PriceRegister))
+        cursor.execute('INSERT INTO entrada_produto (data, descricao) VALUES (%s, %s);', (Dateregister, DescriçaoRegister))
         connection.commit()
         cursor.close()
         janela.destroy()
@@ -153,3 +155,7 @@ class StorageLowLimitDB:
                 entry_estoque_baixo.insert(0, result[0])
         except TypeError:
             entry_estoque_baixo.insert(0, '0')
+
+if __name__ == "__main__":
+    #StorageRegisterClassDB.AddStorageDB(CodRegister=True, NameRegister=True, AmountRegister=True, PriceRegister=True, DescriçaoRegister=True, janela=True)
+    StorageRegisterClassDB.CreateStorageDB()

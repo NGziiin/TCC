@@ -28,7 +28,7 @@ def janela_registro():
      
      janela = ctk.CTkToplevel()
      janela.title("Registrar Produto")
-     janela.geometry("400x400")
+     janela.geometry("400x550")
      janela.resizable(False, False)
      
      titulo = ctk.CTkLabel(janela, text="Registrar Produto", font=ctk.CTkFont(size=18, weight="bold"))
@@ -45,6 +45,7 @@ def janela_registro():
      
      CodRegister = campo("Código:")
      NameRegister = campo("Nome do Produto:")
+     DescriçaoRegister = campo("Descrição:")
      AmountRegister = campo("Quantidade:")
      PriceRegister = campo("Valor Unitário (R$):")
      
@@ -57,7 +58,7 @@ def janela_registro():
                                    fg_color="green", 
                                    hover_color="darkgreen", 
                                    width=120,
-                                   command=partial(StorageRegisterClassDB.AddStorageDB, CodRegister, NameRegister, AmountRegister, PriceRegister, janela))
+                                   command=partial(StorageRegisterClassDB.AddStorageDB, CodRegister, NameRegister, AmountRegister, PriceRegister, DescriçaoRegister, janela))
      btn_confirmar.pack(side="left", padx=10)
 
      btn_cancelar = ctk.CTkButton(frame_botoes, 
