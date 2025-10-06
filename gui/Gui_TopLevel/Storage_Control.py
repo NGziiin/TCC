@@ -43,9 +43,8 @@ def janela_registro():
          entry.pack(fill="x", pady=4)
          return entry
      
-     CodRegister = campo("Código:")
      NameRegister = campo("Nome do Produto:")
-     DescriçaoRegister = campo("Descrição:")
+     MarcaRegister = campo("Marca:")
      AmountRegister = campo("Quantidade:")
      PriceRegister = campo("Valor Unitário (R$):")
      
@@ -58,7 +57,7 @@ def janela_registro():
                                    fg_color="green", 
                                    hover_color="darkgreen", 
                                    width=120,
-                                   command=partial(StorageRegisterClassDB.AddStorageDB, CodRegister, NameRegister, AmountRegister, PriceRegister, DescriçaoRegister, janela))
+                                   command=partial(StorageRegisterClassDB.AddStorageDB, NameRegister, AmountRegister, PriceRegister, MarcaRegister, janela))
      btn_confirmar.pack(side="left", padx=10)
 
      btn_cancelar = ctk.CTkButton(frame_botoes, 

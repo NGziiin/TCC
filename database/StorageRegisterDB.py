@@ -22,13 +22,12 @@ class StorageRegisterClassDB:
         
         #TABELA DE ESTOQUE
         cursor.execute('''CREATE TABLE IF NOT EXISTS estoque (
-                       id SERIAL PRIMARY KEY,
-                       produto INT NOT NULL,
+                       produto_id INTEGER PRIMARY KEY,
                        qtd_atual INT NOT NULL,
                        valor_venda NUMERIC(10,2),
                        ultimo_valor_pago NUMERIC(10,2),
-                       CONSTRAINT fk_produto FOREIGN KEY(produto) REFERENCES produto(id)
-                       )''')
+                       FOREIGN KEY (produto_id) REFERENCES produto(id))
+                       ''')
         
         #TABELA DE ENTRADA DE PRODUTO
         cursor.execute('''CREATE TABLE IF NOT EXISTS entrada_produto (
@@ -41,29 +40,29 @@ class StorageRegisterClassDB:
         cursor.execute('''CREATE TABLE IF NOT EXISTS itens_entrada (
                        id SERIAL PRIMARY KEY,
                        id_entrada INT NOT NULL,
-                       produto INT NOT NULL,
+                       produto_id INT NOT NULL,
                        qtd INT NOT NULL,
                        valor_unitario NUMERIC(10,2),
-                       CONSTRAINT fk_entrada FOREIGN KEY (id_entrada) REFERENCES entrada_produto(id),
-                       CONSTRAINT fk_produto_entrada FOREIGN KEY (produto) REFERENCES produto(id)
-                       )''')
+                       FOREIGN KEY (id_entrada) REFERENCES entrada_produto(id),
+                       FOREIGN KEY (produto_id) REFERENCES produto(id))
+                       ''')
         
         #TABELA DE VENDA
         cursor.execute('''CREATE TABLE IF NOT EXISTS venda (
                        id SERIAL PRIMARY KEY,
                        data DATE NOT NULL,
-                       total_venda NUMERIC(10,2)
+                       valor NUMERIC(10,2)
                        )''')
         
         #TABELA DE ITENS VENDA
         cursor.execute('''CREATE TABLE IF NOT EXISTS itens_venda (
                        id SERIAL PRIMARY KEY,
                        id_venda INT NOT NULL,
-                       produto INT NOT NULL,
+                       produto_id INT NOT NULL,
                        qtd INT NOT NULL,
                        valor_unitario NUMERIC(10,2),
-                       CONSTRAINT fk_venda FOREIGN KEY (id_venda) REFERENCES venda(id),
-                       CONSTRAINT fk_produto_venda FOREIGN KEY (produto) REFERENCES produto(id)
+                       FOREIGN KEY (id_venda) REFERENCES venda(id),
+                       FOREIGN KEY (produto_id) REFERENCES produto(id)
                        )''')
         connection.commit()
         connection.close()
@@ -89,22 +88,31 @@ class StorageRegisterClassDB:
                     for linhas in infos:
                         resultados.append(linhas)
                         return resultados
-                    
+                             
         except errors.UndefinedTable:
             cursor.close()
             pass
 
-    def AddStorageDB(CodRegister, NameRegister, AmountRegister, PriceRegister, DescriçaoRegister, janela):
+    def AutomaticUpdateStorageDB():
+        connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
+        cursor = connection.cursor()
+        cursor.execute('UPDATE produto p SET descricao = ep.descricao FROM itens_entrada ie JOIN entrada_produto ep ON ep.id = ie.id_entrada WHERE p.id = ie.produto_id;')
+        connection.commit()
+        cursor.close()
+
+    def AddStorageDB(NameRegister, AmountRegister, PriceRegister, MarcaRegister, janela):
         Dateregister = datetime.date.today()
         Dateregister = Dateregister.strftime('%d-%m-%Y') #SALVA A DATA NO NA TABELA entrada_produto NA COLUNA descrição
-        CodRegister = int(CodRegister.get())
         NameRegister = NameRegister.get()
-        DescriçaoRegister = DescriçaoRegister.get()
+        LogRegister = f'Foi registrado o produto {NameRegister}'
+        LogProdutoRegister = f'Foi registrado o produto na data: {Dateregister}' #SALVA O LOG NA TABELA entrada_produto NA COLUNA descrição
+        MarcaRegister = MarcaRegister.get()
         AmountRegister = int(AmountRegister.get())
         PriceRegister = float(PriceRegister.get().replace(',', '.'))
         connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
-        cursor.execute('INSERT INTO entrada_produto (data, descricao) VALUES (%s, %s);', (Dateregister, DescriçaoRegister))
+        cursor.execute('INSERT INTO entrada_produto (data, descricao) VALUES (%s, %s) RETURNING id;', (Dateregister, LogRegister)) #INSERE NA TABELA entrada_produto A DATA E O LOG
+        cursor.execute('INSERT INTO produto (nome, descricao, marca) VALUES (%s, %s, %s)', (NameRegister, LogProdutoRegister, MarcaRegister)) #INSERE NA TABELA itens_entrada O ID DA ENTRADA, O ID DO PRODUTO, A QUANTIDADE E O VALOR UNITÁRIO
         connection.commit()
         cursor.close()
         janela.destroy()
@@ -157,5 +165,4 @@ class StorageLowLimitDB:
             entry_estoque_baixo.insert(0, '0')
 
 if __name__ == "__main__":
-    #StorageRegisterClassDB.AddStorageDB(CodRegister=True, NameRegister=True, AmountRegister=True, PriceRegister=True, DescriçaoRegister=True, janela=True)
     StorageRegisterClassDB.CreateStorageDB()
