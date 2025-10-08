@@ -113,6 +113,7 @@ class StorageRegisterClassDB:
         cursor = connection.cursor()
         cursor.execute('INSERT INTO entrada_produto (data, descricao) VALUES (%s, %s) RETURNING id;', (Dateregister, LogRegister)) #INSERE NA TABELA entrada_produto A DATA E O LOG
         cursor.execute('INSERT INTO produto (nome, descricao, marca) VALUES (%s, %s, %s)', (NameRegister, LogProdutoRegister, MarcaRegister)) #INSERE NA TABELA itens_entrada O ID DA ENTRADA, O ID DO PRODUTO, A QUANTIDADE E O VALOR UNITÁRIO
+        cursor.execute('INSERT INTO itens_entrada (produto_id, qtd) SELECT id, %s FROM produto', (AmountRegister,)) #INSERE NA TABELA estoque O ID DO PRODUTO E A QUANTIDADE ATUAL
         connection.commit()
         cursor.close()
         janela.destroy()
@@ -164,5 +165,5 @@ class StorageLowLimitDB:
         except TypeError:
             entry_estoque_baixo.insert(0, '0')
 
-if __name__ == "__main__":
-    StorageRegisterClassDB.CreateStorageDB()
+#if __name__ == "__main__":
+#   StorageRegisterClassDB.CreateStorageDB()
