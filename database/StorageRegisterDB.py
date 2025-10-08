@@ -38,8 +38,7 @@ class StorageRegisterClassDB:
         
         #TABELA DE ITENS DE ENTRADA
         cursor.execute('''CREATE TABLE IF NOT EXISTS itens_entrada (
-                       id SERIAL PRIMARY KEY,
-                       id_entrada INT NOT NULL,
+                       id_entrada SERIAL PRIMARY KEY,
                        produto_id INT NOT NULL,
                        qtd INT NOT NULL,
                        valor_unitario NUMERIC(10,2),
@@ -113,8 +112,9 @@ class StorageRegisterClassDB:
         cursor = connection.cursor()
         cursor.execute('INSERT INTO entrada_produto (data, descricao) VALUES (%s, %s) RETURNING id;', (Dateregister, LogRegister)) #INSERE NA TABELA entrada_produto A DATA E O LOG
         cursor.execute('INSERT INTO produto (nome, descricao, marca) VALUES (%s, %s, %s)', (NameRegister, LogProdutoRegister, MarcaRegister)) #INSERE NA TABELA itens_entrada O ID DA ENTRADA, O ID DO PRODUTO, A QUANTIDADE E O VALOR UNITÁRIO
-        cursor.execute('INSERT INTO itens_entrada (produto_id, qtd) SELECT id, %s FROM produto', (AmountRegister,)) #INSERE NA TABELA estoque O ID DO PRODUTO E A QUANTIDADE ATUAL
-        connection.commit()
+        cursor.execute('INSERT INTO itens_entrada (produto_id, qtd) SELECT id, %s FROM produto RETURNING produto_id, qtd;', (AmountRegister,)) #INSERE NA TABELA estoque O ID DO PRODUTO E A QUANTIDADE ATUAL
+        cursor.execute('INSERT INTO estoque (produto_id, qtd_atual, valor_venda, ultimo_valor_pago) SELECT id, %s, %s * 1.30, %s FROM produto ON CONFLICT (produto_id) DO UPDATE SET qtd_atual = estoque.qtd_atual + EXCLUDED.qtd_atual, valor_venda = EXCLUDED.valor_venda, ultimo_valor_pago = EXCLUDED.ultimo_valor_pago;', (AmountRegister, PriceRegister, PriceRegister)) #INSERE NA TABELA estoque O ID DO PRODUTO E A QUANTIDADE ATUAL
+        connection.commit() #INSERT INTO estoque (produto_id, qtd_atual, valor_venda) SELECT produto_id, qtd, 9.99 FROM itens_entrada
         cursor.close()
         janela.destroy()
         messagebox.showinfo('SUCESSO', 'Produto registrado com sucesso')
