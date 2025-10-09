@@ -89,5 +89,5 @@ def janela_estoque(frameinfo):
     
     entry_estoque_baixo.bind('<Button-1>', lambda event: change_config_estoque_baixo(event, entry_estoque_baixo))
     
-    StorageRegisterClassDB.LoadStorageDB(listbox)
     StorageLowLimitDB.LoadLowLimitDB(entry_estoque_baixo)
+    #StorageRegisterClassDB.LoadStorageDB(listbox)

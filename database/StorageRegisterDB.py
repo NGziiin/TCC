@@ -75,12 +75,12 @@ class StorageRegisterClassDB:
             connection.commit()
             cursor.close()
             for linhas in infos:
-                id_, cod, produto, quantidade, preco = linhas
+                id_, produto, quantidade, preco = linhas
                 #####ESSE IF SERVE PARA CARREGAR A FUNÇÃO MESMO QUE O LISTBOX RETORNE NULO 
                 ### PARA EVITAR DA ERRO DE DECLARAÇÃO DE VARIÁVEL 
                 #### POIS NEM SEMPRE VAI TER O LISTBOX
                 if listbox is not None: 
-                    listbox.insert('', 'end', text=f'{cod}', values=(produto, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
+                    listbox.insert('', 'end', text=f'{id_}', values=(produto, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
                     ############################################################################
                 elif listbox is None:
                     resultados = []
@@ -108,16 +108,33 @@ class StorageRegisterClassDB:
         MarcaRegister = MarcaRegister.get()
         AmountRegister = int(AmountRegister.get())
         PriceRegister = float(PriceRegister.get().replace(',', '.'))
+        print(f'tipo: {type(PriceRegister)} variável:{PriceRegister}')
         connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
-        cursor.execute('INSERT INTO entrada_produto (data, descricao) VALUES (%s, %s) RETURNING id;', (Dateregister, LogRegister)) #INSERE NA TABELA entrada_produto A DATA E O LOG
-        cursor.execute('INSERT INTO produto (nome, descricao, marca) VALUES (%s, %s, %s)', (NameRegister, LogProdutoRegister, MarcaRegister)) #INSERE NA TABELA itens_entrada O ID DA ENTRADA, O ID DO PRODUTO, A QUANTIDADE E O VALOR UNITÁRIO
-        cursor.execute('INSERT INTO itens_entrada (produto_id, qtd) SELECT id, %s FROM produto RETURNING produto_id, qtd;', (AmountRegister,)) #INSERE NA TABELA estoque O ID DO PRODUTO E A QUANTIDADE ATUAL
-        cursor.execute('INSERT INTO estoque (produto_id, qtd_atual, valor_venda, ultimo_valor_pago) SELECT id, %s, %s * 1.30, %s FROM produto ON CONFLICT (produto_id) DO UPDATE SET qtd_atual = estoque.qtd_atual + EXCLUDED.qtd_atual, valor_venda = EXCLUDED.valor_venda, ultimo_valor_pago = EXCLUDED.ultimo_valor_pago;', (AmountRegister, PriceRegister, PriceRegister)) #INSERE NA TABELA estoque O ID DO PRODUTO E A QUANTIDADE ATUAL
-        connection.commit() #INSERT INTO estoque (produto_id, qtd_atual, valor_venda) SELECT produto_id, qtd, 9.99 FROM itens_entrada
-        cursor.close()
-        janela.destroy()
-        messagebox.showinfo('SUCESSO', 'Produto registrado com sucesso')
+        cursor.execute('SELECT id FROM produto WHERE nome = %s', (NameRegister, ))
+        verify_nome = cursor.fetchone()
+        cursor.execute('SELECT id FROM produto WHERE marca = %s', (MarcaRegister, ))
+        verify_marca = cursor.fetchone()
+
+        if verify_nome is not None and verify_marca is not None:
+            cursor.close()
+            messagebox.showerror('ERRO', 'Produto já cadastrado no sistema')
+            return
+        elif verify_nome is None or verify_marca is None:
+            # Inserir na tabela entrada_produto e capturar o id gerado
+            cursor.execute('INSERT INTO entrada_produto (data, descricao) VALUES (%s, %s) RETURNING id;', (Dateregister, LogRegister))
+            id_entrada = cursor.fetchone()[0]  # Captura o id retornado
+            # Inserir na tabela produto
+            cursor.execute('INSERT INTO produto (nome, descricao, marca) VALUES (%s, %s, %s) RETURNING id;', (NameRegister, LogProdutoRegister, MarcaRegister))
+            id_produto = cursor.fetchone()[0]  # Captura o id do produto
+            # Inserir na tabela itens_entrada com id_entrada e id_produto
+            cursor.execute('INSERT INTO itens_entrada (id_entrada, produto_id, qtd, valor_unitario) VALUES (%s, %s, %s, %s);', (id_entrada, id_produto, AmountRegister, PriceRegister))
+            # Inserir na tabela estoque
+            cursor.execute('INSERT INTO estoque (produto_id, qtd_atual, valor_venda) VALUES (%s, %s, %s);', (id_produto, AmountRegister, PriceRegister))
+            connection.commit()
+            cursor.close()
+            janela.destroy()
+            messagebox.showinfo('SUCESSO', 'Produto registrado com sucesso')
 
 class StorageLowLimitDB:
     def __init__(self):
@@ -147,7 +164,6 @@ class StorageLowLimitDB:
         #CONFIGURANDO A ENTRY PARA FICAR VAZIA APÓS SALVAR
         entry_estoque_baixo.config(fg='#DCDCDC')
         entry_estoque_baixo.master.focus()
-        
 
         #MOSTRANDO A MENSAGEM DE SUCESSO
         messagebox.showinfo('SUCESSO', 'Quantidade mínima atualizada com sucesso')
