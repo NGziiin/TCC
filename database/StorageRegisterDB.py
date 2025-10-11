@@ -1,6 +1,5 @@
 import psycopg2
 from psycopg2 import errors
-from tkinter import ttk
 import messagebox, datetime
 
 class StorageRegisterClassDB:
@@ -17,7 +16,7 @@ class StorageRegisterClassDB:
                        nome VARCHAR(100) NOT NULL,
                        descricao TEXT,
                        marca VARCHAR(50),
-                       margem_lucro NUMERIC(5,2)
+                       margem_lucro TEXT
                        )''')
         
         #TABELA DE ESTOQUE
@@ -70,23 +69,20 @@ class StorageRegisterClassDB:
         connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
         try:
-            cursor.execute('SELECT * FROM estoque')
+            cursor.execute('SELECT produto.id, produto.nome, estoque.qtd_atual, estoque.valor_venda FROM produto JOIN estoque ON produto.id = estoque.produto_id')
             infos = cursor.fetchall()
             connection.commit()
             cursor.close()
             for linhas in infos:
                 id_, produto, quantidade, preco = linhas
-                #####ESSE IF SERVE PARA CARREGAR A FUNÇÃO MESMO QUE O LISTBOX RETORNE NULO 
-                ### PARA EVITAR DA ERRO DE DECLARAÇÃO DE VARIÁVEL 
+                #####ESSE IF SERVE PARA CARREGAR A FUNÇÃO MESMO QUE O LISTBOX RETORNE NULO
+                ### PARA EVITAR DA ERRO DE DECLARAÇÃO DE VARIÁVEL
                 #### POIS NEM SEMPRE VAI TER O LISTBOX
-                if listbox is not None: 
+                if listbox is not None:
                     listbox.insert('', 'end', text=f'{id_}', values=(produto, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
                     ############################################################################
                 elif listbox is None:
-                    resultados = []
-                    for linhas in infos:
-                        resultados.append(linhas)
-                        return resultados
+                    return infos
                              
         except errors.UndefinedTable:
             cursor.close()
@@ -99,16 +95,27 @@ class StorageRegisterClassDB:
         connection.commit()
         cursor.close()
 
-    def AddStorageDB(NameRegister, AmountRegister, PriceRegister, MarcaRegister, janela):
+    def AddStorageDB(NameRegister, AmountRegister, PriceRegister, MarcaRegister, MargemRegister, janela):
+
         Dateregister = datetime.date.today()
         Dateregister = Dateregister.strftime('%d-%m-%Y') #SALVA A DATA NO NA TABELA entrada_produto NA COLUNA descrição
+
         NameRegister = NameRegister.get()
         LogRegister = f'Foi registrado o produto {NameRegister}'
         LogProdutoRegister = f'Foi registrado o produto na data: {Dateregister}' #SALVA O LOG NA TABELA entrada_produto NA COLUNA descrição
+
         MarcaRegister = MarcaRegister.get()
+
         AmountRegister = int(AmountRegister.get())
+
         PriceRegister = float(PriceRegister.get().replace(',', '.'))
         print(f'tipo: {type(PriceRegister)} variável:{PriceRegister}')
+
+        MargemRegister = MargemRegister.get()
+        Porcentagem = int(MargemRegister.replace('%', ''))
+        lucro = PriceRegister * (Porcentagem / 100)
+        ValorVenda = PriceRegister + lucro
+
         connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
         cursor.execute('SELECT id FROM produto WHERE nome = %s', (NameRegister, ))
@@ -125,12 +132,12 @@ class StorageRegisterClassDB:
             cursor.execute('INSERT INTO entrada_produto (data, descricao) VALUES (%s, %s) RETURNING id;', (Dateregister, LogRegister))
             id_entrada = cursor.fetchone()[0]  # Captura o id retornado
             # Inserir na tabela produto
-            cursor.execute('INSERT INTO produto (nome, descricao, marca) VALUES (%s, %s, %s) RETURNING id;', (NameRegister, LogProdutoRegister, MarcaRegister))
+            cursor.execute('INSERT INTO produto (nome, descricao, marca, margem_lucro) VALUES (%s, %s, %s, %s) RETURNING id;', (NameRegister, LogProdutoRegister, MarcaRegister, MargemRegister))
             id_produto = cursor.fetchone()[0]  # Captura o id do produto
             # Inserir na tabela itens_entrada com id_entrada e id_produto
             cursor.execute('INSERT INTO itens_entrada (id_entrada, produto_id, qtd, valor_unitario) VALUES (%s, %s, %s, %s);', (id_entrada, id_produto, AmountRegister, PriceRegister))
             # Inserir na tabela estoque
-            cursor.execute('INSERT INTO estoque (produto_id, qtd_atual, valor_venda) VALUES (%s, %s, %s);', (id_produto, AmountRegister, PriceRegister))
+            cursor.execute('INSERT INTO estoque (produto_id, qtd_atual, valor_venda, ultimo_valor_pago) VALUES (%s, %s, %s, %s);', (id_produto, AmountRegister, ValorVenda, PriceRegister))
             connection.commit()
             cursor.close()
             janela.destroy()
@@ -180,6 +187,3 @@ class StorageLowLimitDB:
                 entry_estoque_baixo.insert(0, result[0])
         except TypeError:
             entry_estoque_baixo.insert(0, '0')
-
-#if __name__ == "__main__":
-#   StorageRegisterClassDB.CreateStorageDB()

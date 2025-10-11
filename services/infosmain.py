@@ -3,7 +3,7 @@ import sys
 
 class Config:
     def __init__(self):
-        self.imports()
+        pass
 
     def imports(self):
         database_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -16,15 +16,10 @@ class Config:
 class Functions(Config):
     def __init__(self):
         super().__init__()
-        self.LoadInfosRegistred()
 
     def LoadInfosRegistred(self):
         VarDB = self.imports()
-        CounterRegister = 0
         if VarDB is None:
-            CounterRegister = 0
-            return CounterRegister
+            return 0
         else:
-            for _ in VarDB:
-                CounterRegister += 1
-            return CounterRegister
+            return len(VarDB)
