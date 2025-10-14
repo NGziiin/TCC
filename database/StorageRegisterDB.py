@@ -1,3 +1,5 @@
+from multiprocessing.forkserver import connect_to_new_process
+
 import psycopg2
 from psycopg2 import errors
 import messagebox, datetime
@@ -88,12 +90,33 @@ class StorageRegisterClassDB:
             cursor.close()
             pass
 
-    def AutomaticUpdateStorageDB():
-        connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
+
+    #nessa parte aqui a pesquisa é pelo botão de pesquisar
+    def LoadSearchStorage():
+        connection = psycopg2.connect(host='localhost', port='5500', database='postgres', user='postgres', password='2004')
         cursor = connection.cursor()
-        cursor.execute('UPDATE produto p SET descricao = ep.descricao FROM itens_entrada ie JOIN entrada_produto ep ON ep.id = ie.id_entrada WHERE p.id = ie.produto_id;')
-        connection.commit()
-        cursor.close()
+        try:
+            cursor.execute('SELECT produto.id, produto.nome, produto.marca FROM produto JOIN estoque ON produto.id = estoque.produto_id')
+            infos = cursor.fetchall()
+            cursor.close()
+            return infos
+
+        except errors.UndefinedTable:
+            cursor.close()
+            messagebox.showerror('erro', 'houve um erro ao abrir o banco de dados')
+            pass
+
+    def LoadInfosSelected(valores):
+        nome, marca = valores
+        try:
+            connection = psycopg2.connect(host='localhost', port='5500', database='postgres', user='postgres', password='2004')
+            cursor = connection.cursor()
+            cursor.execute('SELECT * FROM produto WHERE nome ILIKE %s AND marca ILIKE %s', (f'%{nome}%', f'%{marca}%'))
+            resultado = cursor.fetchall()
+            cursor.close()
+            print(resultado)
+        except errors.UndefinedTable:
+            cursor.close()
 
     def AddStorageDB(NameRegister, AmountRegister, PriceRegister, MarcaRegister, MargemRegister, janela):
 
