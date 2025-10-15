@@ -1,14 +1,12 @@
-from itertools import product
-
 from customtkinter import CTk
 from customtkinter import *
 from tkinter import ttk
-from functools import partial
-
 
 class Interface:
+
+    janela = CTk()
+
     def __init__(self):
-        self.janela = CTk()
         self.WindowConfigure()
         self.MainFrame()
         self.Treeview()
@@ -46,6 +44,18 @@ class Interface:
         self.tabela.bind("<Double-1>", lambda event: Functions.DoubleClickSelect(event, self.tabela))
         Functions.InsertItensTable(self, self.tabela)
 
+    # a partir daqui fica a outra janela
+    @staticmethod
+    def JanelaInfos():
+        Interface.ConfigJanelaInfos()
+
+    @staticmethod
+    def ConfigJanelaInfos():
+        for widget in Interface.janela.winfo_children():
+            widget.destroy()
+        Interface.janela.geometry('600x600')
+        Interface.janela.title('Informações')
+
 class Functions():
 
     #A FUNÇÃO ESTÁ PEGANDO AS INFORMAÇÕES DO BANCO DE DADOS ## AGORA É CRIAR A OUTRA INTERFACE QUE VAI APARECER AS INFORMAÇÕES
@@ -56,6 +66,7 @@ class Functions():
         valores = tabela.item(item_selecionado, 'values')
         print(f'o clique foi em {valores}')
         StorageRegisterClassDB.LoadInfosSelected(valores)
+        Interface.JanelaInfos()
 
     def InsertItensTable(self, tabela):
         infos = Logic.LoadInfoDatabase(self)
