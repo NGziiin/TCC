@@ -54,18 +54,19 @@ class InterfaceInfos():
 
     def ConfigJanelaInfos(self):
         self.janela.geometry('600x600')
+        self.janela.resizable(False, False)
         #for widget in Interface.janela.winfo_children():
             #widget.destroy()
         #Interface.janela.geometry('600x600')
         #Interface.janela.title('Informações')
 
     def FrameInfos(self):
-        self.Frame = CTkFrame(self.janela, fg_color='green', height=600, width=600)
+        self.Frame = CTkFrame(self.janela, fg_color='#e1e1e1', height=600, width=600)
         self.Frame.pack(fill='both', expand=True)
 
     def LabelInfos(self):
-        self.LabelName = CTkLabel(self.Frame, fg_color='yellow', corner_radius=20, text='Nome do Produto', height=40, width=25)
-        self.LabelName.pack(expand=True)
+        self.LabelName = CTkLabel(self.Frame, fg_color='white', corner_radius=20, text='nome do produto', height=40, width=220, font=('ARIAL', 20, 'bold'))
+        self.LabelName.pack(padx=100, pady=20)
 
 class Functions():
 
