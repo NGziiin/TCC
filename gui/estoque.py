@@ -2,12 +2,11 @@ from functools import partial
 from tkinter import *
 from tkinter import ttk, Tk
 import sys, os
-import threading
 
 # janela de top level do registro de estoque
 gui_topLevel = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.join(gui_topLevel, 'Gui_TopLevel'))
-from Gui_TopLevel import Storage_Control
+from Gui_TopLevel import Storage_Control, SearchEstoque
 
 #banco de dados
 database_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database')
@@ -41,7 +40,7 @@ def janela_estoque(frameinfo):
     Label(frame_pesquisa, text='Pesquisar Produto:', font=('Arial', 12), bg=main_frame.cget('bg')).pack(side='left')
     entry_pesquisa = Entry(frame_pesquisa, font=('Arial', 12))
     entry_pesquisa.pack(side='left', fill='x', expand=True, padx=10)
-    Button(frame_pesquisa, text='Buscar', font=('Arial', 11, 'bold'), bg='gray', fg='white', cursor='hand2').pack(
+    Button(frame_pesquisa, text='Buscar', font=('Arial', 11, 'bold'), command=partial(SearchEstoque.Interface), bg='gray', fg='white', cursor='hand2').pack(
         side='left', padx=5)
 
     # Botão para abrir o gerenciador de estoque
@@ -51,18 +50,24 @@ def janela_estoque(frameinfo):
     # Label da lista
     Label(main_frame, text='Produtos em Estoque:', font=('Arial', 14, 'bold'), bg=main_frame.cget('bg')).pack(anchor='w',
                                                                                                 pady=(20, 5))
+    style2 = ttk.Style()
+    style2.theme_use('default')
+    style2.configure('TABELA1.Treeview.Heading', background='white', foreground='black')
+    style2.configure('TABELA1.Treeview', background='white', foreground='black')
 
     # Lista de produtos
-    listbox = ttk.Treeview(main_frame, columns=('name', 'quantidade', 'price'), show='headings')
+    listbox = ttk.Treeview(main_frame, columns=('name', 'marca', 'quantidade', 'price'), show='headings', style='TABELA1.Treeview')
     
     # Configuração das colunas
     listbox.heading('name', text='Produto')
     listbox.heading('quantidade', text='Quantidade no Estoque')
     listbox.heading('price', text='Valor')
+    listbox.heading('marca', text='Marca')
     
     listbox.column('name', width=200, anchor='center')
     listbox.column('quantidade', width=150, anchor='center')
     listbox.column('price', width=100, anchor='center')
+    listbox.column('marca', width=200, anchor='center')
     
     # Adicionando coluna #0 para o código
     listbox['show'] = 'tree headings'

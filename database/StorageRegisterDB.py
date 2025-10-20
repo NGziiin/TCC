@@ -71,17 +71,17 @@ class StorageRegisterClassDB:
         connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
         try:
-            cursor.execute('SELECT produto.id, produto.nome, estoque.qtd_atual, estoque.valor_venda FROM produto JOIN estoque ON produto.id = estoque.produto_id')
+            cursor.execute('SELECT produto.id, produto.nome, produto.marca, estoque.qtd_atual, estoque.valor_venda FROM produto JOIN estoque ON produto.id = estoque.produto_id')
             infos = cursor.fetchall()
             connection.commit()
             cursor.close()
             for linhas in infos:
-                id_, produto, quantidade, preco = linhas
+                id_, produto, marca, quantidade, preco = linhas
                 #####ESSE IF SERVE PARA CARREGAR A FUNÇÃO MESMO QUE O LISTBOX RETORNE NULO
                 ### PARA EVITAR DA ERRO DE DECLARAÇÃO DE VARIÁVEL
                 #### POIS NEM SEMPRE VAI TER O LISTBOX
                 if listbox is not None:
-                    listbox.insert('', 'end', text=f'{id_}', values=(produto, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
+                    listbox.insert('', 'end', text=f'{id_}', values=(produto, marca, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
                     ############################################################################
                 elif listbox is None:
                     return infos
@@ -111,10 +111,14 @@ class StorageRegisterClassDB:
         try:
             connection = psycopg2.connect(host='localhost', port='5500', database='postgres', user='postgres', password='2004')
             cursor = connection.cursor()
+
+            ## configurar a lógica para pegar todas as informações exatas no banco de dados
+
             cursor.execute('SELECT * FROM produto WHERE nome ILIKE %s AND marca ILIKE %s', (f'%{nome}%', f'%{marca}%'))
             resultado = cursor.fetchall()
             cursor.close()
             print(resultado)
+            return resultado
         except errors.UndefinedTable:
             cursor.close()
 
