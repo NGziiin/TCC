@@ -46,27 +46,56 @@ class Interface:
 
 class InterfaceInfos():
     def __init__(self):
-        self.janela = CTk()
         self.ConfigJanelaInfos()
         self.FrameInfos()
         self.LabelInfos()
-        self.janela.mainloop()
 
     def ConfigJanelaInfos(self):
-        self.janela.geometry('600x600')
-        self.janela.resizable(False, False)
-        #for widget in Interface.janela.winfo_children():
-            #widget.destroy()
-        #Interface.janela.geometry('600x600')
-        #Interface.janela.title('Informações')
+        for widget in Interface.janela.winfo_children():
+            widget.destroy()
+        Interface.janela.geometry('600x480')
+        Interface.janela.title('Informações')
+        Interface.janela.resizable(False, False)
 
     def FrameInfos(self):
-        self.Frame = CTkFrame(self.janela, fg_color='#e1e1e1', height=600, width=600)
+        self.Frame = CTkFrame(Interface.janela, fg_color='#e1e1e1', height=600, width=600)
         self.Frame.pack(fill='both', expand=True)
 
     def LabelInfos(self):
-        self.LabelName = CTkLabel(self.Frame, fg_color='white', corner_radius=20, text='nome do produto', height=40, width=220, font=('ARIAL', 20, 'bold'))
-        self.LabelName.pack(padx=100, pady=20)
+        info_material = {
+            "Código": "123456",
+            "Nome": "Furadeira Elétrica",
+            "Loja": "Ferramentas Goiás",
+            "Quantidade": "10",
+            "Preço Pago": "R$ 150,00",
+            "Valor de Venda": "R$ 220,00",
+            "Margem de Lucro": "46.7%",
+            "Estoque": "7 unidades"
+        }
+
+        # Container centralizado no meio da tela
+        container = CTkFrame(self.Frame, fg_color='transparent')
+        container.place(relx=0.5, rely=0.5, anchor='center')
+
+        # Título
+        titulo = CTkLabel(container, text="INFORMAÇÕES DO PRODUTO", font=("Arial", 20, "bold"))
+        titulo.pack(pady=(0, 20))
+
+        # Linhas de informação
+        for chave, valor in info_material.items():
+            linha = CTkFrame(container, fg_color='transparent')
+            linha.pack(pady=5, fill='x')
+
+            label_chave = CTkLabel(linha, text=f"{chave}:", width=160, anchor='e', font=("Arial", 14))
+            label_chave.pack(side='left', padx=(0, 10))
+
+            label_valor = CTkLabel(linha, text=valor, anchor='w', font=("Arial", 14))
+            label_valor.pack(side='left')
+
+        # Botão Fechar
+        botao_fechar = CTkButton(container, text="Fechar", command=Interface.janela.destroy)
+        botao_fechar.pack(pady=20)
+
 
 class Functions():
 
@@ -96,5 +125,4 @@ class Logic():
 
 if __name__ == '__main__':
     #Functions.InsertItensTable(self=True, tabela=True)
-    #Interface()
-    InterfaceInfos()
+    Interface()
