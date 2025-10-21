@@ -3,13 +3,12 @@ from customtkinter import *
 from tkinter import ttk
 
 class Interface:
-
-    def __init__(self):
+    def __init__(self, entry_info):
+        self.entry_info = entry_info
         self.janela_info = CTkToplevel()
         self.WindowConfigure()
         self.MainFrame()
         self.Treeview()
-        self.janela_info.mainloop()
 
     def WindowConfigure(self):
         self.janela_info.geometry('500x300')
@@ -112,14 +111,11 @@ class Functions:
         InterfaceInfos(interface, info_material)
 
     def InsertItensTable(self, tabela):
-        infos = Logic.LoadInfoDatabase(self)
-        for i, linhas in enumerate(infos):
+        from database.StorageRegisterDB import StorageRegisterClassDB
+        entry_info = self.entry_info
+        print(f'dentro do Insert Table {entry_info}')
+        infosgeted = StorageRegisterClassDB.LoadSearchStorage(entry_info)
+        for i, linhas in enumerate(infosgeted):
             id_, product, marca = linhas
             tag = 'par' if i % 2 == 0 else 'impar'
             tabela.insert('', 'end', values=(product, marca), tags=(tag, ))
-
-class Logic:
-    def LoadInfoDatabase(self):
-        from database.StorageRegisterDB import StorageRegisterClassDB
-        infosgeted = StorageRegisterClassDB.LoadSearchStorage()
-        return infosgeted

@@ -3,9 +3,6 @@ from psycopg2 import errors
 import messagebox, datetime
 
 class StorageRegisterClassDB:
-    def __init__(self):
-        pass
-
     def CreateStorageDB():
         connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
@@ -91,7 +88,8 @@ class StorageRegisterClassDB:
 
     #nessa parte aqui a pesquisa é pelo botão de pesquisar
     def LoadSearchStorage(entry_info):
-        NameSearch = entry_info.get()
+        NameSearch = entry_info
+        print(f'entryinfo dentro do banco de dados {entry_info}')
         connection = psycopg2.connect(host='localhost', port='5500', database='postgres', user='postgres', password='2004')
         cursor = connection.cursor()
         try:

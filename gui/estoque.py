@@ -22,6 +22,11 @@ def block_event(event):
         return "break"
     return "break"
 
+def Searching(entry_pesquisa):
+    entry_info = entry_pesquisa.get()
+    entry_pesquisa.delete(0, 'end')
+    SearchEstoque.Interface(entry_info)
+
 def janela_estoque(frameinfo):
 
     # CARREGA A TABELA DO BANCO DE DADOS
@@ -40,7 +45,7 @@ def janela_estoque(frameinfo):
     Label(frame_pesquisa, text='Pesquisar Produto:', font=('Arial', 12), bg=main_frame.cget('bg')).pack(side='left')
     entry_pesquisa = Entry(frame_pesquisa, font=('Arial', 12))
     entry_pesquisa.pack(side='left', fill='x', expand=True, padx=10)
-    Button(frame_pesquisa, text='Buscar', font=('Arial', 11, 'bold'), command=partial(SearchEstoque.Interface, entry_pesquisa), bg='gray', fg='white', cursor='hand2').pack(
+    Button(frame_pesquisa, text='Buscar', font=('Arial', 11, 'bold'), command=lambda:(Searching(entry_pesquisa)), bg='gray', fg='white', cursor='hand2').pack(
         side='left', padx=5)
 
     # Botão para abrir o gerenciador de estoque
