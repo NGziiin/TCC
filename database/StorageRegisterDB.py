@@ -1,5 +1,3 @@
-from multiprocessing.forkserver import connect_to_new_process
-
 import psycopg2
 from psycopg2 import errors
 import messagebox, datetime
@@ -92,11 +90,18 @@ class StorageRegisterClassDB:
 
 
     #nessa parte aqui a pesquisa é pelo botão de pesquisar
-    def LoadSearchStorage():
+    def LoadSearchStorage(entry_info):
+        NameSearch = entry_info.get()
         connection = psycopg2.connect(host='localhost', port='5500', database='postgres', user='postgres', password='2004')
         cursor = connection.cursor()
         try:
-            cursor.execute('SELECT produto.id, produto.nome, produto.marca FROM produto JOIN estoque ON produto.id = estoque.produto_id')
+            cursor.execute('SELECT produto.id, '
+                           'produto.nome, '
+                           'produto.marca '
+                           'FROM produto '
+                           'JOIN estoque '
+                           'ON produto.id = estoque.produto_id '
+                           'WHERE produto.nome ILIKE %s OR produto.marca ILIKE %s', (f'%{NameSearch}%', f'%{NameSearch}%'))
             infos = cursor.fetchall()
             cursor.close()
             return infos
@@ -114,10 +119,19 @@ class StorageRegisterClassDB:
 
             ## configurar a lógica para pegar todas as informações exatas no banco de dados
 
-            cursor.execute('SELECT * FROM produto WHERE nome ILIKE %s AND marca ILIKE %s', (f'%{nome}%', f'%{marca}%'))
+            cursor.execute('SELECT produto.id, '
+                           'produto.nome, '
+                           'produto.marca, '
+                           'produto.margem_lucro, '
+                           'estoque.qtd_atual, '
+                           'itens_entrada.valor_unitario, '
+                           'estoque.valor_venda '
+                           'FROM produto '
+                           'JOIN estoque ON produto.id = estoque.produto_id '
+                           'JOIN itens_entrada ON produto.id = itens_entrada.produto_id '
+                           'WHERE produto.nome ILIKE %s AND produto.marca ILIKE %s', (f'%{nome}%', f'%{marca}%'))
             resultado = cursor.fetchall()
             cursor.close()
-            print(resultado)
             return resultado
         except errors.UndefinedTable:
             cursor.close()

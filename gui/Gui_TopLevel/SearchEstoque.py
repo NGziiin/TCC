@@ -98,15 +98,15 @@ class Functions:
         print(f'o clique foi em {valores}')
         informacoes = StorageRegisterClassDB.LoadInfosSelected(valores)
         print(f'a variável feita agora {informacoes}')
+        linha = informacoes[0]
         info_material = {
-            "Código": "123456",
-            "Nome": "Furadeira Elétrica",
-            "Loja": "Ferramentas Goiás",
-            "Quantidade": "10",
-            "Preço Pago": "R$ 150,00",
-            "Valor de Venda": "R$ 220,00",
-            "Margem de Lucro": "46.7%",
-            "Estoque": "7 unidades"
+            "Código": linha[0],
+            "Nome": linha[1],
+            "marca": linha[2],
+            "Preço Pago": f'R$ {linha[5]:,.2f}'.replace('.', ','),
+            "Valor de Venda": f'R$ {linha[6]:,.2f}'.replace('.', ','),
+            "Margem de Lucro": linha[3],
+            "Estoque": linha[4]
         }
 
         InterfaceInfos(interface, info_material)
