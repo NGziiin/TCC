@@ -86,32 +86,40 @@ def janela_registro():
 #ESSA JANELA EDITA E DELETA O PRODUTO QUE FOR SELECIONADO
 def janela_editar():
     janela = ctk.CTkToplevel()
-    janela.title("Editar/Excluir Produto")
-    janela.geometry("400x400")
+    janela.title("Registrar Produto")
+    janela.geometry("400x550")
     janela.resizable(False, False)
-    
-    # Título
-    titulo = ctk.CTkLabel(janela, text="Editar/Excluir Produto", font=ctk.CTkFont(size=18, weight="bold"))
+
+    titulo = ctk.CTkLabel(janela, text="Registrar Produto", font=ctk.CTkFont(size=18, weight="bold"))
     titulo.pack(pady=10)
-    
-    # Função para criar campo
-    def campo(texto, valor=""):
+
+    def campo(texto):
         frame = ctk.CTkFrame(janela, fg_color="transparent")
         frame.pack(fill="x", padx=20, pady=6)
         lbl = ctk.CTkLabel(frame, text=texto, anchor="w", font=ctk.CTkFont(size=13))
         lbl.pack(anchor="w")
         entry = ctk.CTkEntry(frame, font=ctk.CTkFont(size=13))
-        entry.insert(0, valor)
         entry.pack(fill="x", pady=4)
         return entry
-    
-    # Campos preenchíveis
-    entry_codigo = campo("Código do Produto:")
-    entry_nome = campo("Nome do Produto:")
-    entry_qtd = campo("Quantidade:")
-    entry_valor = campo("Valor Unitário (R$):")
-    
-    # Frame para botões
+
+    # Campos de entrada
+    CodProduto = campo('Código do produto:')
+    NameRegister = campo("Nome do Produto:")
+    MarcaRegister = campo("Marca:")
+    AmountRegister = campo("Quantidade:")
+    PriceRegister = campo("Valor Unitário (R$):")
+
+    # ComboBox para margem de lucro
+    frame_margem = ctk.CTkFrame(janela, fg_color="transparent")
+    frame_margem.pack(anchor='w', padx=18, pady=6, ipadx='40')
+    lbl_margem = ctk.CTkLabel(frame_margem, text="Margem de Lucro (%):", anchor="w", font=ctk.CTkFont(size=13))
+    lbl_margem.pack(anchor="w")
+    opções_margem = [f'{i}%' for i in range(0, 101, 5)]
+    MargemRegister = ctk.CTkComboBox(frame_margem, values=opções_margem, font=ctk.CTkFont(size=13), state='readonly')
+    MargemRegister.set("SELECIONE UMA OPÇÃO")  # valor padrão
+    MargemRegister.pack(anchor='w', pady=4, fill='x')
+
+    # Botões
     frame_botoes = ctk.CTkFrame(janela, fg_color="transparent")
     frame_botoes.pack(pady=10)
     
