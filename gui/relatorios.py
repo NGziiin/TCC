@@ -1,5 +1,10 @@
 from tkinter import *
+import os, sys
 
+logic_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.join(logic_path, 'MensagensInfos'))
+from services.MensagensInfos import LogicLog
+from database.SoftwareDB import DBLog
 
 def aba_relatorios(frameinfo):
     # Frame principal da aba de relatórios
@@ -22,7 +27,7 @@ def aba_relatorios(frameinfo):
         side='left', padx=10)
 
     Button(frame_filtro, text='Aplicar Filtro', font=('Arial', 11, 'bold'),
-           bg='gray', fg='white', cursor='hand2').pack(side='left', padx=10)
+           bg='gray', fg='white', cursor='hand2', command=lambda:(LogicLog.GetFilter(filtro_tipo))).pack(side='left', padx=10)
 
     # Frame de exibição do relatório
     frame_relatorio = Frame(main_frame, bg='white')
@@ -36,15 +41,11 @@ def aba_relatorios(frameinfo):
     scrollbar.config(command=text_relatorio.yview)
 
     # Exemplo de dados temporários
-    dados_exemplo = [
-        "[ADICIONADO] Caneta - Quantidade: 50 - Data: 31/05/2025",
-        "[VENDIDO] Lápis - Quantidade: 20 - Data: 30/05/2025",
-        "[REMOVIDO] Caderno - Quantidade: 10 - Data: 29/05/2025",
-        "[ESTOQUE BAIXO] Borracha - Restam 2 unidades - Data: 28/05/2025",
-        "[ADICIONADO] Régua - Quantidade: 15 - Data: 27/05/2025"
-    ]
+    dadosLOG = DBLog.LoadLogDB()
 
-    for item in dados_exemplo:
-        text_relatorio.insert(END,'\n' + item + '\n')
+    for linha in dadosLOG:
+        id_, situacao, nome, marca, quantidade, data = linha
+        linha_formatada = (f'| {situacao} |  Produto: {nome} - Marca: {marca} - Quantidade: {int(quantidade)} - Data Inserida: {data}')
+        text_relatorio.insert(END, f'\n{linha_formatada}\n')
 
     text_relatorio.config(state='disabled')

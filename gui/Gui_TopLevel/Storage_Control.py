@@ -1,6 +1,6 @@
 from tkinter import *
 import customtkinter as ctk
-from database.StorageRegisterDB import StorageRegisterClassDB
+from database.SoftwareDB import StorageRegisterClassDB
 from functools import partial
 
 #JANELA DE SELEÇÃO PARA ESCOLHER SE QUER EDITAR OU EXCLUIR ITEM DO BANCO DE DADOS

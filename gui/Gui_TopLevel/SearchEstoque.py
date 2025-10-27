@@ -91,7 +91,7 @@ class Functions:
     #A FUNÇÃO ESTÁ PEGANDO AS INFORMAÇÕES DO BANCO DE DADOS ## AGORA É CRIAR A OUTRA INTERFACE QUE VAI APARECER AS INFORMAÇÕES
     #E CRIAR A FUNÇÃO DENTRO DO BANCO DE DADOS DE PEGAR TODAS AS INFORMAÇÕES DO PRODUTO ESPECIFICO.
     def DoubleClickSelect(interface: Interface, event, tabela):
-        from database.StorageRegisterDB import StorageRegisterClassDB
+        from database.SoftwareDB import StorageRegisterClassDB
         item_selecionado = tabela.focus()
         valores = tabela.item(item_selecionado, 'values')
         print(f'o clique foi em {valores}')
@@ -111,7 +111,7 @@ class Functions:
         InterfaceInfos(interface, info_material)
 
     def InsertItensTable(self, tabela):
-        from database.StorageRegisterDB import StorageRegisterClassDB
+        from database.SoftwareDB import StorageRegisterClassDB
         entry_info = self.entry_info
         print(f'dentro do Insert Table {entry_info}')
         infosgeted = StorageRegisterClassDB.LoadSearchStorage(entry_info)

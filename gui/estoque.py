@@ -10,7 +10,7 @@ from Gui_TopLevel import Storage_Control, SearchEstoque
 
 #banco de dados
 database_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database')
-from database.StorageRegisterDB import StorageRegisterClassDB, StorageLowLimitDB
+from database.SoftwareDB import StorageRegisterClassDB, StorageLowLimitDB
 
 def change_config_estoque_baixo(event, entry_estoque_baixo):
     entry_estoque_baixo.delete(0, 'end')

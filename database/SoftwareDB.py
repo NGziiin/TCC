@@ -4,7 +4,7 @@ import messagebox, datetime
 
 class StorageRegisterClassDB:
     def CreateStorageDB():
-        connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
+        connection = psycopg2.connect(host="localhost", port='5432', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
 
         #TABELA DE PRODUTO
@@ -59,11 +59,20 @@ class StorageRegisterClassDB:
                        FOREIGN KEY (id_venda) REFERENCES venda(id),
                        FOREIGN KEY (produto_id) REFERENCES produto(id)
                        )''')
+
+        cursor.execute('CREATE TABLE IF NOT EXISTS log ( '
+                       'id SERIAL PRIMARY KEY,'
+                       'tipo TEXT not null,'  # aqui é onde fica armazenado se foi adicionado, removido, estoque baixo etc...
+                       'produto TEXT not null,'
+                       'marca TEXT not null,'
+                       'quantidade NUMERIC(10,2) not null,'
+                       'data DATE not null)')
+
         connection.commit()
         connection.close()
 
     def LoadStorageDB(listbox):
-        connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
+        connection = psycopg2.connect(host="localhost", port='5432', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
         try:
             cursor.execute('SELECT produto.id, produto.nome, produto.marca, estoque.qtd_atual, estoque.valor_venda FROM produto JOIN estoque ON produto.id = estoque.produto_id')
@@ -90,7 +99,7 @@ class StorageRegisterClassDB:
     def LoadSearchStorage(entry_info):
         NameSearch = entry_info
         print(f'entryinfo dentro do banco de dados {entry_info}')
-        connection = psycopg2.connect(host='localhost', port='5500', database='postgres', user='postgres', password='2004')
+        connection = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
         cursor = connection.cursor()
         try:
             cursor.execute('SELECT produto.id, '
@@ -112,7 +121,7 @@ class StorageRegisterClassDB:
     def LoadInfosSelected(valores):
         nome, marca = valores
         try:
-            connection = psycopg2.connect(host='localhost', port='5500', database='postgres', user='postgres', password='2004')
+            connection = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
             cursor = connection.cursor()
 
             ## configurar a lógica para pegar todas as informações exatas no banco de dados
@@ -155,7 +164,7 @@ class StorageRegisterClassDB:
         lucro = PriceRegister * (Porcentagem / 100)
         ValorVenda = PriceRegister + lucro
 
-        connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
+        connection = psycopg2.connect(host="localhost", port='5432', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
         cursor.execute('SELECT id FROM produto WHERE nome = %s', (NameRegister, ))
         verify_nome = cursor.fetchone()
@@ -177,6 +186,9 @@ class StorageRegisterClassDB:
             cursor.execute('INSERT INTO itens_entrada (id_entrada, produto_id, qtd, valor_unitario) VALUES (%s, %s, %s, %s);', (id_entrada, id_produto, AmountRegister, PriceRegister))
             # Inserir na tabela estoque
             cursor.execute('INSERT INTO estoque (produto_id, qtd_atual, valor_venda, ultimo_valor_pago) VALUES (%s, %s, %s, %s);', (id_produto, AmountRegister, ValorVenda, PriceRegister))
+            # INSERE NA TABELA LOG
+            cursor.execute('INSERT INTO log (tipo, produto, marca, quantidade, data) VALUES (%s, %s, %s, %s, %s);',
+                           ('Adicionado', NameRegister, MarcaRegister, AmountRegister, Dateregister))
             connection.commit()
             cursor.close()
             janela.destroy()
@@ -187,7 +199,7 @@ class StorageLowLimitDB:
         pass
 
     def CreateLowLimitDB():
-        connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
+        connection = psycopg2.connect(host="localhost", port='5432', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS lowlimit (
@@ -200,7 +212,7 @@ class StorageLowLimitDB:
 
     def AddLowLimitDB(entry_estoque_baixo):
         quantity_limit = int(entry_estoque_baixo.get())
-        connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
+        connection = psycopg2.connect(host="localhost", port='5432', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
         cursor.execute('DELETE FROM lowlimit')  # Remove entradas anteriores
         cursor.execute('INSERT INTO lowlimit (quantity_limit) VALUES (%s)', (quantity_limit,))
@@ -215,7 +227,7 @@ class StorageLowLimitDB:
         messagebox.showinfo('SUCESSO', 'Quantidade mínima atualizada com sucesso')
 
     def LoadLowLimitDB(entry_estoque_baixo):
-        connection = psycopg2.connect(host="localhost", port='5500', database="postgres", user="postgres", password="2004")
+        connection = psycopg2.connect(host="localhost", port='5432', database="postgres", user="postgres", password="2004")
         cursor = connection.cursor()
         cursor.execute('SELECT quantity_limit FROM lowlimit ORDER BY id DESC LIMIT 1')
         result = cursor.fetchone()
@@ -226,3 +238,18 @@ class StorageLowLimitDB:
                 entry_estoque_baixo.insert(0, result[0])
         except TypeError:
             entry_estoque_baixo.insert(0, '0')
+
+class DBLog:
+    def LoadLogDB():
+        conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM log')
+        infos = cursor.fetchall()
+        conn.commit()
+        cursor.close()
+        return infos
+
+    def LowStorage():
+        conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
+        cursor = conn.cursor()
+        cursor.execute('SELECT estoque.qtd_atual, lowlimit.quantity_limit CASE estoque.qtd_atual < lowlimit.quantity_limit')

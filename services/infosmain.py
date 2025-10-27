@@ -8,7 +8,7 @@ class Config:
     def imports(self):
         database_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         sys.path.insert(0, database_path)
-        from database.StorageRegisterDB import StorageRegisterClassDB
+        from database.SoftwareDB import StorageRegisterClassDB
         VarDB = StorageRegisterClassDB.LoadStorageDB(listbox=None)
         return VarDB
 

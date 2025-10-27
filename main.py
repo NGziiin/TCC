@@ -2,7 +2,7 @@ from tkinter import *
 import customtkinter
 from customtkinter import *
 import sys, os, threading
-from database.StorageRegisterDB import StorageRegisterClassDB, StorageLowLimitDB
+from database.SoftwareDB import StorageRegisterClassDB, StorageLowLimitDB
 
 def close_app():
     janela.quit()
