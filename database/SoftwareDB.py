@@ -62,12 +62,11 @@ class StorageRegisterClassDB:
 
         cursor.execute('CREATE TABLE IF NOT EXISTS log ( '
                        'id SERIAL PRIMARY KEY,'
-                       'tipo TEXT not null,'  # aqui é onde fica armazenado se foi adicionado, removido, estoque baixo etc...
-                       'produto TEXT not null,'
-                       'marca TEXT not null,'
+                       'tipo TEXT not null UNIQUE,'  # aqui é onde fica armazenado se foi adicionado, removido, estoque baixo etc...
+                       'produto TEXT not null UNIQUE,'
+                       'marca TEXT not null UNIQUE,'
                        'quantidade NUMERIC(10,2) not null,'
-                       'data DATE not null)')
-
+                       'data DATE not null) UNIQUE')
         connection.commit()
         connection.close()
 
@@ -252,4 +251,14 @@ class DBLog:
     def LowStorage():
         conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
         cursor = conn.cursor()
-        cursor.execute('SELECT estoque.qtd_atual, lowlimit.quantity_limit CASE estoque.qtd_atual < lowlimit.quantity_limit')
+
+        #arrumar essa parte para funcionar de acordo com a configuração do banco de dados
+        cursor.execute("""
+            INSERT INTO estoque_alerta (id_produto, nome_produto, estoque_atual, data_alerta)
+            SELECT e.id_produto, p.nome, e.quantidade, %s
+            FROM estoque e
+            JOIN produto p ON p.id = e.id_produto
+            JOIN lowlimit l ON l.id_produto = e.id_produto
+            WHERE e.quantidade < l.valor_minimo
+            ON CONFLICT (id_produto, data_alerta) DO NOTHING;
+        """, ())
