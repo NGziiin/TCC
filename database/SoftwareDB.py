@@ -66,7 +66,7 @@ class StorageRegisterClassDB:
                        'produto TEXT not null UNIQUE,'
                        'marca TEXT not null UNIQUE,'
                        'quantidade NUMERIC(10,2) not null,'
-                       'data DATE not null) UNIQUE')
+                       'data DATE not null UNIQUE)')
         connection.commit()
         connection.close()
 
@@ -249,16 +249,19 @@ class DBLog:
         return infos
 
     def LowStorage():
+        data_atual = datetime.date.today()
+        data_atual = data_atual.strftime('%d-%m-%Y')
         conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
         cursor = conn.cursor()
-
         #arrumar essa parte para funcionar de acordo com a configuração do banco de dados
         cursor.execute("""
-            INSERT INTO estoque_alerta (id_produto, nome_produto, estoque_atual, data_alerta)
-            SELECT e.id_produto, p.nome, e.quantidade, %s
+            INSERT INTO log (tipo, produto, marca, quantidade, data)
+            SELECT e.produto_id, p.nome, p.marca, e.qtd_atual, %s
             FROM estoque e
-            JOIN produto p ON p.id = e.id_produto
-            JOIN lowlimit l ON l.id_produto = e.id_produto
-            WHERE e.quantidade < l.valor_minimo
-            ON CONFLICT (id_produto, data_alerta) DO NOTHING;
-        """, ())
+            JOIN produto p ON p.id = e.produto_id
+            WHERE e.qtd_atual < (SELECT quantity_limit FROM lowlimit LIMIT 1)
+            ON CONFLICT (tipo, produto, marca, quantidade, data) DO NOTHING;
+        """, (data_atual,))
+        conn.commit()
+        conn.close()
+        print('verifique no banco de dados')

@@ -1,6 +1,6 @@
 #AQUI É ONDE FICA O LOADING EM TEMPO REAL DO SOFTWARE
-
 import time
+from database.SoftwareDB import DBLog
 
 class ClockUpdate:
     def __init__(self):
@@ -14,4 +14,8 @@ class ClockUpdate:
             print(self.contador)
             if self.contador == 50:
                 print('contador resetado')
+                DBLog.LowStorage()
                 self.contador = 0
+
+if __name__ == '__main__':
+    ClockUpdate()
