@@ -62,11 +62,12 @@ class StorageRegisterClassDB:
 
         cursor.execute('CREATE TABLE IF NOT EXISTS log ( '
                        'id SERIAL PRIMARY KEY,'
-                       'tipo TEXT not null UNIQUE,'  # aqui é onde fica armazenado se foi adicionado, removido, estoque baixo etc...
-                       'produto TEXT not null UNIQUE,'
-                       'marca TEXT not null UNIQUE,'
+                       'tipo TEXT not null,'  # aqui é onde fica armazenado se foi adicionado, removido, estoque baixo etc...
+                       'produto TEXT not null,'
+                       'marca TEXT not null,'
                        'quantidade NUMERIC(10,2) not null,'
-                       'data DATE not null UNIQUE)')
+                       'data DATE not null,'
+                       'UNIQUE (tipo, produto, marca, quantidade, data))')
         connection.commit()
         connection.close()
 
@@ -253,7 +254,7 @@ class DBLog:
         data_atual = data_atual.strftime('%d-%m-%Y')
         conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
         cursor = conn.cursor()
-        #arrumar essa parte para funcionar de acordo com a configuração do banco de dados
+        #arrumar essa parte para inserir corretamente no banco de dados
         cursor.execute("""
             INSERT INTO log (tipo, produto, marca, quantidade, data)
             SELECT e.produto_id, p.nome, p.marca, e.qtd_atual, %s
