@@ -146,7 +146,7 @@ class StorageRegisterClassDB:
     def AddStorageDB(NameRegister, AmountRegister, PriceRegister, MarcaRegister, MargemRegister, janela):
 
         Dateregister = datetime.date.today()
-        Dateregister = Dateregister.strftime('%d-%m-%Y') #SALVA A DATA NO NA TABELA entrada_produto NA COLUNA descrição
+        Dateregister = Dateregister.strftime('%d-%m-%Y %H:%M:%S') #SALVA A DATA NO NA TABELA entrada_produto NA COLUNA descrição
 
         NameRegister = NameRegister.get()
         LogRegister = f'Foi registrado o produto {NameRegister}'
@@ -251,18 +251,19 @@ class DBLog:
 
     def LowStorage():
         data_atual = datetime.date.today()
-        data_atual = data_atual.strftime('%d-%m-%Y')
+        data_atual = data_atual.strftime('%d-%m-%Y %H:%M:%S')
+        situacao = 'Estoque Baixo'
         conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
         cursor = conn.cursor()
         #arrumar essa parte para inserir corretamente no banco de dados
         cursor.execute("""
             INSERT INTO log (tipo, produto, marca, quantidade, data)
-            SELECT e.produto_id, p.nome, p.marca, e.qtd_atual, %s
+            SELECT %s , p.nome, p.marca, e.qtd_atual, %s
             FROM estoque e
             JOIN produto p ON p.id = e.produto_id
             WHERE e.qtd_atual < (SELECT quantity_limit FROM lowlimit LIMIT 1)
             ON CONFLICT (tipo, produto, marca, quantidade, data) DO NOTHING;
-        """, (data_atual,))
+        """, (situacao, data_atual,))
         conn.commit()
         conn.close()
         print('verifique no banco de dados')
