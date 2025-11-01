@@ -67,7 +67,7 @@ class StorageRegisterClassDB:
                        'marca TEXT not null,'
                        'quantidade NUMERIC(10,2) not null,'
                        'data DATE not null,'
-                       'UNIQUE (tipo, produto, marca, quantidade, data))')
+                       'UNIQUE (tipo, produto, marca, quantidade))')
         connection.commit()
         connection.close()
 
@@ -98,7 +98,6 @@ class StorageRegisterClassDB:
     #nessa parte aqui a pesquisa é pelo botão de pesquisar
     def LoadSearchStorage(entry_info):
         NameSearch = entry_info
-        print(f'entryinfo dentro do banco de dados {entry_info}')
         connection = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
         cursor = connection.cursor()
         try:
@@ -157,7 +156,6 @@ class StorageRegisterClassDB:
         AmountRegister = int(AmountRegister.get())
 
         PriceRegister = float(PriceRegister.get().replace(',', '.'))
-        print(f'tipo: {type(PriceRegister)} variável:{PriceRegister}')
 
         MargemRegister = MargemRegister.get()
         Porcentagem = int(MargemRegister.replace('%', ''))
@@ -262,8 +260,25 @@ class DBLog:
             FROM estoque e
             JOIN produto p ON p.id = e.produto_id
             WHERE e.qtd_atual < (SELECT quantity_limit FROM lowlimit LIMIT 1)
-            ON CONFLICT (tipo, produto, marca, quantidade, data) DO NOTHING;
+            ON CONFLICT (tipo, produto, marca, quantidade) DO NOTHING;
         """, (situacao, data_atual,))
+        cursor.execute('DELETE FROM log '
+                       'USING produto p, estoque e '
+                       'WHERE p.id = e.produto_id '
+                       'AND log.produto = p.nome '
+                       'AND log.marca = p.marca '
+                       'AND log.quantidade = e.qtd_atual '
+                       'AND e.qtd_atual > (SELECT quantity_limit FROM lowlimit LIMIT 1);'
+                       )
         conn.commit()
         conn.close()
-        print('verifique no banco de dados')
+
+    def LowCountMain():
+        conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM log')
+        retornoDB = cursor.fetchall()
+        conn.commit()
+        cursor.close()
+        contador = sum(1 for linha in retornoDB if linha[1] == 'Estoque Baixo')
+        return contador

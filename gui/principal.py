@@ -4,6 +4,19 @@ import os, sys
 function_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, function_path)
 from services.infosmain import Functions
+from database.SoftwareDB import DBLog
+
+def logica_principal():
+    dadosLOG = DBLog.LoadLogDB()
+    print(dadosLOG)
+    avisos = []
+    for linha in dadosLOG:
+        id_, situacao, nome, marca, quantidade, data = linha
+        if situacao == 'Estoque Baixo':
+            texto = f'⚠️ Produto {nome} da marca {marca} está com estoque baixo ({int(quantidade)} unidades).'
+            avisos.append((texto, '#f8d7da', 'red'))
+    return avisos
+
 
 def janelainicial(frameinfo):
 
@@ -11,7 +24,7 @@ def janelainicial(frameinfo):
     CounterRegisterProdutcs = IntVar()
     CounterRegisterProdutcs.set(Functions().LoadInfosRegistred()) #Valor do contador de produtos registrados
     LowStockProducts = IntVar()
-    LowStockProducts.set(0) #Valor do contador de produtos com estoque baixo
+    LowStockProducts.set(Functions().LoadAlertRegistred()) #Valor do contador de produtos com estoque baixo
     SellRegister = IntVar()
     SellRegister.set(0) #Valor do contador de vendas realizadas
     ##############################################
@@ -46,21 +59,57 @@ def janelainicial(frameinfo):
     Label(frame_estoque_baixo, textvariable=LowStockProducts, font=('Arial', 16), bg='#f0f0f0', fg='red').pack(pady=(5, 10))
 
     # Avisos / Notificações
+    # Frame de avisos com barra de rolagem
     frame_avisos = Frame(main_frame, bg=main_frame.cget('bg'))
     frame_avisos.pack(fill='both', expand=True, pady=(20, 0))
 
-    Label(frame_avisos, text='Avisos Importantes:', font=('Arial', 14, 'bold'), bg=main_frame.cget('bg')).pack(anchor='w')
+    Label(frame_avisos, text='Avisos de Produto Baixo:', font=('Arial', 14, 'bold'), bg=main_frame.cget('bg')).pack(
+        anchor='w')
 
-    text_avisos = Text(frame_avisos, height=6, font=('Arial', 12), bg='#fdfdfd', wrap='word')
-    text_avisos.pack(fill='both', expand=True, pady=5)
+    # Frame que segura o canvas e a scrollbar
+    frame_canvas = Frame(frame_avisos, bg=main_frame.cget('bg'))
+    frame_canvas.pack(fill='both', expand=True)
 
-    avisos_exemplo = [
-        "⚠️ Produto 'Borracha' está com estoque crítico (2 unidades).",
-        "✅ Nova venda registrada: Caneta Azul - 20 unidades.",
-        "📦 Produto 'Apontador' foi adicionado com sucesso."
-    ]
+    # Canvas + Scrollbar
+    canvas = Canvas(frame_canvas, bg=main_frame.cget('bg'), highlightthickness=0, bd=0)
+    scrollbar = Scrollbar(frame_canvas, orient='vertical', command=canvas.yview)
+    canvas.configure(yscrollcommand=scrollbar.set)
 
-    for aviso in avisos_exemplo:
-        text_avisos.insert(END, '\n' + aviso + '\n')
+    scrollbar.pack(side='right', fill='y')
+    canvas.pack(side='left', fill='both', expand=True)
 
-    text_avisos.config(state='disabled')
+    # Frame interno rolável
+    scrollable_frame = Frame(canvas, bg=main_frame.cget('bg'))
+    window_id = canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
+
+    # garante que as dimensões iniciais estejam corretas
+    canvas.update_idletasks()
+
+    # Atualiza a área de rolagem quando o conteúdo muda
+    def on_frame_configure(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+
+    scrollable_frame.bind("<Configure>", on_frame_configure)
+
+    # Ajusta a largura do frame interno quando o canvas muda
+    def on_canvas_configure(event):
+        # event.width é a largura atual do canvas visível
+        new_width = event.width
+        # aplica largura ao objeto window e ao frame (redundância útil)
+        canvas.itemconfig(window_id, width=new_width)
+        try:
+            scrollable_frame.configure(width=new_width)
+        except Exception:
+            pass
+
+    canvas.bind("<Configure>", on_canvas_configure)
+
+    # Avisos estilizados (usando expand True para forçar ocupação total)
+
+    avisos = logica_principal()
+    print(f'variável avisos: {avisos}')
+
+    for texto, bg_color, fg_color in avisos:
+        lbl = Label(scrollable_frame, text=texto, font=('Arial', 12), bg=bg_color, fg=fg_color,
+                    anchor='w', justify='left', padx=10, pady=6, relief='groove')
+        lbl.pack(fill='x', expand=True, pady=4)  # expand=True aqui é importante

@@ -3,6 +3,7 @@ import customtkinter
 from customtkinter import *
 import sys, os, threading
 from database.SoftwareDB import StorageRegisterClassDB, StorageLowLimitDB
+from services import TimerUpdate
 
 def close_app():
     janela.quit()
@@ -63,6 +64,7 @@ janela = CTk()
 
 threading.Thread(target=StorageRegisterClassDB.CreateStorageDB, daemon=True).start()
 threading.Thread(target=StorageLowLimitDB.CreateLowLimitDB, daemon=True).start()
+threading.Thread(target=TimerUpdate.ClockUpdate, daemon=True).start()
 
 janela.geometry('1920x1040')
 janela.after(100, lambda: janela.wm_state('zoomed'))

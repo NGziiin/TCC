@@ -1,8 +1,6 @@
 #AQUI É ONDE FICA O LOADING EM TEMPO REAL DO SOFTWARE
 import time
-
 import psycopg2.errors
-
 from database.SoftwareDB import DBLog
 
 class ClockUpdate:
@@ -12,11 +10,11 @@ class ClockUpdate:
     def logic(self):
         self.contador = 0
         while True:
-            while self.contador < 50:
+            while self.contador < 30:
                 time.sleep(0.5)
                 self.contador += 1
                 print(self.contador)
-                if self.contador == 50:
+                if self.contador == 30:
                     try:
                         DBLog.LowStorage()
                         self.contador = 0
@@ -25,6 +23,3 @@ class ClockUpdate:
                         self.contador = 0
                         print('contador resetado')
                         pass
-
-if __name__ == '__main__':
-    ClockUpdate()
