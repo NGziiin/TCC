@@ -44,7 +44,7 @@ class StorageRegisterClassDB:
         
         #TABELA DE VENDA
         cursor.execute('''CREATE TABLE IF NOT EXISTS venda (
-                       id SERIAL PRIMARY KEY,
+                       id VARCHAR(32) PRIMARY KEY,
                        data DATE NOT NULL,
                        valor NUMERIC(10,2)
                        )''')
@@ -52,12 +52,11 @@ class StorageRegisterClassDB:
         #TABELA DE ITENS VENDA
         cursor.execute('''CREATE TABLE IF NOT EXISTS itens_venda (
                        id SERIAL PRIMARY KEY,
-                       id_venda INT NOT NULL,
-                       produto_id INT NOT NULL,
+                       id_venda VARCHAR(32) NOT NULL,
+                       produto TEXT NOT NULL,
                        qtd INT NOT NULL,
                        valor_unitario NUMERIC(10,2),
-                       FOREIGN KEY (id_venda) REFERENCES venda(id),
-                       FOREIGN KEY (produto_id) REFERENCES produto(id)
+                       FOREIGN KEY (id_venda) REFERENCES venda(id)
                        )''')
 
         cursor.execute('CREATE TABLE IF NOT EXISTS log ( '
@@ -241,11 +240,16 @@ class DBLog:
     def LoadLogDB():
         conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM log')
-        infos = cursor.fetchall()
-        conn.commit()
-        cursor.close()
-        return infos
+        try:
+            cursor.execute('SELECT * FROM log')
+            infos = cursor.fetchall()
+            conn.commit()
+            cursor.close()
+            return infos
+
+        except errors.UndefinedTable:
+            conn.close()
+            pass
 
     def LowStorage():
         data_atual = datetime.date.today()
@@ -282,3 +286,20 @@ class DBLog:
         cursor.close()
         contador = sum(1 for linha in retornoDB if linha[1] == 'Estoque Baixo')
         return contador
+
+class SellDB:
+    def __init__(self):
+        pass
+
+    def RegisterSell(Entry_Cod, Entry_Name, Entry_Preco, Entry_qtd):
+
+        getName = Entry_Name.get()
+        getPreco = Entry_Preco.get()
+        getQTD = Entry_qtd.get()
+
+        print(f'codigo: {getCod}, nome:{getName}, preco: {getPreco} e quantidade:{getQTD}')
+        return
+
+        conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
+        cursor = conn.cursor()
+        conn.close()

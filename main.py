@@ -2,8 +2,11 @@ from tkinter import *
 import customtkinter
 from customtkinter import *
 import sys, os, threading
+
+import ATdoDB
 from database.SoftwareDB import StorageRegisterClassDB, StorageLowLimitDB
 from services import TimerUpdate
+from ATdoDB import AutoTeste
 
 def close_app():
     janela.quit()
@@ -65,6 +68,9 @@ janela = CTk()
 threading.Thread(target=StorageRegisterClassDB.CreateStorageDB, daemon=True).start()
 threading.Thread(target=StorageLowLimitDB.CreateLowLimitDB, daemon=True).start()
 threading.Thread(target=TimerUpdate.ClockUpdate, daemon=True).start()
+
+##USAR ESSE COMANDO SOMENTE QUANDO FOR RESETAR O BANCO DE DADOS ELE REALIZA O PREENCHIMENTO AUTOMATICAMENTE DE PRODUTOS PARA OUTRO TIPO DE TESTE
+#threading.Thread(target=ATdoDB.AutoTeste, daemon=True).start() #<<<<<< DELETAR QUANDO FINALIZAR TODOS OS TESTES COM BANCO DE DADOS
 
 janela.geometry('1920x1040')
 janela.after(100, lambda: janela.wm_state('zoomed'))

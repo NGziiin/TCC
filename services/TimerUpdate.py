@@ -13,7 +13,6 @@ class ClockUpdate:
             while self.contador < 30:
                 time.sleep(0.5)
                 self.contador += 1
-                print(self.contador)
                 if self.contador == 30:
                     try:
                         DBLog.LowStorage()
