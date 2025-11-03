@@ -8,7 +8,6 @@ from database.SoftwareDB import DBLog
 
 def logica_principal():
     dadosLOG = DBLog.LoadLogDB()
-    print(dadosLOG)
     avisos = []
     for linha in dadosLOG:
         id_, situacao, nome, marca, quantidade, data = linha
@@ -107,7 +106,6 @@ def janelainicial(frameinfo):
     # Avisos estilizados (usando expand True para forçar ocupação total)
 
     avisos = logica_principal()
-    print(f'variável avisos: {avisos}')
 
     for texto, bg_color, fg_color in avisos:
         lbl = Label(scrollable_frame, text=texto, font=('Arial', 12), bg=bg_color, fg=fg_color,

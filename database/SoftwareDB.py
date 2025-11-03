@@ -291,14 +291,7 @@ class SellDB:
     def __init__(self):
         pass
 
-    def RegisterSell(Entry_Cod, Entry_Name, Entry_Preco, Entry_qtd):
-
-        getName = Entry_Name.get()
-        getPreco = Entry_Preco.get()
-        getQTD = Entry_qtd.get()
-
-        print(f'codigo: {getCod}, nome:{getName}, preco: {getPreco} e quantidade:{getQTD}')
-        return
+    def RegisterSell():
 
         conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
         cursor = conn.cursor()
