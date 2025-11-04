@@ -80,7 +80,7 @@ janela.title("sistema de estoque - Lojas TCC & LTDA")
 framebutton = Frame(janela, bg=janela.cget('bg'))
 framebutton.place(relheight=0.99, relwidth=0.15, relx=0.002, rely=0.005)
 
-frameinfo = Frame(janela, bg='white')
+frameinfo = Frame(janela, bg='#f7f9fb')
 frameinfo.place(relheight=1, relwidth=0.848, relx=0.155, rely=0)
 
 botoes(framebutton, frameinfo)

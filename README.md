@@ -20,14 +20,14 @@ O sistema reduz automaticamente a quantidade disponível de material no estoque 
 
 - Linguagem: Python
 - Framework para interface gráfica: Tkinter e CustomTkinter
-- Banco de dados: SQLite3
+- Banco de dados: PostgreSQL
 
 ---
 
 ## Como executar o projeto
 
 1. Clone o repositório
-2. Instale as dependências necessárias (caso tenha)
+2. Instale as dependências necessárias com o seguinte comando: pip install -r requiriments.txt
 3. Execute o arquivo `main.py`
 
 ---

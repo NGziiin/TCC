@@ -29,7 +29,7 @@ def janelainicial(frameinfo):
     ##############################################
 
     # Frame principal
-    main_frame = Frame(frameinfo, bg='white')
+    main_frame = Frame(frameinfo, bg='#f7f9fb')
     main_frame.pack(fill='both', expand=True, padx=20, pady=20)
 
     # Título

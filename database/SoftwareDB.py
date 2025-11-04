@@ -1,10 +1,13 @@
-import psycopg2
+import psycopg2, os
 from psycopg2 import errors
 import messagebox, datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class StorageRegisterClassDB:
     def CreateStorageDB():
-        connection = psycopg2.connect(host="localhost", port='5432', database="postgres", user="postgres", password="2004")
+        connection = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = connection.cursor()
 
         #TABELA DE PRODUTO
@@ -71,7 +74,7 @@ class StorageRegisterClassDB:
         connection.close()
 
     def LoadStorageDB(listbox):
-        connection = psycopg2.connect(host="localhost", port='5432', database="postgres", user="postgres", password="2004")
+        connection = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = connection.cursor()
         try:
             cursor.execute('SELECT produto.id, produto.nome, produto.marca, estoque.qtd_atual, estoque.valor_venda FROM produto JOIN estoque ON produto.id = estoque.produto_id')
@@ -97,7 +100,7 @@ class StorageRegisterClassDB:
     #nessa parte aqui a pesquisa é pelo botão de pesquisar
     def LoadSearchStorage(entry_info):
         NameSearch = entry_info
-        connection = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
+        connection = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = connection.cursor()
         try:
             cursor.execute('SELECT produto.id, '
@@ -119,7 +122,7 @@ class StorageRegisterClassDB:
     def LoadInfosSelected(valores):
         nome, marca = valores
         try:
-            connection = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
+            connection = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
             cursor = connection.cursor()
 
             ## configurar a lógica para pegar todas as informações exatas no banco de dados
@@ -161,7 +164,7 @@ class StorageRegisterClassDB:
         lucro = PriceRegister * (Porcentagem / 100)
         ValorVenda = PriceRegister + lucro
 
-        connection = psycopg2.connect(host="localhost", port='5432', database="postgres", user="postgres", password="2004")
+        connection = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = connection.cursor()
         cursor.execute('SELECT id FROM produto WHERE nome = %s', (NameRegister, ))
         verify_nome = cursor.fetchone()
@@ -238,7 +241,7 @@ class StorageLowLimitDB:
 
 class DBLog:
     def LoadLogDB():
-        conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
+        conn = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = conn.cursor()
         try:
             cursor.execute('SELECT * FROM log')
@@ -255,7 +258,7 @@ class DBLog:
         data_atual = datetime.date.today()
         data_atual = data_atual.strftime('%d-%m-%Y %H:%M:%S')
         situacao = 'Estoque Baixo'
-        conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
+        conn = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = conn.cursor()
         #arrumar essa parte para inserir corretamente no banco de dados
         cursor.execute("""
@@ -278,7 +281,7 @@ class DBLog:
         conn.close()
 
     def LowCountMain():
-        conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
+        conn = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM log')
         retornoDB = cursor.fetchall()
@@ -293,6 +296,6 @@ class SellDB:
 
     def RegisterSell():
 
-        conn = psycopg2.connect(host='localhost', port='5432', database='postgres', user='postgres', password='2004')
+        conn = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = conn.cursor()
         conn.close()
