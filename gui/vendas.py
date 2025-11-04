@@ -95,6 +95,16 @@ class Mainbread:
         else:
             messagebox.showerror('FALTA DE INFORMAÇÕES', 'TODOS OS CAMPOS PRECISAM ESTAR PREENCHIDOS')
 
+    def CancelButton(Entry_Cod, Var_Name, Var_Preco, Entry_qtd, listbox, Var_Marca, Var_TotalVenda):
+        Entry_Cod.delete(0, END)
+        Var_Name.set('')
+        Var_Preco.set('')
+        Entry_Cod.delete(0, END)
+        Entry_qtd.delete(0, END)
+        listbox.delete(0, END)
+        Var_Marca.set('')
+        Var_TotalVenda.set('R$0,00')
+
 # ==================== INTERFACE ====================
 def janela_vendas(frameinfo):
 
@@ -169,7 +179,7 @@ def janela_vendas(frameinfo):
     Button(frame_footer, text='Finalizar Venda', font=('Arial', 14, 'bold'),
            bg=CORES["verde"], fg='white', cursor='hand2', relief='flat').pack(side='right', padx=5)
     Button(frame_footer, text='Cancelar', font=('Arial', 14, 'bold'),
-           bg=CORES["vermelho"], fg='white', cursor='hand2', relief='flat').pack(side='right', padx=5)
+           bg=CORES["vermelho"], fg='white', cursor='hand2', relief='flat', command=lambda: Mainbread.CancelButton(Entry_Cod, Var_Name, Var_Preco, Entry_qtd, listbox, Var_Marca, Var_TotalVenda)).pack(side='right', padx=5)
 
     # ---------- RESUMO ----------
     Label(main_frame, text='Resumo da Venda:', font=('Arial', 15, 'bold'), bg=CORES["fundo"], fg=CORES["texto"]).pack(anchor='w', pady=(10, 5))
