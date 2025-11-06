@@ -2,6 +2,7 @@ import psycopg2, os
 from psycopg2 import errors
 import messagebox, datetime
 from dotenv import load_dotenv
+import tkinter as tk
 
 load_dotenv()
 
@@ -294,8 +295,11 @@ class SellDB:
     def __init__(self):
         pass
 
-    def RegisterSell():
-
+    #CRIAR A LÓGICA DE REGISTRAR AS INFORMAÇÕES DE VENDA NO BANCO DE DADOS
+    def RegisterSell(listbox):
+        info_venda = listbox.get(0, tk.END)
+        print(info_venda)
+        return
         conn = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = conn.cursor()
         conn.close()

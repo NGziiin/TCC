@@ -177,7 +177,7 @@ def janela_vendas(frameinfo):
     Var_TotalVenda.trace_add('write', lambda n, i, m: Mainbread.AutoAdjust(Entry_Total, Var_TotalVenda))
 
     Button(frame_footer, text='Finalizar Venda', font=('Arial', 14, 'bold'),
-           bg=CORES["verde"], fg='white', cursor='hand2', relief='flat').pack(side='right', padx=5)
+           bg=CORES["verde"], fg='white', cursor='hand2', relief='flat', command=lambda: SellDB.RegisterSell(listbox)).pack(side='right', padx=5)
     Button(frame_footer, text='Cancelar', font=('Arial', 14, 'bold'),
            bg=CORES["vermelho"], fg='white', cursor='hand2', relief='flat', command=lambda: Mainbread.CancelButton(Entry_Cod, Var_Name, Var_Preco, Entry_qtd, listbox, Var_Marca, Var_TotalVenda)).pack(side='right', padx=5)
 
