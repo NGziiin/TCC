@@ -297,21 +297,40 @@ class SellDB:
 
     def RegisterSell(listbox):
         info_venda = listbox.get(0, tk.END)
-        print(info_venda)
-        data_atual = datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+        data_atual = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         info_compactada = SellDB.SaveVariable(info_venda)
         codigovenda = SellDB.CodVendaHash()
-        conn = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"),
-                                user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
+
+        # Calcula valor total
+        valor_total = sum(float(produto[2]) * int(produto[3]) for produto in info_compactada)
+
+        conn = psycopg2.connect(
+            host=os.getenv("DB_HOST"),
+            port=os.getenv("DB_PORT"),
+            database=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD")
+        )
+        cursor = conn.cursor()
+
+        # Inserir venda (apenas uma vez)
+        cursor.execute("""
+            INSERT INTO venda (id, data, valor)
+            VALUES (%s, %s, %s);
+        """, (codigovenda, data_atual, valor_total))
+
+        # Inserir itens (todos com o mesmo id_venda)
         for produto in info_compactada:
-            cursor = conn.cursor()
-            #ARRUMAR AQUI
-            cursor.execute('INSERT INTO itens_venda (id_venda, produto, qtd, valor_unitario) '
-                           'VALUES (%s, %s, %s, %s);', (codigovenda, produto.nome, produto.quantidade, produto.preco))
-            cursor.execute('INSERT INTO venda (data, valor) '
-                                 'VALUES (%s, %s);', (data_atual, produto.preco))
+            codigo, nome, preco, quantidade = produto
+            cursor.execute("""
+                INSERT INTO itens_venda (id_venda, produto, qtd, valor_unitario)
+                VALUES (%s, %s, %s, %s);
+            """, (codigovenda, nome, quantidade, preco))
+
         conn.commit()
+        cursor.close()
         conn.close()
+        messagebox.showinfo('Sucesso!', 'Venda realizada com sucesso')
 
     def SaveVariable(info_venda):
         dados = []
