@@ -85,7 +85,7 @@ class Mainbread:
                 messagebox.showerror('ERRO', 'quantidade inválida')
                 return
 
-            listbox.insert(END,f'Código: {getCod} | nome: {getName} - {getMarca} | Preço: {getPreco} | Quantidade: {getQTD}\n')
+            listbox.insert(END,f'Código: {getCod} | nome: {getName} - {getMarca} | Preço: {getPreco} | Quantidade: {getQTD}')
             Entry_Cod.delete(0, END)
             Entry_qtd.delete(0, END)
             Var_Marca.set('')

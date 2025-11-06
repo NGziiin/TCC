@@ -1,4 +1,4 @@
-import psycopg2, os
+import psycopg2, os, hashlib
 from psycopg2 import errors
 import messagebox, datetime
 from dotenv import load_dotenv
@@ -295,11 +295,39 @@ class SellDB:
     def __init__(self):
         pass
 
-    #CRIAR A LÓGICA DE REGISTRAR AS INFORMAÇÕES DE VENDA NO BANCO DE DADOS
     def RegisterSell(listbox):
         info_venda = listbox.get(0, tk.END)
         print(info_venda)
-        return
-        conn = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
-        cursor = conn.cursor()
+        data_atual = datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+        info_compactada = SellDB.SaveVariable(info_venda)
+        codigovenda = SellDB.CodVendaHash()
+        conn = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"),
+                                user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
+        for produto in info_compactada:
+            cursor = conn.cursor()
+            #ARRUMAR AQUI
+            cursor.execute('INSERT INTO itens_venda (id_venda, produto, qtd, valor_unitario) '
+                           'VALUES (%s, %s, %s, %s);', (codigovenda, produto.nome, produto.quantidade, produto.preco))
+            cursor.execute('INSERT INTO venda (data, valor) '
+                                 'VALUES (%s, %s);', (data_atual, produto.preco))
+        conn.commit()
         conn.close()
+
+    def SaveVariable(info_venda):
+        dados = []
+        for item in info_venda:
+            partes = item.split('|')
+            codigo = partes[0].split(':')[1].strip()
+            nome = partes[1].split(':')[1].strip()
+            preco = partes[2].split(':')[1].strip().replace('R$', '').replace(',', '.')
+            quantidade = partes[3].split(':')[1].strip()
+
+            dados.append((codigo, nome, preco, quantidade))
+
+        return dados
+
+    def CodVendaHash():
+        data_atual = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        hash_obj = hashlib.sha256(data_atual.encode())
+        cod_venda = hash_obj.hexdigest()[:10]
+        return cod_venda
