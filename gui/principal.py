@@ -20,12 +20,9 @@ def logica_principal():
 def janelainicial(frameinfo):
 
     #Variáveis para registrar informações
-    CounterRegisterProdutcs = IntVar()
-    CounterRegisterProdutcs.set(Functions().LoadInfosRegistred()) #Valor do contador de produtos registrados
-    LowStockProducts = IntVar()
-    LowStockProducts.set(Functions().LoadAlertRegistred()) #Valor do contador de produtos com estoque baixo
-    SellRegister = IntVar()
-    SellRegister.set(0) #Valor do contador de vendas realizadas
+    CounterRegisterProdutcs = IntVar(value=Functions().LoadInfosRegistred()) #Valor do contador de produtos registrados
+    LowStockProducts = IntVar(value=Functions().LoadAlertRegistred()) #Valor do contador de produtos com estoque baixo
+    QuantitySell = IntVar(value=Functions().LoadSellQuantity())
     ##############################################
 
     # Frame principal
@@ -49,7 +46,7 @@ def janelainicial(frameinfo):
     frame_vendas = Frame(frame_indicadores, bg='#f0f0f0', bd=2, relief='groove')
     frame_vendas.pack(side='left', expand=True, fill='both', padx=5)
     Label(frame_vendas, text='Vendas Realizadas', font=('Arial', 12, 'bold'), bg='#f0f0f0').pack(pady=(10,0))
-    Label(frame_vendas, textvariable=SellRegister, font=('Arial', 16), bg='#f0f0f0', fg='green').pack(pady=(5, 10))
+    Label(frame_vendas, textvariable=QuantitySell, font=('Arial', 16), bg='#f0f0f0', fg='green').pack(pady=(5, 10))
 
     # Estoque baixo
     frame_estoque_baixo = Frame(frame_indicadores, bg='#f0f0f0', bd=2, relief='groove')

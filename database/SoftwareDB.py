@@ -1,3 +1,4 @@
+import threading
 import psycopg2, os, hashlib
 from psycopg2 import errors
 import messagebox, datetime
@@ -255,13 +256,13 @@ class DBLog:
             conn.close()
             pass
 
+    #VERIFICAR PORQUE ESTÁ DELETANDO OS ADICIONADOS E SUBISTITUINDO PARA OS DE ESTOQUE BAIXO
     def LowStorage():
         data_atual = datetime.date.today()
         data_atual = data_atual.strftime('%d-%m-%Y %H:%M:%S')
         situacao = 'Estoque Baixo'
         conn = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = conn.cursor()
-        #arrumar essa parte para inserir corretamente no banco de dados
         cursor.execute("""
             INSERT INTO log (tipo, produto, marca, quantidade, data)
             SELECT %s , p.nome, p.marca, e.qtd_atual, %s
@@ -295,14 +296,15 @@ class SellDB:
     def __init__(self):
         pass
 
-    def RegisterSell(listbox):
+    def RegisterSell(listbox, Var_TotalVenda):
+
         info_venda = listbox.get(0, tk.END)
         data_atual = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         info_compactada = SellDB.SaveVariable(info_venda)
         codigovenda = SellDB.CodVendaHash()
 
         # Calcula valor total
-        valor_total = sum(float(produto[2]) * int(produto[3]) for produto in info_compactada)
+        valor_total = sum(float(produto[3]) * int(produto[4]) for produto in info_compactada)
 
         conn = psycopg2.connect(
             host=os.getenv("DB_HOST"),
@@ -321,16 +323,24 @@ class SellDB:
 
         # Inserir itens (todos com o mesmo id_venda)
         for produto in info_compactada:
-            codigo, nome, preco, quantidade = produto
+            codigo, nome, marca, preco, quantidade = produto
             cursor.execute("""
                 INSERT INTO itens_venda (id_venda, produto, qtd, valor_unitario)
                 VALUES (%s, %s, %s, %s);
             """, (codigovenda, nome, quantidade, preco))
-
+            # INSERINDO NO LOG
+            cursor.execute('INSERT INTO log (tipo, produto, marca, quantidade, data) '
+                           'VALUES (%s, %s, %s, %s, %s);', ('Vendido', nome, marca, quantidade, data_atual))
         conn.commit()
         cursor.close()
         conn.close()
-        messagebox.showinfo('Sucesso!', 'Venda realizada com sucesso')
+        threading.Thread(messagebox.showinfo('Sucesso!', 'Venda realizada com sucesso'))
+        SellDB.CleanWindowOK(listbox, Var_TotalVenda)
+
+    # Função para limpar a janela quando finalizar
+    def CleanWindowOK(listbox, Var_TotalVenda):
+        listbox.delete(0, tk.END)
+        Var_TotalVenda.set('R$0,00')
 
     def SaveVariable(info_venda):
         dados = []
@@ -338,10 +348,11 @@ class SellDB:
             partes = item.split('|')
             codigo = partes[0].split(':')[1].strip()
             nome = partes[1].split(':')[1].strip()
-            preco = partes[2].split(':')[1].strip().replace('R$', '').replace(',', '.')
-            quantidade = partes[3].split(':')[1].strip()
+            marca = partes[2].split(':')[1].strip()
+            preco = partes[3].split(':')[1].strip().replace('R$', '').replace(',', '.')
+            quantidade = partes[4].split(':')[1].strip()
 
-            dados.append((codigo, nome, preco, quantidade))
+            dados.append((codigo, nome, marca, preco, quantidade))
 
         return dados
 
@@ -350,3 +361,19 @@ class SellDB:
         hash_obj = hashlib.sha256(data_atual.encode())
         cod_venda = hash_obj.hexdigest()[:10]
         return cod_venda
+
+    def LoadSellDB():
+        conn = psycopg2.connect(
+            host=os.getenv("DB_HOST"),
+            port=os.getenv("DB_PORT"),
+            database=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD")
+        )
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM venda')
+        infos = cursor.fetchall()
+        conn.commit()
+        cursor.close()
+
+        return infos

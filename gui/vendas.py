@@ -42,7 +42,7 @@ class Mainbread:
             Var_Preco.set('-----')
             Var_Marca.set('')
 
-    def Calculo_total(listbox, Var_TotalVenda):
+    def Calculo_total(listbox, Var_TotalVenda, Var_TotalProduto, Var_qtdproduto):
         total = 0.00
         for item in listbox.get(0, END):
             preco = 0.00
@@ -64,8 +64,19 @@ class Mainbread:
                         print(f'erro na quantidade: {e}')
             total += preco * quantidade
         Var_TotalVenda.set(f'R${total:,.2f}'.replace('.', 'x').replace(',', '.').replace('x', ','))
+        if Var_TotalProduto != 0:
+            armazem = Var_TotalProduto.get()
+            quantidade += armazem
+            Var_TotalProduto.set(quantidade)
+        else:
+            Var_TotalProduto.set(quantidade)
 
-    def Logic(Entry_Cod, Var_Name, Var_Preco, Entry_qtd, listbox, Var_Marca, Var_TotalVenda):
+        #insere a quantidade de itens dentro do listbox
+        qtd_listbox = listbox.size()
+        Var_qtdproduto.set(qtd_listbox)
+
+
+    def Logic(Entry_Cod, Var_Name, Var_Preco, Entry_qtd, listbox, Var_Marca, Var_TotalVenda, Var_TotalProduto, Var_qtdproduto):
         global info
         getCod = Entry_Cod.get()
         getName = Var_Name.get()
@@ -77,33 +88,38 @@ class Mainbread:
             try:
                 qtd_solicitada = int(getQTD)
                 estoque = info.get(getCod, {}).get('quantidade', 0)
-                if qtd_solicitada > estoque:
-                    messagebox.showerror('ESTOQUE INSUFICIENTE',f'Quantidade solicitada ({qtd_solicitada}) maior que o estoque disponível ({estoque})')
+                if getName == 'Não encontrado':
+                    messagebox.showerror('ERRO', 'PRODUTO NÃO ENCONTRADO\n\nNão é possivel adicionar um produto que não existe no estoque')
                     return
+                else:
+                    if qtd_solicitada > estoque:
+                        messagebox.showerror('ESTOQUE INSUFICIENTE',f'Quantidade solicitada ({qtd_solicitada}) maior que o estoque disponível ({estoque})')
+                        return
 
             except ValueError:
                 messagebox.showerror('ERRO', 'quantidade inválida')
                 return
 
-            listbox.insert(END,f'Código: {getCod} | nome: {getName} - {getMarca} | Preço: {getPreco} | Quantidade: {getQTD}')
+            listbox.insert(END,f'Código: {getCod} | nome: {getName} | marca:{getMarca} | Preço: {getPreco} | Quantidade: {getQTD}')
             Entry_Cod.delete(0, END)
             Entry_qtd.delete(0, END)
             Var_Marca.set('')
             Var_Preco.set('')
             Var_Name.set('')
-            Mainbread.Calculo_total(listbox, Var_TotalVenda)
+            Mainbread.Calculo_total(listbox, Var_TotalVenda, Var_TotalProduto, Var_qtdproduto)
         else:
             messagebox.showerror('FALTA DE INFORMAÇÕES', 'TODOS OS CAMPOS PRECISAM ESTAR PREENCHIDOS')
 
-    def CancelButton(Entry_Cod, Var_Name, Var_Preco, Entry_qtd, listbox, Var_Marca, Var_TotalVenda):
+    def CancelButton(Entry_Cod, Var_Name, Var_Preco, Entry_qtd, listbox, Var_Marca, Var_TotalVenda, Var_TotalProduto, Var_qtdproduto):
         Entry_Cod.delete(0, END)
         Var_Name.set('')
         Var_Preco.set('')
-        Entry_Cod.delete(0, END)
         Entry_qtd.delete(0, END)
         listbox.delete(0, END)
         Var_Marca.set('')
         Var_TotalVenda.set('R$0,00')
+        Var_TotalProduto.set(0)
+        Var_qtdproduto.set(0)
 
 # ==================== INTERFACE ====================
 def janela_vendas(frameinfo):
@@ -122,6 +138,8 @@ def janela_vendas(frameinfo):
     Var_Preco = StringVar()
     Var_Marca = StringVar()
     Var_TotalVenda = StringVar(value='R$0,00')
+    Var_TotalProdutos = IntVar(value=0) # essa variável é a que mostra a quantidade de itens que tem no carrinho de compras
+    Var_qtdproduto = IntVar(value=0)
 
     # Frame principal
     main_frame = Frame(frameinfo, bg=CORES["fundo"])
@@ -152,7 +170,7 @@ def janela_vendas(frameinfo):
 
     Button(frame_produto, text="Adicionar", bg=CORES["adicionar"], fg='white', font=('Arial', 12, 'bold'),
            relief='flat', cursor='hand2',
-           command=lambda: Mainbread.Logic(Entry_Cod, Var_Name, Var_Preco, Entry_qtd, listbox, Var_Marca, Var_TotalVenda)).grid(row=0, column=8, padx=(20,0))
+           command=lambda: Mainbread.Logic(Entry_Cod, Var_Name, Var_Preco, Entry_qtd, listbox, Var_Marca, Var_TotalVenda, Var_TotalProdutos, Var_qtdproduto)).grid(row=0, column=8, padx=(20,0))
 
     # ---------- LISTA DE ITENS ----------
     Label(main_frame, text="Itens da Venda:", font=('Arial', 16, 'bold'), bg=CORES["fundo"], fg=CORES["texto"]).pack(anchor='w', pady=(20, 5))
@@ -177,9 +195,17 @@ def janela_vendas(frameinfo):
     Var_TotalVenda.trace_add('write', lambda n, i, m: Mainbread.AutoAdjust(Entry_Total, Var_TotalVenda))
 
     Button(frame_footer, text='Finalizar Venda', font=('Arial', 14, 'bold'),
-           bg=CORES["verde"], fg='white', cursor='hand2', relief='flat', command=lambda: SellDB.RegisterSell(listbox)).pack(side='right', padx=5)
+           bg=CORES["verde"], fg='white', cursor='hand2', relief='flat', command=lambda: SellDB.RegisterSell(listbox, Var_TotalVenda)).pack(side='right', padx=5)
     Button(frame_footer, text='Cancelar', font=('Arial', 14, 'bold'),
-           bg=CORES["vermelho"], fg='white', cursor='hand2', relief='flat', command=lambda: Mainbread.CancelButton(Entry_Cod, Var_Name, Var_Preco, Entry_qtd, listbox, Var_Marca, Var_TotalVenda)).pack(side='right', padx=5)
+           bg=CORES["vermelho"], fg='white', cursor='hand2', relief='flat', command=lambda: Mainbread.CancelButton(Entry_Cod,
+                                                                                                                   Var_Name,
+                                                                                                                   Var_Preco,
+                                                                                                                   Entry_qtd,
+                                                                                                                   listbox,
+                                                                                                                   Var_Marca,
+                                                                                                                   Var_TotalVenda,
+                                                                                                                   Var_TotalProdutos,
+                                                                                                                   Var_qtdproduto)).pack(side='right', padx=5)
 
     # ---------- RESUMO ----------
     Label(main_frame, text='Resumo da Venda:', font=('Arial', 15, 'bold'), bg=CORES["fundo"], fg=CORES["texto"]).pack(anchor='w', pady=(10, 5))
@@ -187,10 +213,12 @@ def janela_vendas(frameinfo):
     frame_resumo.pack(fill='x', pady=5)
 
     Label(frame_resumo, text='Itens:', bg=CORES["fundo"]).grid(row=0, column=0)
-    Entry(frame_resumo, width=5, state='disabled', relief='flat', disabledbackground=CORES["cinza"]).grid(row=0, column=1, padx=5)
+    Entry_Itens = Entry(frame_resumo, width=5, state='disabled', relief='flat', textvariable=Var_qtdproduto, disabledbackground=CORES["cinza"])
+    Entry_Itens.grid(row=0, column=1, padx=5)
 
     Label(frame_resumo, text='Qtd Total:', bg=CORES["fundo"]).grid(row=0, column=2, padx=(15,0))
-    Entry(frame_resumo, width=6, state='disabled', relief='flat', disabledbackground=CORES["cinza"]).grid(row=0, column=3, padx=5)
+    Entry_QTDTotal = Entry(frame_resumo, width=6, state='disabled', textvariable=Var_TotalProdutos, relief='flat', disabledbackground=CORES["cinza"])
+    Entry_QTDTotal.grid(row=0, column=3, padx=5)
 
     Label(frame_resumo, text='Cliente:', bg=CORES["fundo"]).grid(row=0, column=4, padx=(15,0))
     Entry(frame_resumo, width=25, relief='flat', highlightthickness=1, highlightbackground=CORES["cinza"]).grid(row=0, column=5, padx=5)
