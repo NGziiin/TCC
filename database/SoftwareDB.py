@@ -4,7 +4,7 @@ from psycopg2 import errors
 import messagebox, datetime
 from dotenv import load_dotenv
 import tkinter as tk
-from gui.Gui_TopLevel import OpenComprovante
+from gui.Gui_TopLevel import ComprovanteGui
 
 load_dotenv()
 
@@ -322,6 +322,8 @@ class SellDB:
             VALUES (%s, %s, %s);
         """, (codigovenda, data_atual, valor_total))
 
+        items = [] # variável para inserir os itens no comprovante
+
         # Inserir itens (todos com o mesmo id_venda)
         for produto in info_compactada:
             codigo, nome, marca, preco, quantidade = produto
@@ -332,18 +334,18 @@ class SellDB:
             # INSERINDO NO LOG
             cursor.execute('INSERT INTO log (tipo, produto, marca, quantidade, data) '
                            'VALUES (%s, %s, %s, %s, %s);', ('Vendido', nome, marca, quantidade, data_atual))
+
+            items.append((nome, int(quantidade), float(preco)))
+
         conn.commit()
         cursor.close()
         conn.close()
         threading.Thread(target=messagebox.showinfo('Sucesso!', 'Venda realizada com sucesso'), daemon=True).start()
         SellDB.CleanWindowOK(listbox, Var_TotalVenda)
-        threading.Thread(target=OpenComprovante.AbrirComprovante, daemon=True).start()
-        return {
-            "codigo_venda": codigovenda,
-            "data": data_atual,
-            "valor_total": valor_total,
-            "itens": [(p[1], int(p[4]), float(p[3])) for p in info_compactada]
-        }
+
+        # janela do comprovante
+        comprovante = ComprovanteGui.InterfaceComprovante(items=items, codigovenda=codigovenda)
+        comprovante.run()
 
     # Função para limpar a janela quando finalizar
     def CleanWindowOK(listbox, Var_TotalVenda):
