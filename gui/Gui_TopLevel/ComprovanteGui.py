@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import tkinter as tk
 from datetime import datetime
+from services.FunctionComprovante import Save
 
 
 class InterfaceComprovante:
@@ -10,6 +11,7 @@ class InterfaceComprovante:
         self.janela.title("Comprovante de Venda")
         self.janela.geometry("520x680")
         self.janela.configure(fg_color="white")
+        self.janela.resizable(False, False)
 
         self.paper_width = 480
         self.paper_height = 640
@@ -35,7 +37,7 @@ class InterfaceComprovante:
 
         # Submenu de opções
         self.opções = tk.Menu(self.menu, tearoff=0)
-        self.opções.add_command(label='Salvar', command=lambda: print("Salvar comprovante"))
+        self.opções.add_command(label='Salvar', command=lambda: Save(self.canvas))
         self.opções.add_command(label='Imprimir', command=lambda: print("Imprimir comprovante"))
         self.opções.add_separator()
         self.opções.add_command(label='Sair', command=self.janela.quit)
