@@ -8,7 +8,7 @@ class InterfaceComprovante:
         ctk.set_appearance_mode('light')
         self.janela = ctk.CTk()
         self.janela.title("Comprovante de Venda")
-        self.janela.geometry("520x660")
+        self.janela.geometry("520x680")
         self.janela.configure(fg_color="white")
 
         self.paper_width = 480
@@ -20,6 +20,7 @@ class InterfaceComprovante:
         self.items = items if items else []
 
         self._montar_interface()
+        self.run()
 
     def _montar_interface(self):
         # Canvas simulando o papel do comprovante
@@ -28,6 +29,22 @@ class InterfaceComprovante:
             bg="white", highlightthickness=0
         )
         self.canvas.pack(padx=10, pady=10)
+
+        # ===== MENU SUPERIOR =====
+        self.menu = tk.Menu(self.janela)
+
+        # Submenu de opções
+        self.opções = tk.Menu(self.menu, tearoff=0)
+        self.opções.add_command(label='Salvar', command=lambda: print("Salvar comprovante"))
+        self.opções.add_command(label='Imprimir', command=lambda: print("Imprimir comprovante"))
+        self.opções.add_separator()
+        self.opções.add_command(label='Sair', command=self.janela.quit)
+
+        # Adiciona o submenu à barra principal
+        self.menu.add_cascade(label='Opções', menu=self.opções)
+
+        # 🔹 IMPORTANTE: adiciona o menu à janela
+        self.janela.config(menu=self.menu)
 
         # Fontes
         self.font_header = ("Helvetica", 16, "bold")
@@ -49,10 +66,10 @@ class InterfaceComprovante:
 
         # Cabeçalho
         self.canvas.create_text(W / 2, y, text=self.store, font=self.font_header, anchor='n')
-        y += 28
+        y += 20
         self.canvas.create_text(W / 2, y, text=f"Telefone: {self.phone}", font=self.font_sub, anchor='n')
-        y += 22
-        self.canvas.create_text(W / 2, y, text=self.codigovenda, font=self.font_mono, anchor='w')
+        y += 26
+        self.canvas.create_text(W / 20, y, text=self.codigovenda, font=self.font_mono, anchor='w')
 
         now = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
         self.canvas.create_text(W - pad_x - 10, y, text=now, anchor='e', font=self.font_mono)
@@ -72,7 +89,11 @@ class InterfaceComprovante:
             total_line = qty * unit
             self.canvas.create_text(pad_x + 6, y, text=str(descr)[:max_chars], anchor='w', font=self.font_item)
             self.canvas.create_text(W - 120, y, text=str(int(qty)), font=self.font_item)
-            self.canvas.create_text(W - 40, y, text=f"R${total_line:,.2f}".replace('.', 'x').replace(',', '.').replace('x', ','), font=self.font_item)
+            self.canvas.create_text(
+                W - 40, y,
+                text=f"R${total_line:,.2f}".replace('.', 'x').replace(',', '.').replace('x', ','),
+                font=self.font_item
+            )
             y += line_h + 2
 
         # Rodapé
@@ -82,15 +103,21 @@ class InterfaceComprovante:
         subtotal = sum(q * unit for _, q, unit in self.items)
         y_total = footer_y + 10
         self.canvas.create_text(W - 140, y_total, text="Subtotal:", anchor='e', font=self.font_sub)
-        self.canvas.create_text(W - 40, y_total, text=f"R${subtotal:,.2f}".replace('.', 'x').replace(',', '.').replace('x', ','), anchor='e', font=self.font_sub)
+        self.canvas.create_text(W - 40, y_total,
+                                text=f"R${subtotal:,.2f}".replace('.', 'x').replace(',', '.').replace('x', ','),
+                                anchor='e', font=self.font_sub)
         y_total += line_h
         self.canvas.create_text(W - 140, y_total, text="Taxa:", anchor='e', font=self.font_sub)
-        self.canvas.create_text(W - 40, y_total, text=f"R${self.tax:,.2f}".replace('.', 'x').replace(',', '.').replace('x', ','), anchor='e', font=self.font_sub)
+        self.canvas.create_text(W - 40, y_total,
+                                text=f"R${self.tax:,.2f}".replace('.', 'x').replace(',', '.').replace('x', ','),
+                                anchor='e', font=self.font_sub)
         y_total += line_h
 
         total = subtotal + self.tax
         self.canvas.create_text(W - 140, y_total, text="Total:", anchor='e', font=self.font_total)
-        self.canvas.create_text(W - 40, y_total, text=f"R${total:,.2f}".replace('.', 'x').replace(',', '.').replace('x', ','), anchor='e', font=self.font_total)
+        self.canvas.create_text(W - 40, y_total,
+                                text=f"R${total:,.2f}".replace('.', 'x').replace(',', '.').replace('x', ','),
+                                anchor='e', font=self.font_total)
 
         self.canvas.create_text(W / 4, H - 30, text="Obrigado pela preferência!",
                                 font=self.font_thanks, anchor='s')
@@ -101,3 +128,6 @@ class InterfaceComprovante:
     def run(self):
         self.janela.mainloop()
 
+
+if __name__ == '__main__':
+    InterfaceComprovante(codigovenda='1c261a8cf7')
