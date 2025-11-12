@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import tkinter as tk
 from datetime import datetime
-from services.FunctionComprovante import Save
+from services.FunctionComprovante import Comprovante
 
 
 class InterfaceComprovante:
@@ -37,10 +37,10 @@ class InterfaceComprovante:
 
         # Submenu de opções
         self.opções = tk.Menu(self.menu, tearoff=0)
-        self.opções.add_command(label='Salvar', command=lambda: Save(self.canvas))
-        self.opções.add_command(label='Imprimir', command=lambda: print("Imprimir comprovante"))
+        print(self.codigovenda)
+        self.opções.add_command(label='Imprimir', command=lambda: Comprovante(self.codigovenda, self.items))
         self.opções.add_separator()
-        self.opções.add_command(label='Sair', command=self.janela.quit)
+        self.opções.add_command(label='Sair', command=self.janela.destroy)
 
         # Adiciona o submenu à barra principal
         self.menu.add_cascade(label='Opções', menu=self.opções)
@@ -132,4 +132,10 @@ class InterfaceComprovante:
 
 
 if __name__ == '__main__':
-    InterfaceComprovante(codigovenda='1c261a8cf7')
+    dados_exemplo = [
+        ("Coca-Cola 2L",  2,  7.50),
+        ("Pão de Queijo",  1,  5.00),
+        ("Água Mineral", 3, 2.00)
+    ]
+
+    InterfaceComprovante(items=dados_exemplo, codigovenda='1c261a8cf7')
