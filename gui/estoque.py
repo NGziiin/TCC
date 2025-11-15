@@ -2,6 +2,7 @@ from functools import partial
 from tkinter import *
 from tkinter import ttk
 import sys, os
+from CTkMessagebox import CTkMessagebox
 
 # --- Imports do sistema ---
 gui_topLevel = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
@@ -24,8 +25,16 @@ def block_event(event):
 
 def Searching(entry_pesquisa):
     entry_info = entry_pesquisa.get()
-    entry_pesquisa.delete(0, 'end')
-    SearchEstoque.Interface(entry_info)
+
+    #Verifica se o campo não está vazio
+    if entry_info == '' or entry_info is None:
+        entry_pesquisa.config(background='#ffe8eb')
+        CTkMessagebox(title='ERRO', message='O CAMPO NÃO PODE ESTÁ VAZIO', icon='cancel')
+    else:
+        entry_pesquisa.delete(0, 'end')
+        entry_pesquisa.config(background='#ffffff')
+        SearchEstoque.Interface(entry_info)
+
 
 # --- Interface principal ---
 def janela_estoque(frameinfo):
@@ -183,4 +192,4 @@ def janela_estoque(frameinfo):
 
     # Carregar dados
     StorageLowLimitDB.LoadLowLimitDB(entry_estoque_baixo)
-    StorageRegisterClassDB.LoadStorageDB(listbox)
+    StorageRegisterClassDB.LoadStorageDB(listbox, ref=0)

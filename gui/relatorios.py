@@ -3,7 +3,7 @@ import os, sys
 
 logic_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.join(logic_path, 'MensagensInfos'))
-from services.MensagensInfos import LogicLog
+from services.FilterInfos import LogicLog
 from database.SoftwareDB import DBLog
 
 def logic_relatorio(text_relatorio):
@@ -54,7 +54,7 @@ def aba_relatorios(frameinfo):
     opt = OptionMenu(
         filtro_frame,
         filtro_tipo,
-        "Todos", "Adicionados", "Removidos", "Vendidos", "Estoque Baixo"
+        "Todos", "Adicionado", 'Atualizado', "Excluído", "Vendido", "Estoque Baixo"
     )
     opt.config(
         font=('Segoe UI', 11),
@@ -78,7 +78,7 @@ def aba_relatorios(frameinfo):
         activebackground='#005A9E',
         activeforeground='white',
         width=14,
-        command=lambda: (LogicLog.GetFilter(filtro_tipo))  # mantém tua função
+        command=lambda: (LogicLog.GetFilter(filtro_tipo, text_relatorio))
     ).pack(side='left', padx=10)
 
     # ====== ÁREA DE RELATÓRIOS ======
@@ -112,5 +112,11 @@ def aba_relatorios(frameinfo):
     # ====== CARREGAMENTO DOS DADOS DO BANCO ======
     logic_relatorio(text_relatorio)
 
-    text_relatorio.config(state='disabled')
+    #configurações da text que aparece as informações
+    text_relatorio.config(state='disabled', cursor='arrow')
+    text_relatorio.bind("<<Selection>>", lambda e: "break")
+    text_relatorio.bind("<Button-1>", lambda e: "break")  # bloqueia clicar e arrastar
+    text_relatorio.bind("<B1-Motion>", lambda e: "break")  # bloqueia arrastar
+    text_relatorio.bind("<Control-a>", lambda e: "break")  # bloqueia Ctrl+A
+    text_relatorio.bind("<ButtonRelease-1>", lambda e: "break")
 

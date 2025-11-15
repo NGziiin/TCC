@@ -1,4 +1,4 @@
-from customtkinter import CTk
+from CTkMessagebox import CTkMessagebox
 from customtkinter import *
 from tkinter import ttk
 
@@ -41,7 +41,19 @@ class Interface:
         self.tabela.pack(fill='both', expand=True)
 
         self.tabela.bind("<Double-1>", lambda event: Functions.DoubleClickSelect(self, event, self.tabela))
-        Functions.InsertItensTable(self, self.tabela)
+        informacoes = Functions.InsertItensTable(self, self.tabela)
+
+        if not informacoes:
+            self.janela_info.destroy()
+            CTkMessagebox(
+                title="Produto não encontrado",
+                message="Não foi possível encontrar este produto no banco de dados.",
+                icon="warning"
+            )
+            return
+
+        else:
+            pass
 
 class InterfaceInfos:
     def __init__(self, interface: Interface, info_material: dict):
@@ -113,9 +125,9 @@ class Functions:
     def InsertItensTable(self, tabela):
         from database.SoftwareDB import StorageRegisterClassDB
         entry_info = self.entry_info
-        print(f'dentro do Insert Table {entry_info}')
         infosgeted = StorageRegisterClassDB.LoadSearchStorage(entry_info)
         for i, linhas in enumerate(infosgeted):
             id_, product, marca = linhas
             tag = 'par' if i % 2 == 0 else 'impar'
             tabela.insert('', 'end', values=(product, marca), tags=(tag, ))
+        return infosgeted

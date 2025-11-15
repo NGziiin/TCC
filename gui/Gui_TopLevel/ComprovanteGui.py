@@ -2,16 +2,18 @@ import customtkinter as ctk
 import tkinter as tk
 from datetime import datetime
 from services.FunctionComprovante import Comprovante
+import threading
 
 
 class InterfaceComprovante:
     def __init__(self, items=None, codigovenda=None, store="Loja TCC & LTDA", phone="(62) 3451-4002", tax=0.0):
         ctk.set_appearance_mode('light')
-        self.janela = ctk.CTk()
+        self.janela = ctk.CTkToplevel()
         self.janela.title("Comprovante de Venda")
         self.janela.geometry("520x680")
         self.janela.configure(fg_color="white")
         self.janela.resizable(False, False)
+        self.janela.grab_set()
 
         self.paper_width = 480
         self.paper_height = 640
@@ -22,7 +24,8 @@ class InterfaceComprovante:
         self.items = items if items else []
 
         self._montar_interface()
-        self.run()
+        #self.run()
+        threading.Thread(target=Comprovante.imprimir_comprovante_texto, args=(self, self.codigovenda, self.items), daemon=True).start()
 
     def _montar_interface(self):
         # Canvas simulando o papel do comprovante
@@ -129,13 +132,3 @@ class InterfaceComprovante:
 
     def run(self):
         self.janela.mainloop()
-
-
-if __name__ == '__main__':
-    dados_exemplo = [
-        ("Coca-Cola 2L",  2,  7.50),
-        ("Pão de Queijo",  1,  5.00),
-        ("Água Mineral", 3, 2.00)
-    ]
-
-    InterfaceComprovante(items=dados_exemplo, codigovenda='1c261a8cf7')

@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import messagebox
+from CTkMessagebox import CTkMessagebox
 from database.SoftwareDB import SellDB, StorageRegisterClassDB
 
 # ==================== FUNÇÕES ====================
@@ -12,7 +12,7 @@ class Mainbread:
     def Autopreenchimento(event, Entry_Cod, Var_Name, Var_Preco, Var_Marca):
         global info
         codigo = Entry_Cod.get()
-        banco_dados = StorageRegisterClassDB.LoadStorageDB(listbox=None)
+        banco_dados = StorageRegisterClassDB.LoadStorageDB(listbox=None, ref=0)
         info = {}
         for linha in banco_dados:
             id_produto = str(linha[0])
@@ -89,15 +89,15 @@ class Mainbread:
                 qtd_solicitada = int(getQTD)
                 estoque = info.get(getCod, {}).get('quantidade', 0)
                 if getName == 'Não encontrado':
-                    messagebox.showerror('ERRO', 'PRODUTO NÃO ENCONTRADO\n\nNão é possivel adicionar um produto que não existe no estoque')
+                    CTkMessagebox(title='ERRO', message='PRODUTO NÃO ENCONTRADO\n\nNão é possivel adicionar um produto que não existe no estoque', icon='cancel')
                     return
                 else:
                     if qtd_solicitada > estoque:
-                        messagebox.showerror('ESTOQUE INSUFICIENTE',f'Quantidade solicitada ({qtd_solicitada}) maior que o estoque disponível ({estoque})')
+                        CTkMessagebox(title='ESTOQUE INSUFICIENTE',message=f'Quantidade solicitada ({qtd_solicitada}) maior que o estoque disponível ({estoque})')
                         return
 
             except ValueError:
-                messagebox.showerror('ERRO', 'quantidade inválida')
+                CTkMessagebox(title='ERRO', message='quantidade inválida', icon='warning')
                 return
 
             listbox.insert(END,f'Código: {getCod} | nome: {getName} | marca:{getMarca} | Preço: {getPreco} | Quantidade: {getQTD}')
@@ -108,9 +108,9 @@ class Mainbread:
             Var_Name.set('')
             Mainbread.Calculo_total(listbox, Var_TotalVenda, Var_TotalProduto, Var_qtdproduto)
         else:
-            messagebox.showerror('FALTA DE INFORMAÇÕES', 'TODOS OS CAMPOS PRECISAM ESTAR PREENCHIDOS')
+            CTkMessagebox(title='FALTA DE INFORMAÇÕES', message='TODOS OS CAMPOS PRECISAM ESTAR PREENCHIDOS')
 
-    def CancelButton(Entry_Cod, Var_Name, Var_Preco, Entry_qtd, listbox, Var_Marca, Var_TotalVenda, Var_TotalProduto, Var_qtdproduto):
+    def CancelButton(Entry_Cod, Var_Name, Var_Preco, Entry_qtd, listbox, Var_Marca, Var_TotalVenda, Var_TotalProduto, Var_qtdproduto, Var_Cliente):
         Entry_Cod.delete(0, END)
         Var_Name.set('')
         Var_Preco.set('')
@@ -120,6 +120,7 @@ class Mainbread:
         Var_TotalVenda.set('R$0,00')
         Var_TotalProduto.set(0)
         Var_qtdproduto.set(0)
+        Var_Cliente.set('')
 
 # ==================== INTERFACE ====================
 def janela_vendas(frameinfo):
@@ -134,12 +135,13 @@ def janela_vendas(frameinfo):
         "adicionar": "#43a047"
     }
 
-    Var_Name = StringVar()
-    Var_Preco = StringVar()
-    Var_Marca = StringVar()
-    Var_TotalVenda = StringVar(value='R$0,00')
+    Var_Cliente = StringVar(value=' ') # Variável para pegar dados da pessoa que realizou a compra
+    Var_Name = StringVar() # variável para autopreenchimento no sistema consultando o banco de dados
+    Var_Preco = StringVar() # variável para autopreenchimento no sistema consultando o banco de dados
+    Var_Marca = StringVar() # variável para autopreenchimento no sistema consultando o banco de dados
+    Var_TotalVenda = StringVar(value='R$0,00') #essa variável mostra o valor total da soma de todos os produtos
     Var_TotalProdutos = IntVar(value=0) # essa variável é a que mostra a quantidade de itens que tem no carrinho de compras
-    Var_qtdproduto = IntVar(value=0)
+    Var_qtdproduto = IntVar(value=0)# essa variável mostra a quantidade de itens junto no carrinho
 
     # Frame principal
     main_frame = Frame(frameinfo, bg=CORES["fundo"])
@@ -195,7 +197,7 @@ def janela_vendas(frameinfo):
     Var_TotalVenda.trace_add('write', lambda n, i, m: Mainbread.AutoAdjust(Entry_Total, Var_TotalVenda))
 
     Button(frame_footer, text='Finalizar Venda', font=('Arial', 14, 'bold'),
-           bg=CORES["verde"], fg='white', cursor='hand2', relief='flat', command=lambda: SellDB.RegisterSell(listbox, Var_TotalVenda)).pack(side='right', padx=5)
+           bg=CORES["verde"], fg='white', cursor='hand2', relief='flat', command=lambda: SellDB.RegisterSell(listbox, Var_TotalVenda, Var_Cliente, Var_TotalProdutos, Var_qtdproduto)).pack(side='right', padx=5)
     Button(frame_footer, text='Cancelar', font=('Arial', 14, 'bold'),
            bg=CORES["vermelho"], fg='white', cursor='hand2', relief='flat', command=lambda: Mainbread.CancelButton(Entry_Cod,
                                                                                                                    Var_Name,
@@ -205,7 +207,8 @@ def janela_vendas(frameinfo):
                                                                                                                    Var_Marca,
                                                                                                                    Var_TotalVenda,
                                                                                                                    Var_TotalProdutos,
-                                                                                                                   Var_qtdproduto)).pack(side='right', padx=5)
+                                                                                                                   Var_qtdproduto,
+                                                                                                                   Var_Cliente)).pack(side='right', padx=5)
 
     # ---------- RESUMO ----------
     Label(main_frame, text='Resumo da Venda:', font=('Arial', 15, 'bold'), bg=CORES["fundo"], fg=CORES["texto"]).pack(anchor='w', pady=(10, 5))
@@ -221,7 +224,7 @@ def janela_vendas(frameinfo):
     Entry_QTDTotal.grid(row=0, column=3, padx=5)
 
     Label(frame_resumo, text='Cliente:', bg=CORES["fundo"]).grid(row=0, column=4, padx=(15,0))
-    Entry(frame_resumo, width=25, relief='flat', highlightthickness=1, highlightbackground=CORES["cinza"]).grid(row=0, column=5, padx=5)
+    Entry(frame_resumo, width=25, relief='flat', textvariable=Var_Cliente ,highlightthickness=1, highlightbackground=CORES["cinza"]).grid(row=0, column=5, padx=5)
 
     Label(frame_resumo, text='Pagamento:', bg=CORES["fundo"]).grid(row=0, column=6, padx=(15,0))
     pagamento = StringVar(value='Dinheiro')

@@ -1,10 +1,10 @@
-import threading
-import psycopg2, os, hashlib
+import psycopg2, os, hashlib, plyer
 from psycopg2 import errors
-import messagebox, datetime
+import datetime
 from dotenv import load_dotenv
 import tkinter as tk
 from gui.Gui_TopLevel import ComprovanteGui
+from CTkMessagebox import CTkMessagebox
 
 load_dotenv()
 
@@ -52,7 +52,8 @@ class StorageRegisterClassDB:
         cursor.execute('''CREATE TABLE IF NOT EXISTS venda (
                        id VARCHAR(32) PRIMARY KEY,
                        data DATE NOT NULL,
-                       valor NUMERIC(10,2)
+                       valor NUMERIC(10,2),
+                       cliente TEXT NOT NULL
                        )''')
         
         #TABELA DE ITENS VENDA
@@ -61,7 +62,7 @@ class StorageRegisterClassDB:
                        id_venda VARCHAR(32) NOT NULL,
                        produto TEXT NOT NULL,
                        qtd INT NOT NULL,
-                       valor_unitario NUMERIC(10,2),
+                       valor_unitario NUMERIC(10,2), 
                        FOREIGN KEY (id_venda) REFERENCES venda(id)
                        )''')
 
@@ -76,28 +77,43 @@ class StorageRegisterClassDB:
         connection.commit()
         connection.close()
 
-    def LoadStorageDB(listbox):
+    def LoadStorageDB(listbox, ref):
         connection = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = connection.cursor()
-        try:
-            cursor.execute('SELECT produto.id, produto.nome, produto.marca, estoque.qtd_atual, estoque.valor_venda FROM produto JOIN estoque ON produto.id = estoque.produto_id')
-            infos = cursor.fetchall()
-            connection.commit()
-            cursor.close()
-            for linhas in infos:
-                id_, produto, marca, quantidade, preco = linhas
-                #####ESSE IF SERVE PARA CARREGAR A FUNÇÃO MESMO QUE O LISTBOX RETORNE NULO
-                ### PARA EVITAR DA ERRO DE DECLARAÇÃO DE VARIÁVEL
-                #### POIS NEM SEMPRE VAI TER O LISTBOX
-                if listbox is not None:
-                    listbox.insert('', 'end', text=f'{id_}', values=(produto, marca, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
-                    ############################################################################
-                elif listbox is None:
+        ### ESSA LÓGICA MATCH É PARA NÃO PRECISAR CRIAR UMA NOVA FUNÇÃO PARA
+        ## ALTERAR SOMENTE 1 INFORMAÇÃO QUE É RECEBIDA DO BANCO DE DADOS.
+        match ref:
+            case 0:
+                try:
+                    cursor.execute('SELECT produto.id, produto.nome, produto.marca, estoque.qtd_atual, estoque.valor_venda FROM produto JOIN estoque ON produto.id = estoque.produto_id')
+                    infos = cursor.fetchall()
+                    connection.commit()
+                    cursor.close()
+                    for linhas in infos:
+                        id_, produto, marca, quantidade, preco = linhas
+                        #####ESSE IF SERVE PARA CARREGAR A FUNÇÃO MESMO QUE O LISTBOX RETORNE NULO
+                        ### PARA EVITAR DA ERRO DE DECLARAÇÃO DE VARIÁVEL
+                        #### POIS NEM SEMPRE VAI TER O LISTBOX
+                        if listbox is not None:
+                            listbox.insert('', 'end', text=f'{id_}', values=(produto, marca, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
+                        ############################################################################
+                        elif listbox is None:
+                            return infos
+                except errors.UndefinedTable:
+                    cursor.close()
+                    pass
+
+            case 1:
+                try:
+                    cursor.execute('SELECT produto.id, produto.nome, produto.marca, estoque.qtd_atual, estoque.ultimo_valor_pago FROM produto JOIN estoque ON produto.id = estoque.produto_id')
+                    infos = cursor.fetchall()
+                    connection.commit()
+                    cursor.close()
                     return infos
-                             
-        except errors.UndefinedTable:
-            cursor.close()
-            pass
+
+                except errors.UndefinedTable:
+                    cursor.close()
+                    pass
 
 
     #nessa parte aqui a pesquisa é pelo botão de pesquisar
@@ -119,7 +135,7 @@ class StorageRegisterClassDB:
 
         except errors.UndefinedTable:
             cursor.close()
-            messagebox.showerror('erro', 'houve um erro ao abrir o banco de dados')
+            CTkMessagebox(title='erro', message='houve um erro ao abrir o banco de dados', icon='cancel')
             pass
 
     def LoadInfosSelected(valores):
@@ -176,7 +192,7 @@ class StorageRegisterClassDB:
 
         if verify_nome is not None and verify_marca is not None:
             cursor.close()
-            messagebox.showerror('ERRO', 'Produto já cadastrado no sistema')
+            CTkMessagebox(title='ERRO', message='Produto já cadastrado no sistema', icon='cancel')
             return
         elif verify_nome is None or verify_marca is None:
             # Inserir na tabela entrada_produto e capturar o id gerado
@@ -195,14 +211,14 @@ class StorageRegisterClassDB:
             connection.commit()
             cursor.close()
             janela.destroy()
-            messagebox.showinfo('SUCESSO', 'Produto registrado com sucesso')
+            CTkMessagebox(title='SUCESSO', message='Produto registrado com sucesso', icon='check')
 
 class StorageLowLimitDB:
     def __init__(self):
         pass
 
     def CreateLowLimitDB():
-        connection = psycopg2.connect(host="localhost", port='5432', database="postgres", user="postgres", password="2004")
+        connection = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = connection.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS lowlimit (
@@ -215,7 +231,7 @@ class StorageLowLimitDB:
 
     def AddLowLimitDB(entry_estoque_baixo):
         quantity_limit = int(entry_estoque_baixo.get())
-        connection = psycopg2.connect(host="localhost", port='5432', database="postgres", user="postgres", password="2004")
+        connection = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = connection.cursor()
         cursor.execute('DELETE FROM lowlimit')  # Remove entradas anteriores
         cursor.execute('INSERT INTO lowlimit (quantity_limit) VALUES (%s)', (quantity_limit,))
@@ -227,10 +243,10 @@ class StorageLowLimitDB:
         entry_estoque_baixo.master.focus()
 
         #MOSTRANDO A MENSAGEM DE SUCESSO
-        messagebox.showinfo('SUCESSO', 'Quantidade mínima atualizada com sucesso')
+        CTkMessagebox(title='SUCESSO', message='Quantidade mínima atualizada com sucesso', icon='check')
 
     def LoadLowLimitDB(entry_estoque_baixo):
-        connection = psycopg2.connect(host="localhost", port='5432', database="postgres", user="postgres", password="2004")
+        connection = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = connection.cursor()
         cursor.execute('SELECT quantity_limit FROM lowlimit ORDER BY id DESC LIMIT 1')
         result = cursor.fetchone()
@@ -278,7 +294,9 @@ class DBLog:
                        'AND log.produto = p.nome '
                        'AND log.marca = p.marca '
                        'AND log.quantidade = e.qtd_atual '
-                       'AND e.qtd_atual > (SELECT quantity_limit FROM lowlimit LIMIT 1);'
+                       'AND log.tipo = %s '
+                       'AND e.qtd_atual > (SELECT quantity_limit FROM lowlimit LIMIT 1);',
+                       (situacao, )
                        )
         conn.commit()
         conn.close()
@@ -297,9 +315,10 @@ class SellDB:
     def __init__(self):
         pass
 
-    def RegisterSell(listbox, Var_TotalVenda):
+    def RegisterSell(listbox, Var_TotalVenda, Entry_Name, Var_TotalProdutos, Var_qtdproduto):
 
         info_venda = listbox.get(0, tk.END)
+        cliente = Entry_Name.get()
         data_atual = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         info_compactada = SellDB.SaveVariable(info_venda)
         codigovenda = SellDB.CodVendaHash()
@@ -318,15 +337,16 @@ class SellDB:
 
         # Inserir venda (apenas uma vez)
         cursor.execute("""
-            INSERT INTO venda (id, data, valor)
-            VALUES (%s, %s, %s);
-        """, (codigovenda, data_atual, valor_total))
+            INSERT INTO venda (id, data, valor, cliente)
+            VALUES (%s, %s, %s, %s);
+        """, (codigovenda, data_atual, valor_total, cliente))
 
         items = [] # variável para inserir os itens no comprovante
 
         # Inserir itens (todos com o mesmo id_venda)
         for produto in info_compactada:
-            codigo, nome, marca, preco, quantidade = produto
+            codigo, nome, marca, preco, quantidade = produto # CODIGO = ID DO PRODUTO
+
             cursor.execute("""
                 INSERT INTO itens_venda (id_venda, produto, qtd, valor_unitario)
                 VALUES (%s, %s, %s, %s);
@@ -335,22 +355,31 @@ class SellDB:
             cursor.execute('INSERT INTO log (tipo, produto, marca, quantidade, data) '
                            'VALUES (%s, %s, %s, %s, %s);', ('Vendido', nome, marca, quantidade, data_atual))
 
+            #ATUALIZA A QUANTIDADE DISPONIVEL NO ESTOQUE
+            cursor.execute('UPDATE estoque '
+                           'SET qtd_atual = qtd_atual - %s '
+                           'WHERE produto_id = %s;', (quantidade, codigo, ))
+
             items.append((nome, int(quantidade), float(preco)))
 
         conn.commit()
         cursor.close()
         conn.close()
-        threading.Thread(target=messagebox.showinfo('Sucesso!', 'Venda realizada com sucesso'), daemon=True).start()
-        SellDB.CleanWindowOK(listbox, Var_TotalVenda)
+        # NOTIFICAÇÃO CONFIRMANDO A VENDA
+        plyer.notification.notify(title='Sucesso!', message='Venda realizada com sucesso', app_name='Controle de estoque TCC & LTDA', timeout=5)
+        SellDB.CleanWindowOK(listbox, Var_TotalVenda, Entry_Name, Var_TotalProdutos, Var_qtdproduto)
 
         # janela do comprovante
         comprovante = ComprovanteGui.InterfaceComprovante(items=items, codigovenda=codigovenda)
         comprovante.run()
 
     # Função para limpar a janela quando finalizar
-    def CleanWindowOK(listbox, Var_TotalVenda):
+    def CleanWindowOK(listbox, Var_TotalVenda, Entry_Name, Var_TotalProdutos, Var_qtdproduto):
         listbox.delete(0, tk.END)
         Var_TotalVenda.set('R$0,00')
+        Entry_Name.set('')
+        Var_TotalProdutos.set(0)
+        Var_qtdproduto.set(0)
 
     def SaveVariable(info_venda):
         dados = []
@@ -387,3 +416,129 @@ class SellDB:
         cursor.close()
 
         return infos
+
+class EditProduct:
+    def __init__(self):
+        pass
+
+    def UpdateInDB(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, janela):
+        #pegando informações das variaveis
+        id_objeto = VarCod.get()
+        nome = VarName.get()
+        marca = VarMarca.get()
+        preco_compra = VarPreco.get().replace("R$", "").replace(",", ".") #preço pago pelo produto
+        qtd = VarQTD.get()
+        margem = MargemRegister.get()
+        if margem == "Selecione uma opção":
+            CTkMessagebox(title="Erro", message='selecione uma opção de margem de lucro')
+            return
+
+        #fazendo as alterações
+        conn = psycopg2.connect(
+            host=os.getenv("DB_HOST"),
+            port=os.getenv("DB_PORT"),
+            database=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD")
+        )
+        cursor = conn.cursor()
+        cursor.execute('SELECT id FROM produto '
+                       'WHERE nome = %s AND marca = %s AND id != %s'
+                       '', (nome, marca, id_objeto))
+        exists = cursor.fetchone()
+        if exists:
+            CTkMessagebox(title='ERRO', message='Esse produto já existe no sistema', icon='cancel')
+
+        porcentagem = int(margem.replace("%", ""))
+        lucro = float(preco_compra) * (porcentagem / 100)
+        valor_venda = float(preco_compra) + lucro
+
+        cursor.execute("UPDATE produto SET nome = %s, marca = %s, margem_lucro = %s "
+                       "WHERE id = %s;",
+                       (nome, marca, margem, id_objeto))
+
+        cursor.execute("UPDATE estoque "
+                       "SET qtd_atual = %s, valor_venda = %s, ultimo_valor_pago = %s "
+                       "WHERE produto_id = %s;"
+                       ,(qtd, valor_venda, preco_compra, id_objeto))
+
+        data_log = datetime.date.today().strftime('%d-%m-%Y %H:%M:%S')
+        cursor.execute("INSERT INTO log (tipo, produto, marca, quantidade, data) "
+                       "VALUES (%s, %s, %s, %s, %s)",
+                       ('Atualizado', nome, marca, qtd, data_log))
+        conn.commit()
+        cursor.close()
+        janela.destroy()
+        CTkMessagebox(title="SUCESSO", message='Produto atualizado com sucesso', icon="check")
+
+    def DeleteProductDB(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, NameRegister, MarcaRegister, AmountRegister, PriceRegister):
+        id_produto = VarCod.get()
+
+        if id_produto == "":
+            CTkMessagebox(title="erro de preenchimento", message="preencha o campo com o código que deseja ser deletado")
+            return
+
+        msg = CTkMessagebox(title='CONFIRMAR!', message="Tem certeza que deseja deletar o produto informado?", icon='warning', option_1='Sim', option_2='Cancelar')
+        resposta = msg.get()
+        if resposta == 'Sim':
+            try:
+                connection = psycopg2.connect(
+                    host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"),
+                    database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"),
+                    password=os.getenv("DB_PASSWORD")
+                )
+                cursor = connection.cursor()
+                # Buscar nome e marca para log
+                cursor.execute("SELECT nome, marca FROM produto WHERE id = %s", (id_produto,))
+                data = cursor.fetchone()
+
+                if data is None:
+                    CTkMessagebox(title="ERRO", message="Produto não encontrado.", icon="cancelar")
+                    return
+
+                nome, marca = data
+                # 1 - Deletar itens_entrada
+                cursor.execute("DELETE FROM itens_entrada WHERE produto_id = %s", (id_produto,))
+
+                # 2 - Deletar estoque
+                cursor.execute("DELETE FROM estoque WHERE produto_id = %s", (id_produto,))
+
+                # 3 - Deletar produto
+                cursor.execute("DELETE FROM produto WHERE id = %s", (id_produto,))
+
+                # 4 - Registrar log
+                data_log = datetime.date.today().strftime('%d-%m-%Y %H:%M:%S')
+                cursor.execute("""
+                    INSERT INTO log (tipo, produto, marca, quantidade, data)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, ("Excluído", nome, marca, 0, data_log))
+
+                connection.commit()
+                cursor.close()
+                CTkMessagebox(title="SUCESSO", message="Produto excluído com sucesso.", icon="check")
+                VarCod.set("")
+                EditProduct.CleanConfirmedConfig(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, NameRegister, MarcaRegister, AmountRegister, PriceRegister)
+
+            except Exception as e:
+                CTkMessagebox(title="ERRO", message=str(e), icon="cancel")
+
+        if resposta == 'Cancelar':
+            VarCod.set("")
+            EditProduct.CleanConfirmedConfig(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, NameRegister,
+                                             MarcaRegister, AmountRegister, PriceRegister)
+            return
+
+    def CleanConfirmedConfig(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, NameRegister, MarcaRegister, AmountRegister, PriceRegister):
+        codigo = VarCod.get()
+        if codigo == "":
+            VarName.set('')
+            VarMarca.set('')
+            VarQTD.set('')
+            VarPreco.set('')
+
+            # Habilitando para bloquear
+            NameRegister.configure(state='disabled', fg_color='#CDC9C9')
+            MarcaRegister.configure(state='disabled', fg_color='#CDC9C9')
+            AmountRegister.configure(state='disabled', fg_color='#CDC9C9')
+            PriceRegister.configure(state='disabled', fg_color='#CDC9C9')
+            MargemRegister.set("Selecione uma opção")

@@ -26,7 +26,7 @@ class AutoTeste:
         cursor = connection.cursor()
 
         # Gerar e inserir 10 produtos fictícios
-        for _ in range(30):
+        for _ in range(120):
             # Dados simulados
             NameRegister = fake.unique.word().capitalize()
             MarcaRegister = fake.company()

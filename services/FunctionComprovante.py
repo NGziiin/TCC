@@ -5,6 +5,7 @@ from datetime import datetime
 
 class Comprovante:
     def __init__(self, codigovenda=None, items=None):
+        print(f'dentro do functionComprovante: {items}')
         self.imprimir_comprovante_texto(codigovenda, items)
 
     def imprimir_comprovante_texto(self, codigovenda, items, store="Loja TCC & LTDA", phone="(62) 3451-4002", tax=0.0):
