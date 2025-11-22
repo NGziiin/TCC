@@ -4,7 +4,7 @@ from customtkinter import *
 import sys, os, threading
 
 from database.SoftwareDB import StorageRegisterClassDB, StorageLowLimitDB
-from services import TimerUpdate
+from services import TimerUpdate, AnimationLoading
 
 
 def close_app():
@@ -66,12 +66,13 @@ janela = CTk()
 
 threading.Thread(target=StorageRegisterClassDB.CreateStorageDB, daemon=True).start()
 threading.Thread(target=StorageLowLimitDB.CreateLowLimitDB, daemon=True).start()
-threading.Thread(target=TimerUpdate.ClockUpdate, daemon=True).start()
 
 janela.geometry('1920x1040')
 janela.after(100, lambda: janela.wm_state('zoomed'))
 janela.configure(bg="#F8FAFC")
 janela.title("sistema de estoque - Lojas TCC & LTDA")
+janela.maxsize(1920, 1040)
+janela.minsize(1920, 1040)
 
 framebutton = Frame(janela, bg=janela.cget('bg'))
 framebutton.place(relheight=0.99, relwidth=0.15, relx=0.002, rely=0.005)
@@ -82,6 +83,10 @@ frameinfo.place(relheight=1, relwidth=0.848, relx=0.155, rely=0)
 botoes(framebutton, frameinfo)
 janela_inicial(frameinfo)
 
+frameAnimation = Label(janela, bg=janela.cget('bg'))
+frameAnimation.place(relheight=0.1, relwidth=0.1, relx=0.026, rely=0.944, anchor='center')
+
+threading.Thread(target=TimerUpdate.ClockUpdate, args=(frameAnimation, ), daemon=True).start()
 
 janela.protocol("WM_DELETE_WINDOW", close_app)
 janela.mainloop()

@@ -2,9 +2,11 @@
 import time
 import psycopg2.errors
 from database.SoftwareDB import DBLog
+from services.AnimationLoading import Start
 
 class ClockUpdate:
-    def __init__(self):
+    def __init__(self, frameAnimation):
+        self.frameAnimation = frameAnimation
         self.logic()
 
     def logic(self):
@@ -15,10 +17,10 @@ class ClockUpdate:
                 self.contador += 1
                 if self.contador == 20:
                     try:
+                        animacao = Start(self.frameAnimation)
+                        self.frameAnimation.after(2000, lambda: animacao.StopAnimation())
                         DBLog.LowStorage()
                         self.contador = 0
-                        print('contador resetado')
                     except psycopg2.errors.InvalidColumnReference:
                         self.contador = 0
-                        print('contador resetado')
                         pass
