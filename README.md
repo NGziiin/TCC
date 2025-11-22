@@ -19,7 +19,7 @@ O sistema reduz automaticamente a quantidade disponível de material no estoque 
 ## Tecnologias utilizadas
 
 - Linguagem: Python
-- Framework para interface gráfica: Tkinter e CustomTkinter
+- Library para interface gráfica: Tkinter e CustomTkinter
 - Banco de dados: PostgreSQL
 
 ---
@@ -36,6 +36,7 @@ O sistema reduz automaticamente a quantidade disponível de material no estoque 
 
 - `database/` - scripts para manipulação do banco de dados
 - `gui/` - interfaces gráficas
+- `gui/Gui_TopLevel` - Interfaces gráficas voltadas para funcionalidade específica
 - `services/` - regras de negócio e lógica da aplicação
 - `main.py` - ponto de entrada do sistema
 

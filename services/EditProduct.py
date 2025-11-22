@@ -3,7 +3,7 @@ from database.SoftwareDB import StorageRegisterClassDB
 class LogicProduto:
     def autopreenchimento(event, VarCod, VarName, VarMarca, VarPreco, VarQTD, NameRegister, MarcaRegister, AmountRegister, PriceRegister):
         codigo = VarCod.get()
-        banco_dados = StorageRegisterClassDB.LoadStorageDB(listbox=None, ref=1) #a variável Ref é para selecionar diferente no banco de dados
+        banco_dados = StorageRegisterClassDB.LoadStorageDB(listbox=None, ref=1, reloadTreeview=1) #a variável Ref é para selecionar diferente no banco de dados
         info = {}
         for linha in banco_dados:
             id_produto = str(linha[0])

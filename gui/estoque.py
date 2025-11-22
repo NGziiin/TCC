@@ -108,7 +108,7 @@ def janela_estoque(frameinfo):
         relief='flat',
         padx=10,
         pady=3,
-        command=partial(Storage_Control.abrir_gerenciador_estoque)
+        command=lambda: Storage_Control.abrir_gerenciador_estoque(listbox)
     ).pack(side='left', padx=5)
 
     # Label da lista
@@ -192,4 +192,4 @@ def janela_estoque(frameinfo):
 
     # Carregar dados
     StorageLowLimitDB.LoadLowLimitDB(entry_estoque_baixo)
-    StorageRegisterClassDB.LoadStorageDB(listbox, ref=0)
+    StorageRegisterClassDB.LoadStorageDB(listbox, ref=0, reloadTreeview=1)

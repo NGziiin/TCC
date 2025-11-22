@@ -77,7 +77,7 @@ class StorageRegisterClassDB:
         connection.commit()
         connection.close()
 
-    def LoadStorageDB(listbox, ref):
+    def LoadStorageDB(listbox, ref, reloadTreeview): #reloadTreeview funciona como um True/False -- 0 (True) e 1 (False)
         connection = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = connection.cursor()
         ### ESSA LÓGICA MATCH É PARA NÃO PRECISAR CRIAR UMA NOVA FUNÇÃO PARA
@@ -87,22 +87,28 @@ class StorageRegisterClassDB:
                 try:
                     cursor.execute('SELECT produto.id, produto.nome, produto.marca, estoque.qtd_atual, estoque.valor_venda FROM produto JOIN estoque ON produto.id = estoque.produto_id')
                     infos = cursor.fetchall()
-                    connection.commit()
                     cursor.close()
-                    for linhas in infos:
-                        id_, produto, marca, quantidade, preco = linhas
-                        #####ESSE IF SERVE PARA CARREGAR A FUNÇÃO MESMO QUE O LISTBOX RETORNE NULO
-                        ### PARA EVITAR DA ERRO DE DECLARAÇÃO DE VARIÁVEL
-                        #### POIS NEM SEMPRE VAI TER O LISTBOX
-                        if listbox is not None:
-                            listbox.insert('', 'end', text=f'{id_}', values=(produto, marca, quantidade, f'R$ {preco:,.2f}'.replace('.', ',')))
-                        ############################################################################
-                        elif listbox is None:
-                            return infos
+                    ##### ESSE IF SERVE PARA CARREGAR A FUNÇÃO MESMO QUE O LISTBOX RETORNE NULO
+                    ### PARA EVITAR DA ERRO DE DECLARAÇÃO DE VARIÁVEL
+                    #### POIS NEM SEMPRE VAI TER O LISTBOX
+                    if listbox is not None:
+                        if reloadTreeview == 0:
+                            for child in listbox.get_children():
+                                listbox.delete(child)
+                        for linhas in infos:
+                            id_, produto, marca, quantidade, preco = linhas
+                            listbox.insert('', 'end', text=f'{id_}',
+                                           values=(produto, marca, quantidade,
+                                                   f'R$ {preco:,.2f}'.replace('.', ',')))
+
+                    ############################################################################
+                    elif listbox is None:
+                        return infos
                 except errors.UndefinedTable:
                     cursor.close()
                     pass
 
+            #ESSE RETORNA AS INFORMAÇÕES PARA QUANDO PRECISAR AS INFORMAÇÕES COMPLETA DO PRODUTO
             case 1:
                 try:
                     cursor.execute('SELECT produto.id, produto.nome, produto.marca, estoque.qtd_atual, estoque.ultimo_valor_pago FROM produto JOIN estoque ON produto.id = estoque.produto_id')
@@ -165,6 +171,15 @@ class StorageRegisterClassDB:
 
     def AddStorageDB(NameRegister, AmountRegister, PriceRegister, MarcaRegister, MargemRegister, janela):
 
+        #Verifica se as entry estão vazia e retorna erro
+        if (NameRegister.get().strip() == '' or
+                AmountRegister.get().strip() == '' or
+                PriceRegister.get().strip() == '' or
+                MarcaRegister.get().strip() == '' or
+                MargemRegister.get().strip() == ''):
+            CTkMessagebox(title='Erro', message='Todos os campos precisam está preenchidos', icon='warning')
+            return
+
         Dateregister = datetime.date.today()
         Dateregister = Dateregister.strftime('%d-%m-%Y %H:%M:%S') #SALVA A DATA NO NA TABELA entrada_produto NA COLUNA descrição
 
@@ -179,10 +194,15 @@ class StorageRegisterClassDB:
         PriceRegister = float(PriceRegister.get().replace(',', '.'))
 
         MargemRegister = MargemRegister.get()
+
+        #Verifica se a margem está vazia e retorna erro
+        if MargemRegister == 'Selecione uma opção' or MargemRegister == 'SELECIONE UMA OPÇÃO':
+            CTkMessagebox(title="ERRO", message="Selecione uma opção de margem", icon='warning')
+            return
+
         Porcentagem = int(MargemRegister.replace('%', ''))
         lucro = PriceRegister * (Porcentagem / 100)
         ValorVenda = PriceRegister + lucro
-
         connection = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = connection.cursor()
         cursor.execute('SELECT id FROM produto WHERE nome = %s', (NameRegister, ))
@@ -298,6 +318,14 @@ class DBLog:
                        'AND e.qtd_atual > (SELECT quantity_limit FROM lowlimit LIMIT 1);',
                        (situacao, )
                        )
+        cursor.execute("DELETE FROM log l "
+                       "WHERE l.tipo = %s "
+                       "AND EXISTS ("
+                       "SELECT 1 FROM log l2 "
+                       "WHERE l2.produto = l.produto "
+                       "AND l2.marca = l.marca "
+                       "AND l2.tipo = %s)",
+                       ("Estoque Baixo", "Excluído"))
         conn.commit()
         conn.close()
 
@@ -421,7 +449,7 @@ class EditProduct:
     def __init__(self):
         pass
 
-    def UpdateInDB(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, janela):
+    def UpdateInDB(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, janela, listbox):
         #pegando informações das variaveis
         id_objeto = VarCod.get()
         nome = VarName.get()
@@ -469,9 +497,10 @@ class EditProduct:
         conn.commit()
         cursor.close()
         janela.destroy()
+        StorageRegisterClassDB.LoadStorageDB(listbox, ref=0, reloadTreeview=0)
         CTkMessagebox(title="SUCESSO", message='Produto atualizado com sucesso', icon="check")
 
-    def DeleteProductDB(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, NameRegister, MarcaRegister, AmountRegister, PriceRegister):
+    def DeleteProductDB(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, NameRegister, MarcaRegister, AmountRegister, PriceRegister, listbox):
         id_produto = VarCod.get()
 
         if id_produto == "":
@@ -518,6 +547,7 @@ class EditProduct:
                 CTkMessagebox(title="SUCESSO", message="Produto excluído com sucesso.", icon="check")
                 VarCod.set("")
                 EditProduct.CleanConfirmedConfig(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, NameRegister, MarcaRegister, AmountRegister, PriceRegister)
+                StorageRegisterClassDB.LoadStorageDB(listbox, ref=0, reloadTreeview=0)
 
             except Exception as e:
                 CTkMessagebox(title="ERRO", message=str(e), icon="cancel")

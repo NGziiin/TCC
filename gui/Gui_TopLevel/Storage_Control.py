@@ -1,11 +1,10 @@
 import tkinter as tk
 import customtkinter as ctk
 from database.SoftwareDB import StorageRegisterClassDB, EditProduct
-from functools import partial
 from services.EditProduct import LogicProduto
 
 #JANELA DE SELEÇÃO PARA ESCOLHER SE QUER EDITAR OU EXCLUIR ITEM DO BANCO DE DADOS
-def abrir_gerenciador_estoque():
+def abrir_gerenciador_estoque(listbox):
     popup = tk.Toplevel()
     largura = 340
     altura = 260
@@ -56,7 +55,7 @@ def abrir_gerenciador_estoque():
         relief="flat",
         width=22,
         height=1,
-        command=lambda: [popup.destroy(), janela_registro()]
+        command=lambda: [popup.destroy(), janela_registro(listbox)]
     )
     btn_registrar.pack(pady=5)
 
@@ -76,7 +75,7 @@ def abrir_gerenciador_estoque():
         relief="flat",
         width=22,
         height=1,
-        command=lambda: [popup.destroy(), janela_editar()]
+        command=lambda: [popup.destroy(), janela_editar(listbox)]
     )
     btn_editar.pack(pady=5)
 
@@ -104,7 +103,7 @@ def abrir_gerenciador_estoque():
 
 
 #ESSA JANELA É A DE REGISTRAR NOVO PRODUTO NO SISTEMA
-def janela_registro():
+def janela_registro(listbox):
     janela = ctk.CTkToplevel()
     janela.title("Registrar Produto")
     altura = 550
@@ -135,8 +134,8 @@ def janela_registro():
     frame_margem.pack(anchor='w', padx=18, pady=6, ipadx='40')
     lbl_margem = ctk.CTkLabel(frame_margem, text="Margem de Lucro (%):", anchor="w", font=ctk.CTkFont(size=13))
     lbl_margem.pack(anchor="w")
-    opções_margem = [f'{i}%' for i in range(0, 101, 5)]
-    MargemRegister = ctk.CTkComboBox(frame_margem, values=opções_margem, font=ctk.CTkFont(size=13), state='readonly')
+    opçoes_margem = [f'{i}%' for i in range(0, 101, 5)]
+    MargemRegister = ctk.CTkComboBox(frame_margem, values=opçoes_margem, font=ctk.CTkFont(size=13), state='readonly')
     MargemRegister.set("SELECIONE UMA OPÇÃO")  # valor padrão
     MargemRegister.pack(anchor='w', pady=4, fill='x')
 
@@ -150,7 +149,8 @@ def janela_registro():
                                   fg_color="green",
                                   hover_color="darkgreen",
                                   width=120,
-                                  command=partial(StorageRegisterClassDB.AddStorageDB, NameRegister, AmountRegister, PriceRegister, MarcaRegister, MargemRegister, janela))
+                                  command=lambda: [StorageRegisterClassDB.AddStorageDB(NameRegister, AmountRegister, PriceRegister, MarcaRegister, MargemRegister, janela),
+                                                   (StorageRegisterClassDB.LoadStorageDB(listbox, ref=0, reloadTreeview=0))])
     btn_confirmar.pack(side="left", padx=10)
 
     btn_cancelar = ctk.CTkButton(frame_botoes,
@@ -166,7 +166,7 @@ def janela_registro():
 
 
 #ESSA JANELA EDITA E DELETA O PRODUTO QUE FOR SELECIONADO
-def janela_editar():
+def janela_editar(listbox):
     # STRINGVAR
     VarCod = tk.StringVar(value=None)
     VarName = tk.StringVar()
@@ -223,7 +223,7 @@ def janela_editar():
     btn_salvar = ctk.CTkButton(frame_botoes, text="Salvar Alterações", 
                                text_color='white', 
                                fg_color="green",
-                               command= lambda: EditProduct.UpdateInDB(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, janela),
+                               command= lambda: EditProduct.UpdateInDB(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, janela, listbox),
                                hover_color="darkgreen", 
                                width=140)
     btn_salvar.pack(side="left", padx=10)
@@ -232,7 +232,7 @@ def janela_editar():
                                 text="Excluir Produto", 
                                 text_color='white', 
                                 fg_color="orange",
-                                command= lambda: EditProduct.DeleteProductDB(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, NameRegister, MarcaRegister, AmountRegister, PriceRegister),
+                                command= lambda: EditProduct.DeleteProductDB(VarCod, VarName, VarMarca, VarPreco, VarQTD, MargemRegister, NameRegister, MarcaRegister, AmountRegister, PriceRegister, listbox),
                                 hover_color="#cc0e00", 
                                 width=140)
     btn_excluir.pack(side="left", padx=10)

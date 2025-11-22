@@ -9,7 +9,7 @@ class Config:
         database_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         sys.path.insert(0, database_path)
         from database.SoftwareDB import StorageRegisterClassDB
-        VarDB = StorageRegisterClassDB.LoadStorageDB(listbox=None, ref=0)
+        VarDB = StorageRegisterClassDB.LoadStorageDB(listbox=None, ref=0, reloadTreeview=1)
         return VarDB
 
     def importsAT(self):

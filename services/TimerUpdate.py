@@ -10,10 +10,10 @@ class ClockUpdate:
     def logic(self):
         self.contador = 0
         while True:
-            while self.contador < 30:
+            while self.contador < 20:
                 time.sleep(0.5)
                 self.contador += 1
-                if self.contador == 30:
+                if self.contador == 20:
                     try:
                         DBLog.LowStorage()
                         self.contador = 0

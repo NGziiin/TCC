@@ -12,7 +12,7 @@ class Mainbread:
     def Autopreenchimento(event, Entry_Cod, Var_Name, Var_Preco, Var_Marca):
         global info
         codigo = Entry_Cod.get()
-        banco_dados = StorageRegisterClassDB.LoadStorageDB(listbox=None, ref=0)
+        banco_dados = StorageRegisterClassDB.LoadStorageDB(listbox=None, ref=0, reloadTreeview=1)
         info = {}
         for linha in banco_dados:
             id_produto = str(linha[0])
