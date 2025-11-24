@@ -72,8 +72,8 @@ class StorageRegisterClassDB:
                        'produto TEXT not null,'
                        'marca TEXT not null,'
                        'quantidade NUMERIC(10,2) not null,'
-                       'data DATE not null,'
-                       'UNIQUE (tipo, produto, marca, quantidade))')
+                       'data DATE not null'
+                       ')')
         connection.commit()
         connection.close()
 
