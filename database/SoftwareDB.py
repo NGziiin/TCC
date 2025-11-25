@@ -72,7 +72,8 @@ class StorageRegisterClassDB:
                        'produto TEXT not null,'
                        'marca TEXT not null,'
                        'quantidade NUMERIC(10,2) not null,'
-                       'data DATE not null'
+                       'data DATE not null, '
+                       'UNIQUE (tipo, produto, marca, quantidade)'
                        ')')
         connection.commit()
         connection.close()
@@ -292,39 +293,52 @@ class DBLog:
             conn.close()
             pass
 
-    #VERIFICAR PORQUE ESTÁ DELETANDO OS ADICIONADOS E SUBISTITUINDO PARA OS DE ESTOQUE BAIXO
     def LowStorage():
-        data_atual = datetime.date.today()
-        data_atual = data_atual.strftime('%d-%m-%Y %H:%M:%S')
+        data_atual = datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S')
         situacao = 'Estoque Baixo'
-        conn = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
+
+        conn = psycopg2.connect(
+            host=os.getenv("DB_HOST"),
+            port=os.getenv("DB_PORT"),
+            database=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD")
+        )
         cursor = conn.cursor()
+
+        # 1 — Remove logs antigos de "Estoque Baixo" referente aos produtos
+        # que continuam abaixo do limite (evita UNIQUE ao reinserir)
         cursor.execute("""
-            INSERT INTO log (tipo, produto, marca, quantidade, data)
-            SELECT %s , p.nome, p.marca, e.qtd_atual, %s
-            FROM estoque e
-            JOIN produto p ON p.id = e.produto_id
-            WHERE e.qtd_atual < (SELECT quantity_limit FROM lowlimit LIMIT 1)
-            ON CONFLICT (tipo, produto, marca, quantidade) DO NOTHING;
-        """, (situacao, data_atual,))
-        cursor.execute('DELETE FROM log '
-                       'USING produto p, estoque e '
-                       'WHERE p.id = e.produto_id '
-                       'AND log.produto = p.nome '
-                       'AND log.marca = p.marca '
-                       'AND log.quantidade = e.qtd_atual '
-                       'AND log.tipo = %s '
-                       'AND e.qtd_atual > (SELECT quantity_limit FROM lowlimit LIMIT 1);',
-                       (situacao, )
-                       )
-        cursor.execute("DELETE FROM log l "
-                       "WHERE l.tipo = %s "
-                       "AND EXISTS ("
-                       "SELECT 1 FROM log l2 "
-                       "WHERE l2.produto = l.produto "
-                       "AND l2.marca = l.marca "
-                       "AND l2.tipo = %s)",
-                       ("Estoque Baixo", "Excluído"))
+                DELETE FROM log
+                USING produto p, estoque e
+                WHERE log.tipo = 'Estoque Baixo'
+                  AND log.produto = p.nome
+                  AND log.marca = p.marca
+                  AND p.id = e.produto_id
+                  AND e.qtd_atual < (SELECT quantity_limit FROM lowlimit LIMIT 1);
+            """)
+
+        # 2 — Insere logs novos para os produtos abaixo do limite
+        cursor.execute("""
+                INSERT INTO log (tipo, produto, marca, quantidade, data)
+                SELECT %s, p.nome, p.marca, e.qtd_atual, %s
+                FROM estoque e
+                JOIN produto p ON p.id = e.produto_id
+                WHERE e.qtd_atual < (SELECT quantity_limit FROM lowlimit LIMIT 1)
+                ON CONFLICT (tipo, produto, marca, quantidade) DO NOTHING;
+            """, (situacao, data_atual))
+
+        # 3 — Remove logs de estoque baixo quando o produto voltou ao normal
+        cursor.execute("""
+                DELETE FROM log
+                USING produto p, estoque e
+                WHERE log.tipo = 'Estoque Baixo'
+                  AND log.produto = p.nome
+                  AND log.marca = p.marca
+                  AND p.id = e.produto_id
+                  AND e.qtd_atual >= (SELECT quantity_limit FROM lowlimit LIMIT 1);
+            """)
+
         conn.commit()
         conn.close()
 
@@ -445,13 +459,16 @@ class SellDB:
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD")
         )
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM venda')
-        infos = cursor.fetchall()
-        conn.commit()
-        cursor.close()
+        try:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM venda')
+            infos = cursor.fetchall()
+            cursor.close()
+            return infos
 
-        return infos
+        except errors.UndefinedTable:
+            cursor.close()
+            pass
 
 class EditProduct:
     def __init__(self):
@@ -478,6 +495,30 @@ class EditProduct:
             password=os.getenv("DB_PASSWORD")
         )
         cursor = conn.cursor()
+        cursor.execute("SELECT nome, marca FROM produto WHERE id = %s", (id_objeto,))
+        nome_antigo, marca_antiga = cursor.fetchone()
+
+        # 2 — Atualiza SOMENTE o log de estoque baixo com o novo nome/marca
+        cursor.execute("""
+            UPDATE log
+            SET produto = %s, marca = %s
+            WHERE produto = %s 
+              AND marca = %s
+              AND tipo = 'Estoque Baixo';
+        """, (nome, marca, nome_antigo, marca_antiga))
+
+        # 3 — Verifica limite mínimo
+        cursor.execute("SELECT quantity_limit FROM lowlimit LIMIT 1")
+        limite = cursor.fetchone()[0]
+
+        # 4 — Se a nova quantidade está ACIMA do limite → normaliza
+        if int(qtd) >= limite:
+            cursor.execute("""
+                DELETE FROM log
+                WHERE tipo = 'Estoque Baixo'
+                AND produto = %s
+                AND marca = %s;
+            """, (nome, marca))
         cursor.execute('SELECT id FROM produto '
                        'WHERE nome = %s AND marca = %s AND id != %s'
                        '', (nome, marca, id_objeto))
@@ -498,10 +539,20 @@ class EditProduct:
                        "WHERE produto_id = %s;"
                        ,(qtd, valor_venda, preco_compra, id_objeto))
 
-        data_log = datetime.date.today().strftime('%d-%m-%Y %H:%M:%S')
-        cursor.execute("INSERT INTO log (tipo, produto, marca, quantidade, data) "
-                       "VALUES (%s, %s, %s, %s, %s)",
-                       ('Atualizado', nome, marca, qtd, data_log))
+        data_log = datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+        cursor.execute("""
+            DELETE FROM log
+            WHERE tipo = 'Atualizado'
+              AND produto = %s
+              AND marca = %s
+              AND quantidade = %s;
+        """, (nome, marca, qtd))
+
+        # Insere log novo
+        cursor.execute("""
+            INSERT INTO log (tipo, produto, marca, quantidade, data)
+            VALUES (%s, %s, %s, %s, %s);
+        """, ('Atualizado', nome, marca, qtd, data_log))
         conn.commit()
         cursor.close()
         janela.destroy()
@@ -544,7 +595,7 @@ class EditProduct:
                 cursor.execute("DELETE FROM produto WHERE id = %s", (id_produto,))
 
                 # 4 - Registrar log
-                data_log = datetime.date.today().strftime('%d-%m-%Y %H:%M:%S')
+                data_log = datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S')
                 cursor.execute("""
                     INSERT INTO log (tipo, produto, marca, quantidade, data)
                     VALUES (%s, %s, %s, %s, %s)
