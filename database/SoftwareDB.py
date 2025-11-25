@@ -285,7 +285,6 @@ class DBLog:
         try:
             cursor.execute('SELECT * FROM log')
             infos = cursor.fetchall()
-            conn.commit()
             cursor.close()
             return infos
 
@@ -332,12 +331,15 @@ class DBLog:
     def LowCountMain():
         conn = psycopg2.connect(host=os.getenv("DB_HOST"), port=os.getenv("DB_PORT"), database=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM log')
-        retornoDB = cursor.fetchall()
-        conn.commit()
-        cursor.close()
-        contador = sum(1 for linha in retornoDB if linha[1] == 'Estoque Baixo')
-        return contador
+        try:
+            cursor.execute('SELECT * FROM log')
+            retornoDB = cursor.fetchall()
+            cursor.close()
+            contador = sum(1 for linha in retornoDB if linha[1] == 'Estoque Baixo')
+            return contador
+        except errors.UndefinedTable:
+            cursor.close()
+            pass
 
 class SellDB:
     def __init__(self):
@@ -349,6 +351,12 @@ class SellDB:
         cliente = Entry_Name.get()
         data_atual = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         info_compactada = SellDB.SaveVariable(info_venda)
+        if not info_compactada:
+            CTkMessagebox(title='Erro', message='Não possui nenhum item para venda', icon='warning')
+            return
+        if cliente == '' or not cliente:
+            CTkMessagebox(title='Erro', message='Preencha o nome do cliente', icon='warning')
+            return
         codigovenda = SellDB.CodVendaHash()
 
         # Calcula valor total

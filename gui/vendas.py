@@ -135,7 +135,7 @@ def janela_vendas(frameinfo):
         "adicionar": "#43a047"
     }
 
-    Var_Cliente = StringVar(value=' ') # Variável para pegar dados da pessoa que realizou a compra
+    Var_Cliente = StringVar(value='') # Variável para pegar dados da pessoa que realizou a compra
     Var_Name = StringVar() # variável para autopreenchimento no sistema consultando o banco de dados
     Var_Preco = StringVar() # variável para autopreenchimento no sistema consultando o banco de dados
     Var_Marca = StringVar() # variável para autopreenchimento no sistema consultando o banco de dados
