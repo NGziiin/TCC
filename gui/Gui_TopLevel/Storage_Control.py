@@ -3,6 +3,10 @@ import customtkinter as ctk
 from database.SoftwareDB import StorageRegisterClassDB, EditProduct
 from services.EditProduct import LogicProduto
 
+#Valida somente números nos campos específicos
+def validate_key(texto):
+    return texto.isdigit() or texto == ""
+
 #JANELA DE SELEÇÃO PARA ESCOLHER SE QUER EDITAR OU EXCLUIR ITEM DO BANCO DE DADOS
 def abrir_gerenciador_estoque(listbox):
     popup = tk.Toplevel()
@@ -111,6 +115,8 @@ def janela_registro(listbox):
     centralizar_janela(janela, largura, altura)
     janela.resizable(False, False)
 
+    validacao = janela.register(validate_key)
+
     titulo = ctk.CTkLabel(janela, text="Registrar Produto", font=ctk.CTkFont(size=18, weight="bold"))
     titulo.pack(pady=10)
 
@@ -127,7 +133,9 @@ def janela_registro(listbox):
     NameRegister = campo("Nome do Produto:")
     MarcaRegister = campo("Marca:")
     AmountRegister = campo("Quantidade:")
-    PriceRegister = campo("Valor Unitário (R$):")
+    AmountRegister.configure(validate='key', validatecommand=(validacao, "%P"))
+    PriceRegister = campo("Valor Pago (R$):")
+    PriceRegister.configure(validate='key', validatecommand=(validacao, "%P"))
 
     # ComboBox para margem de lucro
     frame_margem = ctk.CTkFrame(janela, fg_color="transparent")
@@ -182,6 +190,8 @@ def janela_editar(listbox):
     centralizar_janela(janela, largura, altura)
     janela.resizable(False, False)
 
+    validacao = janela.register(validate_key)
+
     titulo = ctk.CTkLabel(janela, text="Registrar Produto", font=ctk.CTkFont(size=18, weight="bold"))
     titulo.pack(pady=10)
 
@@ -196,15 +206,15 @@ def janela_editar(listbox):
 
     # Campos de entrada
     CodProduto = campo('Código do produto:')
-    CodProduto.configure(state='normal', fg_color='white', textvariable=VarCod)
+    CodProduto.configure(state='normal', fg_color='white', textvariable=VarCod, validate="key", validatecommand=(validacao, "%P"))
     NameRegister = campo("Nome do Produto:")
     NameRegister.configure(textvariable=VarName)
     MarcaRegister = campo("Marca:")
     MarcaRegister.configure(textvariable=VarMarca)
     AmountRegister = campo("Quantidade:")
-    AmountRegister.configure(textvariable=VarQTD)
+    AmountRegister.configure(textvariable=VarQTD, validate="key", validatecommand=(validacao, "%P"))
     PriceRegister = campo("Valor de Compra (R$):")
-    PriceRegister.configure(textvariable=VarPreco)
+    PriceRegister.configure(textvariable=VarPreco, validate="key", validatecommand=(validacao, "%P"))
 
     # ComboBox para margem de lucro
     frame_margem = ctk.CTkFrame(janela, fg_color="transparent")
@@ -238,7 +248,7 @@ def janela_editar(listbox):
     btn_excluir.pack(side="left", padx=10)
 
     CodProduto.bind("<KeyRelease>",
-                    lambda event: LogicProduto.autopreenchimento(event, VarCod, VarName, VarMarca, VarPreco, VarQTD, NameRegister, MarcaRegister, AmountRegister, PriceRegister))
+                    lambda event: LogicProduto.autopreenchimento(event, VarCod, VarName, VarMarca, VarPreco, VarQTD, NameRegister, MarcaRegister, AmountRegister, PriceRegister, validacao))
 
     janela.grab_set()
 

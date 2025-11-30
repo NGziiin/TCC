@@ -123,7 +123,7 @@ class Mainbread:
         Var_Cliente.set('')
 
 # ==================== INTERFACE ====================
-def janela_vendas(frameinfo):
+def janela_vendas(frameinfo, validacao):
 
     # Cores
     CORES = {
@@ -154,7 +154,7 @@ def janela_vendas(frameinfo):
     frame_produto.pack(fill='x', pady=10)
 
     Label(frame_produto, text="Código:", font=('Arial', 12), bg=CORES["fundo"]).grid(row=0, column=0, sticky='w')
-    Entry_Cod = Entry(frame_produto, font=('Arial', 12), width=15, relief='flat', highlightthickness=1, highlightbackground=CORES["cinza"])
+    Entry_Cod = Entry(frame_produto, font=('Arial', 12), width=15, relief='flat', highlightthickness=1, highlightbackground=CORES["cinza"], validate="key", validatecommand=(validacao, "%P"))
     Entry_Cod.grid(row=0, column=1, padx=5)
     Entry_Cod.bind("<KeyRelease>", lambda event: Mainbread.Autopreenchimento(event, Entry_Cod, Var_Name, Var_Preco, Var_Marca))
 
@@ -167,7 +167,7 @@ def janela_vendas(frameinfo):
           relief='flat', disabledbackground=CORES["cinza"]).grid(row=0, column=5, padx=5)
 
     Label(frame_produto, text="Qtd:", font=('Arial', 12), bg=CORES["fundo"]).grid(row=0, column=6, sticky='w', padx=(20,0))
-    Entry_qtd = Entry(frame_produto, font=('Arial', 12), width=7, relief='flat', highlightthickness=1, highlightbackground=CORES["cinza"])
+    Entry_qtd = Entry(frame_produto, font=('Arial', 12), width=7, relief='flat', highlightthickness=1, highlightbackground=CORES["cinza"], validate="key", validatecommand=(validacao, "%P"))
     Entry_qtd.grid(row=0, column=7, padx=5)
 
     Button(frame_produto, text="Adicionar", bg=CORES["adicionar"], fg='white', font=('Arial', 12, 'bold'),

@@ -2,10 +2,14 @@ from tkinter import *
 import customtkinter
 from customtkinter import *
 import sys, os, threading
+from functools import partial
 
 from database.SoftwareDB import StorageRegisterClassDB, StorageLowLimitDB
 from services import TimerUpdate, AnimationLoading
 
+
+def validate_key(texto):
+    return texto.isdigit() or texto == ""
 
 def close_app():
     janela.quit()
@@ -32,10 +36,10 @@ def janela_inicial(frameinfo):
     imports()
     janelainicial(frameinfo)
 
-def abrir_vendas(frameinfo):
+def abrir_vendas(frameinfo, validacao):
     frame_clear(frameinfo)
     imports()
-    janela_vendas(frameinfo)
+    janela_vendas(frameinfo, validacao)
 
 def abrir_estoque(frameinfo):
     frame_clear(frameinfo)
@@ -47,20 +51,30 @@ def janela_relatorio(frameinfo):
     imports()
     aba_relatorios(frameinfo)
 
-def botoes(framebutton, frameinfo):
+def botoes(framebutton, frameinfo, validacao):
 
-    texto_botões = {'PRINCIPAL' : janela_inicial,
-                    'VENDAS' : abrir_vendas,
-                    'ESTOQUE' : abrir_estoque,
-                    'RELATÓRIO': janela_relatorio}
+    texto_botões = {
+        'PRINCIPAL': lambda f: janela_inicial(f),
+        'VENDAS': lambda f: abrir_vendas(f, validacao),
+        'ESTOQUE': lambda f: abrir_estoque(f),
+        'RELATÓRIO': lambda f: janela_relatorio(f)
+    }
 
     frame_botões = Frame(framebutton, bg=framebutton.cget('bg'))
     frame_botões.pack(expand=True, fill=X)
 
     for texto, funcao in texto_botões.items():
-        btn = customtkinter.CTkButton(frame_botões, text=texto, font=('arial', 18, 'bold'), height=50, text_color='black', hover_color='#FFF7ED',  fg_color='#F97316', command=lambda f=frameinfo, func=funcao: func(f))
+        btn = customtkinter.CTkButton(
+            frame_botões,
+            text=texto,
+            font=('arial', 18, 'bold'),
+            height=50,
+            text_color='black',
+            hover_color='#FFF7ED',
+            fg_color='#F97316',
+            command=lambda f=frameinfo, func=funcao: func(f)
+        )
         btn.pack(pady=10, fill=X)
-
 #inicio do software
 janela = CTk()
 
@@ -73,6 +87,7 @@ janela.configure(bg="#F8FAFC")
 janela.title("sistema de estoque - Lojas TCC & LTDA")
 janela.maxsize(1920, 1040)
 janela.minsize(1920, 1040)
+validacao = janela.register(validate_key)
 
 framebutton = Frame(janela, bg=janela.cget('bg'))
 framebutton.place(relheight=0.99, relwidth=0.15, relx=0.002, rely=0.005)
@@ -80,7 +95,7 @@ framebutton.place(relheight=0.99, relwidth=0.15, relx=0.002, rely=0.005)
 frameinfo = Frame(janela, bg='#f7f9fb')
 frameinfo.place(relheight=1, relwidth=0.848, relx=0.155, rely=0)
 
-botoes(framebutton, frameinfo)
+botoes(framebutton, frameinfo, validacao)
 janela_inicial(frameinfo)
 
 frameAnimation = Label(janela, bg=janela.cget('bg'))

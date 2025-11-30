@@ -1,7 +1,7 @@
 from database.SoftwareDB import StorageRegisterClassDB
 
 class LogicProduto:
-    def autopreenchimento(event, VarCod, VarName, VarMarca, VarPreco, VarQTD, NameRegister, MarcaRegister, AmountRegister, PriceRegister):
+    def autopreenchimento(event, VarCod, VarName, VarMarca, VarPreco, VarQTD, NameRegister, MarcaRegister, AmountRegister, PriceRegister, validacao):
         codigo = VarCod.get()
         banco_dados = StorageRegisterClassDB.LoadStorageDB(listbox=None, ref=1, reloadTreeview=1) #a variável Ref é para selecionar diferente no banco de dados
         info = {}
@@ -25,13 +25,13 @@ class LogicProduto:
             VarName.set(produto['nome'])
             VarMarca.set(produto['marca'])
             VarQTD.set(int(produto['quantidade']))
-            VarPreco.set(f"R${produto['preço']}".replace('.', ','))
+            VarPreco.set(int(produto['preço']))
 
             #Habilitando para poder editar
             NameRegister.configure(state='normal', fg_color='white')
             MarcaRegister.configure(state='normal', fg_color='white')
-            AmountRegister.configure(state='normal', fg_color='white')
-            PriceRegister.configure(state='normal', fg_color='white')
+            AmountRegister.configure(state='normal', fg_color='white', validate="key", validatecommand=(validacao, "%P"))
+            PriceRegister.configure(state='normal', fg_color='white', validate="key", validatecommand=(validacao, "%P"))
 
         elif codigo == "":
             VarName.set('')
