@@ -2,10 +2,31 @@ import tkinter as tk
 import customtkinter as ctk
 from database.SoftwareDB import StorageRegisterClassDB, EditProduct
 from services.EditProduct import LogicProduto
+import re
 
 #Valida somente números nos campos específicos
-def validate_key(texto):
-    return texto.isdigit() or texto == ""
+def validate_key(event):
+    widget = event.widget
+    texto = widget.get()
+
+    # Regex: somente um número inteiro ou número com UMA vírgula e dígitos após
+    padrao = r'^\d+(,\d*)?$'
+
+    # Se está vazio ou corresponde ao padrão, ok
+    if texto == "" or re.fullmatch(padrao, texto):
+        return
+
+    # Caso contrário, limpar caracteres inválidos e remover vírgulas extras
+    novo_texto = re.sub(r'[^0-9,]', '', texto)
+
+    # limitar para apenas 1 vírgula
+    partes = novo_texto.split(',')
+    if len(partes) > 2:
+        novo_texto = partes[0] + ',' + partes[1]  # mantemos só a primeira vírgula
+
+    # atualiza o campo
+    widget.delete(0, "end")
+    widget.insert(0, novo_texto)
 
 #JANELA DE SELEÇÃO PARA ESCOLHER SE QUER EDITAR OU EXCLUIR ITEM DO BANCO DE DADOS
 def abrir_gerenciador_estoque(listbox):
@@ -115,8 +136,6 @@ def janela_registro(listbox):
     centralizar_janela(janela, largura, altura)
     janela.resizable(False, False)
 
-    validacao = janela.register(validate_key)
-
     titulo = ctk.CTkLabel(janela, text="Registrar Produto", font=ctk.CTkFont(size=18, weight="bold"))
     titulo.pack(pady=10)
 
@@ -133,9 +152,9 @@ def janela_registro(listbox):
     NameRegister = campo("Nome do Produto:")
     MarcaRegister = campo("Marca:")
     AmountRegister = campo("Quantidade:")
-    AmountRegister.configure(validate='key', validatecommand=(validacao, "%P"))
+    AmountRegister.bind("<KeyRelease>", validate_key)
     PriceRegister = campo("Valor Pago (R$):")
-    PriceRegister.configure(validate='key', validatecommand=(validacao, "%P"))
+    PriceRegister.bind("<KeyRelease>", validate_key)
 
     # ComboBox para margem de lucro
     frame_margem = ctk.CTkFrame(janela, fg_color="transparent")
@@ -212,9 +231,11 @@ def janela_editar(listbox):
     MarcaRegister = campo("Marca:")
     MarcaRegister.configure(textvariable=VarMarca)
     AmountRegister = campo("Quantidade:")
-    AmountRegister.configure(textvariable=VarQTD, validate="key", validatecommand=(validacao, "%P"))
+    AmountRegister.configure(textvariable=VarQTD)
+    AmountRegister.bind("<KeyRelease>", validate_key)
     PriceRegister = campo("Valor de Compra (R$):")
-    PriceRegister.configure(textvariable=VarPreco, validate="key", validatecommand=(validacao, "%P"))
+    PriceRegister.configure(textvariable=VarPreco)
+    PriceRegister.bind("<KeyRelease>", validate_key)
 
     # ComboBox para margem de lucro
     frame_margem = ctk.CTkFrame(janela, fg_color="transparent")
