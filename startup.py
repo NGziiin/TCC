@@ -2,7 +2,7 @@ import customtkinter as ctk
 from customtkinter import CTkProgressBar, CTkFrame, CTkLabel
 import customtkinter as tk
 from PIL import Image, ImageTk, ImageSequence
-import os
+import os, subprocess
 
 class InterfaceLoading:
     def __init__(self, janela):
@@ -10,6 +10,7 @@ class InterfaceLoading:
         self.configAll()
         self.PositionWindow()
         self.ElementsInterface()
+        self.ElectronOpen = os.path.join(self.base_dir, 'electron-app')
         self.close_app()
 
     def PositionWindow(self):
@@ -89,17 +90,17 @@ class InterfaceLoading:
                 case 0:
                     self.NameLoading.set('Olá')
                 case 20:
-                    self.NameLoading.set("tudo bem?")
+                    self.NameLoading.set("text2")
                 case 30:
-                    self.NameLoading.set("sim! eu estou crescendo")
+                    self.NameLoading.set("text3")
                 case 40:
-                    self.NameLoading.set("esse é o inicio da minha\nevolução")
-                    self.textInfoLoading.place(rely=0.57)
+                    self.NameLoading.set("text4")
 
             self.progressbar.set(contagembar)
             self.janela.after(500, lambda: self.close_app(contador + 1, contagembar + 0.02))
             print(f"{contador}\ncontagembar: {contagembar}")
         else:
+            subprocess.Popen(['npx.cmd', 'electron', '.'], cwd=self.ElectronOpen)  # inicia o software via electron
             self.progressbar.set(1.0)
             self.janela.destroy()
 
