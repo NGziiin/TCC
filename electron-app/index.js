@@ -16,10 +16,11 @@ app.whenReady().then(() => {
     height,
     resizable: false,
     maximizable: true,
-    fullscreenable: false})
+    fullscreenable: false,
+    autoHideMenuBar: true})
 
   mainWindow.maximize();
-  mainWindow.loadFile('../gui/login.html')
+  mainWindow.loadFile('../gui/login/login.html')
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

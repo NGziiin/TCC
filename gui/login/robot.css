@@ -1,0 +1,109 @@
+.labelrobot {
+    background-color: #D3D3D3;
+    height: 9vh;
+    width: 6vw;
+    position: absolute;
+    top: -90px;
+    border-radius: 15px;
+    border: 1px solid black;
+
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+/* olho */
+.eye {
+    background-color: white;
+    height: 3vh;
+    width: 1.5vw;
+    border-radius: 15px;
+    border: 1px solid black;
+
+    position: relative;
+    overflow: hidden;
+}
+
+/* íris */
+.iris {
+    background-color: deepskyblue;
+    height: 1vh;
+    width: 0.5vw;
+    border-radius: 50%;
+
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* braço base */
+.arm {
+    position: absolute;
+    top: 70px; /* ajuste para alinhar com o ombro do robô */
+    width: 120px;
+    height: 16px;
+    transform-origin: left center;
+    background: #b0b0b0;
+    border: 1px solid black;
+    border-radius: 6px;
+}
+
+/* lados */
+.arm.left {
+    left: -35px; /* posiciona o braço esquerdo em relação ao corpo */
+    z-index: -1;
+}
+.arm.right {
+    right: 88px;            /* espelhado pelo lado direito */
+    transform-origin: right center;
+    transform: scaleX(-1);   /* espelha o braço */
+    z-index: -1;
+}
+
+/* ombro */
+.shoulder {
+    width: 12px;
+    height: 12px;
+    background: #888;
+    border: 2px solid black;
+    border-radius: 50%;
+    position: absolute;
+    left: -2px;
+    top: 2px;
+}
+
+/* braço superior */
+.upper {
+    position: absolute;
+    left: 6px;
+    top: 5px;
+    width: 50px;
+    height: 10px;
+    background: #b0b0b0;
+    border: 1px solid black;
+    border-radius: 10px;
+    transform-origin: left center;
+    transform: rotate(75deg);
+}
+
+.sign{
+    position: absolute;
+    top: 96px;
+    width: 150px;
+    height: 80px;
+    background: #9B7748;
+    border-radius: 20px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    text-align: center;
+    border: 1px black double;
+    margin: auto;
+    transition: 0.2s;
+}
+.sign p{
+    color: white;
+    font-size: 26px;
+    margin: 0;
+}
