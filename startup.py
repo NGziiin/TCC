@@ -30,7 +30,7 @@ class InterfaceLoading:
         self.base_dir = os.path.dirname(os.path.abspath(__file__))
 
         #VARIÁVEL COM O TEXTO QUE APARECE
-        self.NameLoading = tk.StringVar(value="Olá")
+        self.TextLoading = tk.StringVar(value="Olá")
 
 
     def ElementsInterface(self):
@@ -72,7 +72,7 @@ class InterfaceLoading:
         self.progressbar.place(relx=0.25, rely=0.65, anchor='center')
         self.progressbar.lift()
         self.textInfoLoading = CTkLabel(self.frameBackground, text_color="BLACK",
-                                        textvariable=self.NameLoading,
+                                        textvariable=self.TextLoading,
                                         bg_color='transparent',
                                         font=('Segoe UI', 18))
         self.textInfoLoading.place(relx=0.25, rely=0.6, anchor='center')
@@ -88,13 +88,14 @@ class InterfaceLoading:
         if contador < 50:
             match contador:
                 case 0:
-                    self.NameLoading.set('Olá')
+                    self.TextLoading.set('Iniciando testes')
+
                 case 20:
-                    self.NameLoading.set("text2")
+                    self.TextLoading.set("text2")
                 case 30:
-                    self.NameLoading.set("text3")
+                    self.TextLoading.set("text3")
                 case 40:
-                    self.NameLoading.set("text4")
+                    self.TextLoading.set("text4")
 
             self.progressbar.set(contagembar)
             self.janela.after(500, lambda: self.close_app(contador + 1, contagembar + 0.02))
