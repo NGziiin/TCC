@@ -14,7 +14,7 @@ app.whenReady().then(() => {
   mainWindow = new BrowserWindow({
     width,
     height,
-    resizable: false,
+    resizable: true,
     maximizable: true,
     fullscreenable: false,
     autoHideMenuBar: true})

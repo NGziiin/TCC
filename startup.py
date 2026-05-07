@@ -10,7 +10,7 @@ class InterfaceLoading:
         self.configAll()
         self.PositionWindow()
         self.ElementsInterface()
-        self.ElectronOpen = os.path.join(self.base_dir, 'electron-app')
+        self.ElectronOpen = os.path.join(self.base_dir, 'electron-app') #inicia o arquivo index.js
         self.close_app()
 
     def PositionWindow(self):

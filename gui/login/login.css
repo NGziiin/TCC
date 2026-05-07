@@ -30,12 +30,13 @@ body{
     width: 20vw;
 }
 label{
-    height:100vh;
+    height:35vh;
     width:14vw;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    margin: 0;
 }
 input{
     width:80%;
@@ -98,4 +99,10 @@ img{
     width: 20vw;
     height: 20vh;
     filter: invert(100%);
+}
+h1{
+    color:white;
+    font: normal 40px/1.5 Georgia, serif;
+    text-align: center;
+    margin: 0;
 }
