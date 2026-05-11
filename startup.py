@@ -3,6 +3,7 @@ from customtkinter import CTkProgressBar, CTkFrame, CTkLabel
 import customtkinter as tk
 from PIL import Image, ImageTk, ImageSequence
 import os, subprocess
+from tools import TesterPackage
 
 class InterfaceLoading:
     def __init__(self, janela):
@@ -89,7 +90,6 @@ class InterfaceLoading:
             match contador:
                 case 0:
                     self.TextLoading.set('Iniciando testes')
-
                 case 20:
                     self.TextLoading.set("text2")
                 case 30:
