@@ -1,6 +1,6 @@
 import subprocess
 from dotenv import load_dotenv
-import pyodbc, os
+import pyodbc, os, json
 load_dotenv()
 
 class PackageTest:
@@ -25,11 +25,19 @@ class PackageTest:
 
     def LoadDB(self, ConectionInfo):
 
-        #VERIFICA O BANCO DE DADOS SQLITE3
-        def verifiedSqlite3(self):
-            print('verificando o SQLite')
-            self.resultado = subprocess.run("sqlite3 --version", capture_output=True, text=True)
-            print(self.resultado.returncode)
+        #ELE CRIA UM JSON COM TODAS AS INFORMAÇÕES DE TESTE PARA CASO PRECISE DENTRO DO SISTEMA
+        def JSONConfig(self, ConectionInfo):
+            self.baseDir = os.path.dirname(os.path.abspath(__file__))
+            self.ReturnDir = os.path.dirname(self.baseDir)
+            self.JSONFile = os.path.join(self.ReturnDir, 'configs', "tester.json")
+            print(ConectionInfo)
+            dadosNetwork = {
+                "Network" : ConectionInfo
+            }
+
+            with open(self.JSONFile, "w", encoding="utf-8") as f:
+                json.dump(dadosNetwork, f, indent=4)
+
             return
 
         self.ConectionInfo = ConectionInfo
@@ -90,14 +98,15 @@ class PackageTest:
                     cursor = self.connectiondb.cursor()
                     cursor.execute("SELECT 1;")
                     print('banco de dados: AZURE SQL')
+                    JSONConfig(self, self.ConectionInfo)
                     return
 
                 except pyodbc.Error as e:
                     print(f"Erro: {e}")
-                    verifiedSqlite3(self)
+                    JSONConfig(self, self.ConectionInfo)
 
             elif self.ConectionInfo is False:
-                verifiedSqlite3(self)
+                JSONConfig(self, self.ConectionInfo)
 
         except Exception as e:
             print(f"Erro: {e}")
