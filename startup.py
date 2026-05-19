@@ -12,7 +12,8 @@ class InterfaceLoading:
         self.PositionWindow()
         self.ElementsInterface()
         self.ElectronOpen = os.path.join(self.base_dir, 'electron-app') #inicia o arquivo index.js
-        self.close_app()
+        self.SystemTest()
+        self.close_app() #DELETAR QUANDO TERMINAR DE ARRUMAR A OUTRA PARTE DO LOADING
 
     def PositionWindow(self):
         self.janela.update_idletasks()
@@ -31,7 +32,7 @@ class InterfaceLoading:
         self.base_dir = os.path.dirname(os.path.abspath(__file__))
 
         #VARIÁVEL COM O TEXTO QUE APARECE
-        self.TextLoading = tk.StringVar(value="Olá")
+        self.TextLoading = tk.StringVar(value="Iniciando testes")
 
 
     def ElementsInterface(self):
@@ -85,6 +86,10 @@ class InterfaceLoading:
         self.Background.configure(image=self.frames[self.idx])
         self.janela.after(48, self.animateGif)
 
+    def SystemTest(self):
+        from tools.TesterPackage import PackageTest
+        PackageTest(self.TextLoading, self.progressbar)
+
     def close_app(self, contador=0, contagembar=0.00): #DELETAR DEPOIS
         if contador < 50:
             match contador:
@@ -99,7 +104,6 @@ class InterfaceLoading:
 
             self.progressbar.set(contagembar)
             self.janela.after(500, lambda: self.close_app(contador + 1, contagembar + 0.02))
-            print(f"{contador}\ncontagembar: {contagembar}")
         else:
             subprocess.Popen(['npx.cmd', 'electron', '.'], cwd=self.ElectronOpen)  # inicia o software via electron
             self.progressbar.set(1.0)

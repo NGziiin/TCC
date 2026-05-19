@@ -1,15 +1,37 @@
 import subprocess
 from dotenv import load_dotenv
-import pyodbc, os, json
+import pyodbc, os, json, time
 load_dotenv()
 
+
+class InternalFunctions:
+
+    @classmethod
+    def count(self):
+        for i in range(0,5001):
+            contador = i / 100
+            print(contador)
+            time.sleep(1)
+            if contador == 1:
+                print('parando')
+                break
+
 class PackageTest:
-    def __init__(self):
+    def __init__(self, TextLoading, progressbar):
+
+        #DECLARAÇÃO DAS VARIÁVEIS
         self.resultado = None #variável usada para retorno de informações (ela retorna em forma sincrona evitando erros)
-        ConectionInfo = self.ConectionTest()
-        self.LoadDB(ConectionInfo)
+        self.TextLoading = TextLoading #OS TEXTOS DA TELA DE LOADING
+        self.progressbar = progressbar #BARRA DE PROGRESSO PARA FAZER O LOADING
+        self.contagembar = float #precisa iniciar em 0.00
+
+        #inicinado os testes
+        ConectionInfo = self.ConectionTest() #TESTE DE CONEXÃO DE REDE
+        self.TestDB(ConectionInfo) #TESTE DO BANCO DE DADOS
 
     def ConectionTest(self):
+
+        self.TextLoading.set('Iniciando teste de rede')
         self.resultado = subprocess.run("ping www.google.com", capture_output=True, text=True)
 
         if self.resultado.returncode != 0:
@@ -23,10 +45,10 @@ class PackageTest:
             print(f"sistema online, conectando no banco de dados online")
             return True
 
-    def LoadDB(self, ConectionInfo):
+    def TestDB(self, ConectionInfo):
 
         #ELE CRIA UM JSON COM TODAS AS INFORMAÇÕES DE TESTE PARA CASO PRECISE DENTRO DO SISTEMA
-        def JSONConfig(self, ConectionInfo):
+        def JSONConfig(ConectionInfo):
             self.baseDir = os.path.dirname(os.path.abspath(__file__))
             self.ReturnDir = os.path.dirname(self.baseDir)
             self.JSONFile = os.path.join(self.ReturnDir, 'configs', "tester.json")
@@ -98,19 +120,19 @@ class PackageTest:
                     cursor = self.connectiondb.cursor()
                     cursor.execute("SELECT 1;")
                     print('banco de dados: AZURE SQL')
-                    JSONConfig(self, self.ConectionInfo)
+                    JSONConfig(self.ConectionInfo)
                     return
 
                 except pyodbc.Error as e:
                     print(f"Erro: {e}")
-                    JSONConfig(self, self.ConectionInfo)
+                    JSONConfig(self.ConectionInfo)
 
             elif self.ConectionInfo is False:
-                JSONConfig(self, self.ConectionInfo)
+                JSONConfig(self.ConectionInfo)
 
         except Exception as e:
             print(f"Erro: {e}")
             return
 
-if "__main__" == __name__:
-    conection = PackageTest()
+if __name__ == "__main__":
+    teste = InternalFunctions.count()
