@@ -1,6 +1,6 @@
 import subprocess
 from dotenv import load_dotenv
-import pyodbc, os, json, time, threading
+import pyodbc, os, json, time, threading, messagebox
 load_dotenv()
 
 #CLASSE COM FUNÇÕES INTERNAS
@@ -9,7 +9,7 @@ class InternalFunctions:
     @classmethod
     def count(cls, package_instance):
         print(f'{'-'*50}\niniciando contagem\nvariável da contagem em: {package_instance.contagem}\n{"-"*50}')
-        for i in range(0,5001):
+        for i in range(package_instance.contagem,5001):
             package_instance.contagem = i / 100
             print(f'{package_instance.contagem} - variável infocount: {package_instance.StopStart_Count}')
             time.sleep(1)
@@ -18,7 +18,7 @@ class InternalFunctions:
                 break
             elif package_instance.StopStart_Count == True:
                 print('parando')
-                package_instance.contagem = package_instance.contagem * 100
+                package_instance.contagem = int(package_instance.contagem * 100)
                 print(package_instance.contagem)
                 print('fim')
                 break
@@ -30,12 +30,11 @@ class PackageTest:
         self.resultado = None #variável usada para retorno de informações (ela retorna em forma sincrona evitando erros)
         self.TextLoading = TextLoading #OS TEXTOS DA TELA DE LOADING
         self.progressbar = progressbar #BARRA DE PROGRESSO PARA FAZER O LOADING
-        self.contagem = 0.00 #precisa iniciar em 0.00 - Variável que faz a contagem do loading
+        self.contagem = int(0) #precisa iniciar em 0 - Variável que faz a contagem do loading
         self.StopStart_Count = False #variável para saber o momento de parar a contagem
 
         #inicinado os testes
         ConectionInfo = self.ConectionTest() #TESTE DE CONEXÃO DE REDE
-        InternalFunctions.count(self, )
         self.TestDB(ConectionInfo) #TESTE DO BANCO DE DADOS
 
     def ConectionTest(self):
@@ -84,15 +83,19 @@ class PackageTest:
                                        args=(self,),
                                        daemon=True)
         threadCount.start()
+        time.sleep(1)
 
         self.ConectionInfo = ConectionInfo
         self.base_dir = os.path.dirname(os.path.abspath(__file__))
         self.retorno_dir = os.path.dirname(self.base_dir)
         self.msi_path = os.path.join(self.retorno_dir, "dependencies", 'msodbcsql.msi')
+
+        #VERIFICAR AQUI PORQUE O CONTADOR PAROU DURANTE A EXECUÇÃO
+
+
         try:
             if self.ConectionInfo is True:  # se der retorno true é porque possui internet, com isso carrega o AzureDB
-                print('verificando o acesso ao AZURE SQL')
-
+                print('verificando os drivers do AZURE SQL')
                 driverAzure = pyodbc.drivers()
 
                 #INSTALA O DRIVER PARA CONECTAR NO AZURE CASO NÃO ENCONTRE NA LISTA DE DRIVERS
@@ -119,6 +122,8 @@ class PackageTest:
                         else:
                             print(f"falha na instalação. código: {install.returncode}")
                             print(f"Saida: {install.stdout}")
+                            messagebox.showerror(title='Erro na instalação', message=f"Falha na instalação. Código: \n{install.returncode}\n"
+                                                                                     f"Saida: {install.stdout}")
                             return
 
                     else:
@@ -127,8 +132,11 @@ class PackageTest:
 
                 except Exception as e:
                     print(f"Erro: {e}")
+                    messagebox.showerror(title='Erro!',
+                                         message=f"erro nos arquivos: {e}")
                     return
 
+                return
                 try:
                     self.connectiondb = pyodbc.connect(
                         f"DRIVER={{{os.getenv('DB_DRIVER')}}};"
@@ -155,6 +163,8 @@ class PackageTest:
 
         except Exception as e:
             print(f"Erro: {e}")
+            messagebox.showerror(title='Erro na conexão',
+                                 message=f"erro para comunicar com o banco de dados: \n{e}")
             return
 
 if __name__ == "__main__":
