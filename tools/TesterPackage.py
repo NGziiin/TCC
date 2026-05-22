@@ -1,19 +1,26 @@
 import subprocess
 from dotenv import load_dotenv
-import pyodbc, os, json, time
+import pyodbc, os, json, time, threading
 load_dotenv()
 
-
+#CLASSE COM FUNÇÕES INTERNAS
 class InternalFunctions:
 
     @classmethod
-    def count(self):
+    def count(cls, package_instance):
+        print(f'{'-'*50}\niniciando contagem\nvariável da contagem em: {package_instance.contagem}\n{"-"*50}')
         for i in range(0,5001):
-            contador = i / 100
-            print(contador)
+            package_instance.contagem = i / 100
+            print(f'{package_instance.contagem} - variável infocount: {package_instance.StopStart_Count}')
             time.sleep(1)
-            if contador == 1:
+            if package_instance.contagem == 1:
                 print('parando')
+                break
+            elif package_instance.StopStart_Count == True:
+                print('parando')
+                package_instance.contagem = package_instance.contagem * 100
+                print(package_instance.contagem)
+                print('fim')
                 break
 
 class PackageTest:
@@ -23,26 +30,36 @@ class PackageTest:
         self.resultado = None #variável usada para retorno de informações (ela retorna em forma sincrona evitando erros)
         self.TextLoading = TextLoading #OS TEXTOS DA TELA DE LOADING
         self.progressbar = progressbar #BARRA DE PROGRESSO PARA FAZER O LOADING
-        self.contagembar = float #precisa iniciar em 0.00
+        self.contagem = 0.00 #precisa iniciar em 0.00 - Variável que faz a contagem do loading
+        self.StopStart_Count = False #variável para saber o momento de parar a contagem
 
         #inicinado os testes
         ConectionInfo = self.ConectionTest() #TESTE DE CONEXÃO DE REDE
+        InternalFunctions.count(self, )
         self.TestDB(ConectionInfo) #TESTE DO BANCO DE DADOS
 
     def ConectionTest(self):
 
-        self.TextLoading.set('Iniciando teste de rede')
+        threadContagem = threading.Thread(target=InternalFunctions.count,
+                         args=(self,),
+                         daemon=True)#contagem e atualização da barra de loading
+        threadContagem.start()
+        #self.TextLoading.set('Iniciando teste de rede') <<- tirar o comentário
         self.resultado = subprocess.run("ping www.google.com", capture_output=True, text=True)
 
         if self.resultado.returncode != 0:
             #BANCO DE DADOS LOCAL - SQLITE
             #CASO ESTEJA SEM INTERNET IRÁ RETORNAR FALSE
             print(f"sistema offline, iniciando banco de dados local")
+            self.StopStart_Count = True
+            threadContagem.join()
             return False
         else:
             #BANCO DE DADOS ONLINE - AzureDB
             #CASO POSSUA INTERNET RETORNA TRUE
             print(f"sistema online, conectando no banco de dados online")
+            self.StopStart_Count = True
+            threadContagem.join()
             return True
 
     def TestDB(self, ConectionInfo):
@@ -61,6 +78,12 @@ class PackageTest:
                 json.dump(dadosNetwork, f, indent=4)
 
             return
+
+        #contagem da barra
+        threadCount = threading.Thread(target=InternalFunctions.count,
+                                       args=(self,),
+                                       daemon=True)
+        threadCount.start()
 
         self.ConectionInfo = ConectionInfo
         self.base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -135,4 +158,4 @@ class PackageTest:
             return
 
 if __name__ == "__main__":
-    teste = InternalFunctions.count()
+    teste = PackageTest(TextLoading=0, progressbar=0.00)
