@@ -1,26 +1,32 @@
 import subprocess
 from dotenv import load_dotenv
 import pyodbc, os, json, time, threading, messagebox
+from flask import Flask
+
+
 load_dotenv()
+server = Flask(__name__)
 
 #CLASSE COM FUNÇÕES INTERNAS
 class InternalFunctions:
 
     @classmethod
     def count(cls, package_instance):
-        print(f'{'-'*50}\niniciando contagem\nvariável da contagem em: {package_instance.contagem}\n{"-"*50}')
+        print(f'{'-'*50}\n'
+              f'[DEBUG] iniciando contagem'
+              f'\n[DEBUG] variável da contagem em: {package_instance.contagem}'
+              f'\n{"-"*50}')
         for i in range(package_instance.contagem,5001):
             package_instance.contagem = i / 100
-            print(f'{package_instance.contagem} - variável infocount: {package_instance.StopStart_Count}')
+            print(f'[DEBUG] {package_instance.contagem} - variável contagem: {package_instance.StopStart_Count}')
             time.sleep(1)
             if package_instance.contagem == 1:
-                print('parando')
+                print('[DEBUG] parando')
                 break
             elif package_instance.StopStart_Count == True:
-                print('parando')
+                print('[DEBUG] parando')
                 package_instance.contagem = int(package_instance.contagem * 100)
-                print(package_instance.contagem)
-                print('fim')
+                print(f"[DEBUG] {package_instance.contagem}\n{"-"*30}")
                 break
 
 class PackageTest:
@@ -33,9 +39,14 @@ class PackageTest:
         self.contagem = int(0) #precisa iniciar em 0 - Variável que faz a contagem do loading
         self.StopStart_Count = False #variável para saber o momento de parar a contagem
 
-        #inicinado os testes
-        ConectionInfo = self.ConectionTest() #TESTE DE CONEXÃO DE REDE
-        self.TestDB(ConectionInfo) #TESTE DO BANCO DE DADOS
+        self.InitTest() #Variável que inicia todos os testes
+
+
+    def InitTest(self):
+        # inicinado os testes
+        ConectionInfo = self.ConectionTest()  # TESTE DE CONEXÃO DE REDE
+        self.TestDB(ConectionInfo)  # TESTE DO BANCO DE DADOS
+        self.OpenServerLocal() #ABRE O SERVER LOCAL.
 
     def ConectionTest(self):
 
@@ -49,14 +60,14 @@ class PackageTest:
         if self.resultado.returncode != 0:
             #BANCO DE DADOS LOCAL - SQLITE
             #CASO ESTEJA SEM INTERNET IRÁ RETORNAR FALSE
-            print(f"sistema offline, iniciando banco de dados local")
+            print(f"[DEBUG] sistema offline, iniciando banco de dados local")
             self.StopStart_Count = True
             threadContagem.join()
             return False
         else:
             #BANCO DE DADOS ONLINE - AzureDB
             #CASO POSSUA INTERNET RETORNA TRUE
-            print(f"sistema online, conectando no banco de dados online")
+            print(f"[DEBUG] sistema online, conectando no banco de dados online")
             self.StopStart_Count = True
             threadContagem.join()
             return True
@@ -68,7 +79,7 @@ class PackageTest:
             self.baseDir = os.path.dirname(os.path.abspath(__file__))
             self.ReturnDir = os.path.dirname(self.baseDir)
             self.JSONFile = os.path.join(self.ReturnDir, 'configs', "tester.json")
-            print(ConectionInfo)
+            print( f"[DEBUG] {ConectionInfo}")
             dadosNetwork = {
                 "Network" : ConectionInfo
             }
@@ -79,6 +90,7 @@ class PackageTest:
             return
 
         #contagem da barra
+        self.StopStart_Count = False
         threadCount = threading.Thread(target=InternalFunctions.count,
                                        args=(self,),
                                        daemon=True)
@@ -90,19 +102,17 @@ class PackageTest:
         self.retorno_dir = os.path.dirname(self.base_dir)
         self.msi_path = os.path.join(self.retorno_dir, "dependencies", 'msodbcsql.msi')
 
-        #VERIFICAR AQUI PORQUE O CONTADOR PAROU DURANTE A EXECUÇÃO
-
-
         try:
             if self.ConectionInfo is True:  # se der retorno true é porque possui internet, com isso carrega o AzureDB
-                print('verificando os drivers do AZURE SQL')
+                time.sleep(1)
+                print('[DEBUG] verificando os drivers do AZURE SQL')
                 driverAzure = pyodbc.drivers()
 
                 #INSTALA O DRIVER PARA CONECTAR NO AZURE CASO NÃO ENCONTRE NA LISTA DE DRIVERS
                 try:
                     if "ODBC Driver 18 for SQL Server" not in driverAzure:
-                        print('driver não instalado')
-                        print("iniciando instalação do driver")
+                        print('[DEBUG] driver não instalado')
+                        print("[DEBUG] iniciando instalação do driver")
                         print(self.msi_path)
                         install = subprocess.run(['msiexec',
                                                   "/i",
@@ -116,27 +126,30 @@ class PackageTest:
                                                  )
 
                         if install == 0:
-                            print("Instalação finalizada")
+                            print("[DEBUG] Instalação finalizada")
                             pass
 
                         else:
-                            print(f"falha na instalação. código: {install.returncode}")
-                            print(f"Saida: {install.stdout}")
-                            messagebox.showerror(title='Erro na instalação', message=f"Falha na instalação. Código: \n{install.returncode}\n"
-                                                                                     f"Saida: {install.stdout}")
+                            print(f"[DEBUG] falha na instalação. código: {install.returncode}")
+                            print(f"[DEBUG] Saida: {install.stdout}")
+                            messagebox.showerror(title='Erro na instalação',
+                                                 message=f"Falha na instalação. Código: "
+                                                         f"\n{install.returncode}\n"
+                                                         f"Saida: {install.stdout}")
+                            self.StopStart_Count = True
+                            threadCount.join()
                             return
 
                     else:
-                        print("driver já instalado")
+                        print("[DEBUG] driver já instalado")
                         pass
 
                 except Exception as e:
-                    print(f"Erro: {e}")
+                    print(f"[DEBUG] Erro: {e}")
                     messagebox.showerror(title='Erro!',
-                                         message=f"erro nos arquivos: {e}")
+                                         message=f"erro durante a instalação dos drivers: \n{e}")
                     return
 
-                return
                 try:
                     self.connectiondb = pyodbc.connect(
                         f"DRIVER={{{os.getenv('DB_DRIVER')}}};"
@@ -150,22 +163,34 @@ class PackageTest:
                     )
                     cursor = self.connectiondb.cursor()
                     cursor.execute("SELECT 1;")
-                    print('banco de dados: AZURE SQL')
+                    print('[DEBUG] banco de dados: AZURE SQL')
                     JSONConfig(self.ConectionInfo)
+                    self.StopStart_Count = True
+                    threadCount.join()
                     return
 
                 except pyodbc.Error as e:
-                    print(f"Erro: {e}")
+                    print(f"[DEBUG] Erro: {e}")
+                    self.ConectionInfo = False
                     JSONConfig(self.ConectionInfo)
+                    self.StopStart_Count = True
+                    threadCount.join()
 
             elif self.ConectionInfo is False:
                 JSONConfig(self.ConectionInfo)
+                self.StopStart_Count = True
+                threadCount.join()
 
         except Exception as e:
-            print(f"Erro: {e}")
-            messagebox.showerror(title='Erro na conexão',
-                                 message=f"erro para comunicar com o banco de dados: \n{e}")
+            print(f"[DEBUG] Erro: {e}")
+            messagebox.showerror(title='Erro interno',
+                                 message=f"ocorreu um erro durante a verificação \n{e}")
+            self.StopStart_Count = True
+            threadCount.join()
             return
 
+    def OpenServerLocal(self):
+        server.run(debug=True, port=433, use_reloader=False)
+
 if __name__ == "__main__":
-    teste = PackageTest(TextLoading=0, progressbar=0.00)
+    teste = PackageTest(TextLoading=0, progressbar=0)
