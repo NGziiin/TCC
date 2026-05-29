@@ -1,11 +1,10 @@
 import subprocess
 from dotenv import load_dotenv
-import pyodbc, os, json, time, threading, messagebox
-from flask import Flask
-
+import pyodbc, os, json, time, threading, messagebox, uvicorn
+from fastapi import FastAPI
 
 load_dotenv()
-server = Flask(__name__)
+server = FastAPI()
 
 #CLASSE COM FUNÇÕES INTERNAS
 class InternalFunctions:
@@ -16,9 +15,13 @@ class InternalFunctions:
               f'[DEBUG] iniciando contagem'
               f'\n[DEBUG] variável da contagem em: {package_instance.contagem}'
               f'\n{"-"*50}')
-        for i in range(package_instance.contagem,5001):
+
+        for i in range(package_instance.contagem,101):
+
             package_instance.contagem = i / 100
             print(f'[DEBUG] {package_instance.contagem} - variável contagem: {package_instance.StopStart_Count}')
+            package_instance.progressbar.after(0, lambda v=package_instance.contagem: package_instance.progressbar.set(v))
+            
             time.sleep(1)
             if package_instance.contagem == 1:
                 print('[DEBUG] parando')
@@ -26,11 +29,11 @@ class InternalFunctions:
             elif package_instance.StopStart_Count == True:
                 print('[DEBUG] parando')
                 package_instance.contagem = int(package_instance.contagem * 100)
-                print(f"[DEBUG] {package_instance.contagem}\n{"-"*30}")
+                print(f"[DEBUG] valor do calculo: {package_instance.contagem}\n{"-"*30}")
                 break
 
 class PackageTest:
-    def __init__(self, TextLoading, progressbar):
+    def __init__(self, TextLoading, progressbar, janela):
 
         #DECLARAÇÃO DAS VARIÁVEIS
         self.resultado = None #variável usada para retorno de informações (ela retorna em forma sincrona evitando erros)
@@ -38,15 +41,23 @@ class PackageTest:
         self.progressbar = progressbar #BARRA DE PROGRESSO PARA FAZER O LOADING
         self.contagem = int(0) #precisa iniciar em 0 - Variável que faz a contagem do loading
         self.StopStart_Count = False #variável para saber o momento de parar a contagem
+        self.PathMain = os.path.dirname(os.path.abspath(__file__)) #pega a pasta main
+        self.PathElectron = os.path.dirname(self.PathMain) #RETORNA UMA PASTA
+        self.ElectronOpen = os.path.join(self.PathElectron, 'electron-app')  # inicia o arquivo index.js
+        self.janela = janela
 
         self.InitTest() #Variável que inicia todos os testes
 
 
     def InitTest(self):
         # inicinado os testes
+        self.TextLoading.set("Iniciando os testes")
         ConectionInfo = self.ConectionTest()  # TESTE DE CONEXÃO DE REDE
+        self.contagem = int(50)
         self.TestDB(ConectionInfo)  # TESTE DO BANCO DE DADOS
+        self.contagem = int(90)
         self.OpenServerLocal() #ABRE O SERVER LOCAL.
+        self.OpenSoftware()
 
     def ConectionTest(self):
 
@@ -54,7 +65,7 @@ class PackageTest:
                          args=(self,),
                          daemon=True)#contagem e atualização da barra de loading
         threadContagem.start()
-        #self.TextLoading.set('Iniciando teste de rede') <<- tirar o comentário
+        self.TextLoading.set('Iniciando teste de rede')
         self.resultado = subprocess.run("ping www.google.com", capture_output=True, text=True)
 
         if self.resultado.returncode != 0:
@@ -63,6 +74,7 @@ class PackageTest:
             print(f"[DEBUG] sistema offline, iniciando banco de dados local")
             self.StopStart_Count = True
             threadContagem.join()
+            self.TextLoading.set('teste de rede concluido')
             return False
         else:
             #BANCO DE DADOS ONLINE - AzureDB
@@ -70,6 +82,7 @@ class PackageTest:
             print(f"[DEBUG] sistema online, conectando no banco de dados online")
             self.StopStart_Count = True
             threadContagem.join()
+            self.TextLoading.set('teste de rede concluido')
             return True
 
     def TestDB(self, ConectionInfo):
@@ -78,7 +91,7 @@ class PackageTest:
         def JSONConfig(ConectionInfo):
             self.baseDir = os.path.dirname(os.path.abspath(__file__))
             self.ReturnDir = os.path.dirname(self.baseDir)
-            self.JSONFile = os.path.join(self.ReturnDir, 'configs', "tester.json")
+            self.JSONFile = os.path.join(self.ReturnDir, 'configs', "ConfigsSystem.json")
             print( f"[DEBUG] {ConectionInfo}")
             dadosNetwork = {
                 "Network" : ConectionInfo
@@ -95,6 +108,7 @@ class PackageTest:
                                        args=(self,),
                                        daemon=True)
         threadCount.start()
+        self.TextLoading.set("iniciando testes no banco de dados")
         time.sleep(1)
 
         self.ConectionInfo = ConectionInfo
@@ -105,6 +119,7 @@ class PackageTest:
         try:
             if self.ConectionInfo is True:  # se der retorno true é porque possui internet, com isso carrega o AzureDB
                 time.sleep(1)
+                self.TextLoading.set('Verificando driver do banco de dados')
                 print('[DEBUG] verificando os drivers do AZURE SQL')
                 driverAzure = pyodbc.drivers()
 
@@ -125,8 +140,11 @@ class PackageTest:
                                                  check=True
                                                  )
 
+                        self.TextLoading.set("instalando driver")
+
                         if install == 0:
                             print("[DEBUG] Instalação finalizada")
+                            self.TextLoading.set('Driver instalado')
                             pass
 
                         else:
@@ -151,6 +169,7 @@ class PackageTest:
                     return
 
                 try:
+                    self.TextLoading.set('conectando no banco de dados')
                     self.connectiondb = pyodbc.connect(
                         f"DRIVER={{{os.getenv('DB_DRIVER')}}};"
                         f"SERVER={os.getenv('DB_SERVER')};"
@@ -175,11 +194,13 @@ class PackageTest:
                     JSONConfig(self.ConectionInfo)
                     self.StopStart_Count = True
                     threadCount.join()
+                    self.TextLoading.set('erro ao conectar no banco de dados')
 
             elif self.ConectionInfo is False:
                 JSONConfig(self.ConectionInfo)
                 self.StopStart_Count = True
                 threadCount.join()
+                self.TextLoading.set('carregando banco offline')
 
         except Exception as e:
             print(f"[DEBUG] Erro: {e}")
@@ -190,7 +211,51 @@ class PackageTest:
             return
 
     def OpenServerLocal(self):
-        server.run(debug=True, port=433, use_reloader=False)
 
-if __name__ == "__main__":
-    teste = PackageTest(TextLoading=0, progressbar=0)
+        self.StopStart_Count = False
+        threadCount = threading.Thread(target=InternalFunctions.count,
+                                       args=(self,),
+                                       daemon=True)
+        threadCount.start()
+        self.TextLoading.set('Iniciando server local')
+
+        #ABRE O SERVER Local
+        def start_server():
+
+            self.config = uvicorn.Config("tools.APILocal:app", host='127.0.0.1', port=8080, reload=False)
+            self.server = uvicorn.Server(self.config)
+            self.server.run()
+
+        #Depois de abrir o server
+        self.resultado = threading.Thread(target=start_server)
+        self.resultado.start()
+
+        #anotando o ip no JSON
+        self.baseDir = os.path.dirname(os.path.abspath(__file__))
+        self.ReturnDir = os.path.dirname(self.baseDir)
+        self.JSONFile = os.path.join(self.ReturnDir, 'configs', "ConfigsSystem.json")
+
+        self.TextLoading.set("salvando informações")
+        #aqui verifica se já possui o arquivo json
+        if os.path.exists(self.JSONFile):
+            with open(self.JSONFile, "r", encoding="utf-8") as f:
+                dadosJSON = json.load(f)
+
+        else:
+            dadosJSON = {}
+
+        #adiciona a informação do ip
+        dadosJSON["ip"] = '127.0.0.1:443'
+
+        #salva novamente
+        with open(self.JSONFile, "w", encoding="utf-8") as f:
+            json.dump(dadosJSON, f, indent=4)
+
+        self.StopStart_Count = True
+        threadCount.join()
+
+    def OpenSoftware(self):
+        self.StopStart_Count = True
+        subprocess.Popen(['npx.cmd', 'electron', '.'], cwd=self.ElectronOpen)
+        self.progressbar.set(1.0)
+        self.janela.destroy()

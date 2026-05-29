@@ -2,8 +2,7 @@ import customtkinter as ctk
 from customtkinter import CTkProgressBar, CTkFrame, CTkLabel
 import customtkinter as tk
 from PIL import Image, ImageTk, ImageSequence
-import os, subprocess
-from tools import TesterPackage
+import os, subprocess, threading
 
 class InterfaceLoading:
     def __init__(self, janela):
@@ -13,7 +12,7 @@ class InterfaceLoading:
         self.ElementsInterface()
         self.ElectronOpen = os.path.join(self.base_dir, 'electron-app') #inicia o arquivo index.js
         self.SystemTest()
-        self.close_app() #DELETAR QUANDO TERMINAR DE ARRUMAR A OUTRA PARTE DO LOADING
+        #self.close_app() #DELETAR QUANDO TERMINAR DE ARRUMAR A OUTRA PARTE DO LOADING
 
     def PositionWindow(self):
         self.janela.update_idletasks()
@@ -88,7 +87,15 @@ class InterfaceLoading:
 
     def SystemTest(self):
         from tools.TesterPackage import PackageTest
-        PackageTest(self.TextLoading, self.progressbar)
+        #fazer a atualização da tela aqui
+        threading.Thread(target=PackageTest,
+                         args=(self.TextLoading, self.progressbar, self.janela),
+                         daemon=True).start()
+
+        #subprocess.Popen(['npx.cmd', 'electron', '.'], cwd=self.ElectronOpen)
+        #self.progressbar.set(1.0)
+        #self.janela.destroy()
+
 
     def close_app(self, contador=0, contagembar=0.00): #DELETAR DEPOIS
         if contador < 50:
