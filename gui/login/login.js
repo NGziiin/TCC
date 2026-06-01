@@ -6,6 +6,31 @@ class InternalFunctions {
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     };
+
+    static async UploadDados(username, password){
+        const dados = {
+            nome: username,
+            senha: password
+        };
+
+        try {
+            const resposta = await fetch('http://127.0.0.1:8080/DadosLogin', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(dados)
+            });
+            if (!resposta.ok) {
+                throw new Error(`Erro na requisição: ${resposta.status} - ${resposta.statusText}`)
+            }
+
+            const resultado = await resposta.json();
+            console.log('resposta da API:', resultado);
+        } catch (erro) {
+            console.error('falha ao enviar dados: ', erro.message)
+        }
+    }
 }
 
 window.getLogin = async function() {
@@ -16,6 +41,7 @@ window.getLogin = async function() {
             console.log('a senha tem menos de 6 caracteres');
         } else {
             const encodedPassword = await InternalFunctions.encode(password);
+            await InternalFunctions.UploadDados(username, encodedPassword)
             console.log(encodedPassword);
         }
     } catch (error) {
