@@ -106,3 +106,23 @@ h1{
     text-align: center;
     margin: 0;
 }
+#Buttonview{
+    position: absolute;
+    right: 40px;
+    top: 67%;
+    transform: translateY(-50%);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    height: 3vh;
+    width: 1.5vw;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    font-size: 2vh;
+}
+/* Remove o "olhinho" padrão do Chrome/Edge */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear{
+    display: none !important;
+}

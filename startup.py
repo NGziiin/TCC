@@ -90,31 +90,7 @@ class InterfaceLoading:
         #fazer a atualização da tela aqui
         threading.Thread(target=PackageTest,
                          args=(self.TextLoading, self.progressbar, self.janela),
-                         daemon=True).start()
-
-        #subprocess.Popen(['npx.cmd', 'electron', '.'], cwd=self.ElectronOpen)
-        #self.progressbar.set(1.0)
-        #self.janela.destroy()
-
-
-    def close_app(self, contador=0, contagembar=0.00): #DELETAR DEPOIS
-        if contador < 50:
-            match contador:
-                case 0:
-                    self.TextLoading.set('Iniciando testes')
-                case 20:
-                    self.TextLoading.set("text2")
-                case 30:
-                    self.TextLoading.set("text3")
-                case 40:
-                    self.TextLoading.set("text4")
-
-            self.progressbar.set(contagembar)
-            self.janela.after(500, lambda: self.close_app(contador + 1, contagembar + 0.02))
-        else:
-            subprocess.Popen(['npx.cmd', 'electron', '.'], cwd=self.ElectronOpen)  # inicia o software via electron
-            self.progressbar.set(1.0)
-            self.janela.destroy()
+                         ).start()
 
 if __name__ == "__main__":
     janela = ctk.CTk()

@@ -219,15 +219,15 @@ class PackageTest:
         threadCount.start()
         self.TextLoading.set('Iniciando server local')
 
-        #ABRE O SERVER Local
+        #Função para abrir o server
         def start_server():
 
             self.config = uvicorn.Config("tools.APILocal:app", host='127.0.0.1', port=8080, reload=False)
             self.server = uvicorn.Server(self.config)
             self.server.run()
 
-        #Depois de abrir o server
-        self.resultado = threading.Thread(target=start_server)
+        #abrindo o server
+        self.resultado = threading.Thread(target=start_server, daemon=True)
         self.resultado.start()
 
         #anotando o ip no JSON
@@ -245,7 +245,7 @@ class PackageTest:
             dadosJSON = {}
 
         #adiciona a informação do ip
-        dadosJSON["ip"] = '127.0.0.1:443'
+        dadosJSON["ip"] = 'http://127.0.0.1:8080'
 
         #salva novamente
         with open(self.JSONFile, "w", encoding="utf-8") as f:

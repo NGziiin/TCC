@@ -11,6 +11,8 @@ app.whenReady().then(() => {
   const primaryDisplay = screen.getPrimaryDisplay()
   const { width, height } = primaryDisplay.workAreaSize
 
+  require(path.join(__dirname, 'backend', 'LoginSystem.js'))
+
   mainWindow = new BrowserWindow({
     width,
     height,

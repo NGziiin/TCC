@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>Login SCE</title>
     <link rel="stylesheet" type="text/css" href="login.css">
-    <script src="login.js" defer></script> <!-- animação do olho -->
+    <script src="login.js" defer></script> <!-- backend da janela  -->
 </head>
 <body>
 
@@ -18,10 +18,15 @@
         <h1>BEM</br>VINDO</h1>
         <label>
             <p>Usuário</p>
-            <input>
+            <input id='InputName'>
             <p>Senha</p>
-            <input id="senha"><br><br>
-            <button id="loginbutton">Acessar</button>
+            <input id="InputPassword" type="password">
+            <button id='Buttonview'
+                    type="button"
+                    onclick="togglePasswordVisibility()">
+                <img id='iconEye' src="../../image/Invisible.png" alt="" style="width: 25px;height: 25px;">
+            </button><br><br>
+            <button id="loginbutton" onclick="getLogin()">Acessar</button>
         </label>
 
     </div>
