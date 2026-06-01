@@ -102,6 +102,20 @@ class PackageTest:
 
             return
 
+        def ConnectSystem():#por causa do sistema offline ele tenta conectar 2x
+            print('[DEBUG] tentando conectar no banco de dados')
+            connectiondb = pyodbc.connect(
+                f"DRIVER={{{os.getenv('DB_DRIVER')}}};"
+                f"SERVER={os.getenv('DB_SERVER')};"
+                f"DATABASE={os.getenv('DB_DATABASE')};"
+                f"UID={os.getenv('DB_UID')};"
+                f"PWD={os.getenv('DB_PWD')};"
+                "Encrypt=yes;"
+                "TrustServerCertificate=no;"
+                "Connection Timeout=30;"
+            )
+            return connectiondb
+
         #contagem da barra
         self.StopStart_Count = False
         threadCount = threading.Thread(target=InternalFunctions.count,
@@ -128,7 +142,8 @@ class PackageTest:
                     if "ODBC Driver 18 for SQL Server" not in driverAzure:
                         print('[DEBUG] driver não instalado')
                         print("[DEBUG] iniciando instalação do driver")
-                        print(self.msi_path)
+                        self.StopStart_Count = True
+                        threadCount.join()
                         install = subprocess.run(['msiexec',
                                                   "/i",
                                                   self.msi_path,
@@ -141,8 +156,9 @@ class PackageTest:
                                                  )
 
                         self.TextLoading.set("instalando driver")
-
                         if install == 0:
+                            self.StopStart_Count = False
+                            threadCount.start()
                             print("[DEBUG] Instalação finalizada")
                             self.TextLoading.set('Driver instalado')
                             pass
@@ -170,16 +186,9 @@ class PackageTest:
 
                 try:
                     self.TextLoading.set('conectando no banco de dados')
-                    self.connectiondb = pyodbc.connect(
-                        f"DRIVER={{{os.getenv('DB_DRIVER')}}};"
-                        f"SERVER={os.getenv('DB_SERVER')};"
-                        f"DATABASE={os.getenv('DB_DATABASE')};"
-                        f"UID={os.getenv('DB_UID')};"
-                        f"PWD={os.getenv('DB_PWD')};"
-                        "Encrypt=yes;"
-                        "TrustServerCertificate=no;"
-                        "Connection Timeout=30;"
-                    )
+                    self.connectiondb = ConnectSystem()
+                    time.sleep(60)
+                    self.connectiondb = ConnectSystem()
                     cursor = self.connectiondb.cursor()
                     cursor.execute("SELECT 1;")
                     print('[DEBUG] banco de dados: AZURE SQL')
