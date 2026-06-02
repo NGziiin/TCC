@@ -23,5 +23,6 @@ async def login(dados: LoginJSON):
 
     # função para verificar a senha
     instancePy = ITFunctionLogin()
-    VerPython = instancePy.login(dados.nome, dados.senha) #verifica no banco de dados o login
-    return {'status': "ok - recebido as informações na API"}
+    VerPython = instancePy.login(dados.nome, dados.senha)#verifica no banco de dados o login
+
+    return {'status' : VerPython}

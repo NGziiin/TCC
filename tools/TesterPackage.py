@@ -191,7 +191,7 @@ class PackageTest:
                         cursor1 = conn1.cursor()
                         cursor1.execute("select 1;")
                         print('[DEBUG] Primeira tentativa ok')
-                    except Exception as e:
+                    except pyodbc.Error as e:
                         print('[DEBUG] primeira tentativa deu erro: ',e)
                         time.sleep(60)
                         #caso de erro ele tenta conectar dnv
@@ -200,7 +200,7 @@ class PackageTest:
                             cursor2 = conn2.cursor()
                             cursor2.execute("select 1;")
                             print('[DEBUG] Segunda tentativa ok')
-                        except Exception as e:
+                        except pyodbc.Error as e:
                             print('[DEBUG] segunda tentativa deu erro: ',e)
                     print('[DEBUG] banco de dados: AZURE SQL')
                     JSONConfig(self.ConectionInfo)

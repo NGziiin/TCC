@@ -19,7 +19,11 @@ app.whenReady().then(() => {
     resizable: true,
     maximizable: true,
     fullscreenable: false,
-    autoHideMenuBar: true})
+    autoHideMenuBar: true,
+
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    }})
 
   mainWindow.maximize();
   mainWindow.loadFile('../gui/login/login.html')

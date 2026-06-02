@@ -39,6 +39,8 @@ class ITFunctionLogin:
         if cursor.rowcount == 0:
             print('nenhum acesso encontrado')
             cursor.close()
+            return False
         else:
             print('acesso encontrado')
             cursor.close()
+            return True

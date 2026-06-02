@@ -22,11 +22,23 @@ class InternalFunctions {
                 body: JSON.stringify(dados)
             });
             if (!resposta.ok) {
-                new Error(`Erro na requisição: ${resposta.status} - ${resposta.statusText}`)
+                throw new Error(
+                    `Erro na requisição: ${resposta.status} - ${resposta.statusText}`)
             }
 
             const resultado = await resposta.json();
-            console.log('resposta da API:', resultado);
+
+            // se der true segue para a página de acesso se der false da erro de senha
+            if (resultado.status === true){
+                alert('login realizado com sucesso')
+
+            } else if (resultado.status === false){
+                alert('erro no nome ou senha, tente novamente')
+
+            } else {
+                alert('erro interno')
+
+            }
         } catch (erro) {
             console.error('falha ao enviar dados: ', erro.message)
         }
