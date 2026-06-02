@@ -5,7 +5,7 @@ from pydantic import BaseModel
 app = FastAPI()
 
 #Usado para pegar as informações do login
-class Login(BaseModel):
+class LoginJSON(BaseModel):
     nome: str
     senha: str
 
@@ -16,8 +16,12 @@ def read_root():
 
 # Rota para receber as informações do login
 @app.post("/DadosLogin")
-async def login(dados: Login):
-    body = dados
-    print(f'informações do login: {body}')
-    return {'status': "ok", 'dados': body}
+async def login(dados: LoginJSON):
 
+    # importando o arquivo
+    from core.validationLogin import ITFunctionLogin
+
+    # função para verificar a senha
+    instancePy = ITFunctionLogin()
+    VerPython = instancePy.login(dados.nome, dados.senha) #verifica no banco de dados o login
+    return {'status': "ok - recebido as informações na API"}

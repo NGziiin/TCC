@@ -186,11 +186,22 @@ class PackageTest:
 
                 try:
                     self.TextLoading.set('conectando no banco de dados')
-                    self.connectiondb = ConnectSystem()
-                    time.sleep(60)
-                    self.connectiondb = ConnectSystem()
-                    cursor = self.connectiondb.cursor()
-                    cursor.execute("SELECT 1;")
+                    conn1 = ConnectSystem()
+                    try:
+                        cursor1 = conn1.cursor()
+                        cursor1.execute("select 1;")
+                        print('[DEBUG] Primeira tentativa ok')
+                    except Exception as e:
+                        print('[DEBUG] primeira tentativa deu erro: ',e)
+                        time.sleep(60)
+                        #caso de erro ele tenta conectar dnv
+                        conn2 = ConnectSystem()
+                        try:
+                            cursor2 = conn2.cursor()
+                            cursor2.execute("select 1;")
+                            print('[DEBUG] Segunda tentativa ok')
+                        except Exception as e:
+                            print('[DEBUG] segunda tentativa deu erro: ',e)
                     print('[DEBUG] banco de dados: AZURE SQL')
                     JSONConfig(self.ConectionInfo)
                     self.StopStart_Count = True

@@ -22,7 +22,7 @@ class InternalFunctions {
                 body: JSON.stringify(dados)
             });
             if (!resposta.ok) {
-                throw new Error(`Erro na requisição: ${resposta.status} - ${resposta.statusText}`)
+                new Error(`Erro na requisição: ${resposta.status} - ${resposta.statusText}`)
             }
 
             const resultado = await resposta.json();
@@ -37,13 +37,11 @@ window.getLogin = async function() {
     try {
         const {value: username} = document.getElementById("InputName");
         const {value: password} = document.getElementById("InputPassword");
-        if (password.length < 6) {
-            console.log('a senha tem menos de 6 caracteres');
-        } else {
-            const encodedPassword = await InternalFunctions.encode(password);
-            await InternalFunctions.UploadDados(username, encodedPassword)
-            console.log(encodedPassword);
-        }
+
+        const encodedPassword = await InternalFunctions.encode(password);
+        await InternalFunctions.UploadDados(username, encodedPassword)
+
+
     } catch (error) {
         console.error(error);
     }
