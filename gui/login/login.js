@@ -25,19 +25,15 @@ class InternalFunctions {
                 throw new Error(
                     `Erro na requisição: ${resposta.status} - ${resposta.statusText}`)
             }
-
             const resultado = await resposta.json();
-
             // se der true segue para a página de acesso se der false da erro de senha
             if (resultado.status === true){
-                alert('login realizado com sucesso')
-
+                window.location.href = '../main/main.html';
             } else if (resultado.status === false){
                 alert('erro no nome ou senha, tente novamente')
-
+                document.getElementById("InputPassword").setAttribute("placeholder", "senha incorreta");
             } else {
                 alert('erro interno')
-
             }
         } catch (erro) {
             console.error('falha ao enviar dados: ', erro.message)
@@ -47,12 +43,17 @@ class InternalFunctions {
 
 window.getLogin = async function() {
     try {
-        const {value: username} = document.getElementById("InputName");
-        const {value: password} = document.getElementById("InputPassword");
+        const { value: username} = document.getElementById("InputName");
+        const { value: password} = document.getElementById("InputPassword");
 
-        const encodedPassword = await InternalFunctions.encode(password);
-        await InternalFunctions.UploadDados(username, encodedPassword)
-
+        if (username && password) {
+            const encodedPassword = await InternalFunctions.encode(password);
+            await InternalFunctions.UploadDados(username, encodedPassword);
+        } else if (!username) {
+            document.getElementById('InputName').setAttribute('placeholder', 'insira um nome');
+        } else if (!password) {
+            document.getElementById('InputPassword').setAttribute('placeholder', 'insira um senha');
+        }
 
     } catch (error) {
         console.error(error);

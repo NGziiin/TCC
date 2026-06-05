@@ -186,17 +186,26 @@ class PackageTest:
 
                 try:
                     self.TextLoading.set('conectando no banco de dados')
-                    conn1 = ConnectSystem()
                     try:
+                        print("[DEBUG] primeira tentativa de conectar")
+                        conn1 = ConnectSystem()
                         cursor1 = conn1.cursor()
                         cursor1.execute("select 1;")
                         print('[DEBUG] Primeira tentativa ok')
                     except pyodbc.Error as e:
                         print('[DEBUG] primeira tentativa deu erro: ',e)
+                        self.StopStart_Count = True
+                        threadCount.join()
                         time.sleep(60)
-                        #caso de erro ele tenta conectar dnv
-                        conn2 = ConnectSystem()
+                        self.StopStart_Count = False
+                        threadCount = threading.Thread(target=InternalFunctions.count,
+                                                       args=(self,),
+                                                       daemon=True)
+                        threadCount.start()
+                        #tenta conectar novamente caso dê erro
                         try:
+                            print("[DEBUG] segunda tentativa de conectar")
+                            conn2 = ConnectSystem()
                             cursor2 = conn2.cursor()
                             cursor2.execute("select 1;")
                             print('[DEBUG] Segunda tentativa ok')

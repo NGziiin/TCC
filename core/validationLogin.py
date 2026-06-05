@@ -1,4 +1,4 @@
-import pyodbc, os
+import pyodbc, os, jwt
 from dotenv import load_dotenv
 import messagebox as msb
 

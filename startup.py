@@ -12,7 +12,6 @@ class InterfaceLoading:
         self.ElementsInterface()
         self.ElectronOpen = os.path.join(self.base_dir, 'electron-app') #inicia o arquivo index.js
         self.SystemTest()
-        #self.close_app() #DELETAR QUANDO TERMINAR DE ARRUMAR A OUTRA PARTE DO LOADING
 
     def PositionWindow(self):
         self.janela.update_idletasks()

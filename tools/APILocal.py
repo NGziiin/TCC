@@ -26,3 +26,5 @@ async def login(dados: LoginJSON):
     VerPython = instancePy.login(dados.nome, dados.senha)#verifica no banco de dados o login
 
     return {'status' : VerPython}
+
+# ROTA PARA AS INFORMAÇÕES NA TELA INICIAL

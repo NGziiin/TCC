@@ -1,10 +1,169 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Estoque</title>
+    <link rel="stylesheet" href="main.css">
+    <link href="icons/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 
+<div class="container">
+    <!-- MENU -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <h2>📦 SCE</h2>
+        </div>
+
+        <nav>
+
+            <a href="#" class="active">
+                <i class="fas fa-home"></i>
+                Início
+            </a>
+
+            <a href="#">
+                <i class="fas fa-box"></i>
+                Produtos
+            </a>
+
+            <a href="#">
+                <i class="fas fa-cart-shopping"></i>
+                Realizar Venda
+            </a>
+
+            <a href="#">
+                <i class="fas fa-warehouse"></i>
+                Estoque
+            </a>
+
+            <a href="#">
+                <i class="fas fa-chart-column"></i>
+                Relatórios
+            </a>
+
+            <a href="#">
+                <i class="fas fa-gear"></i>
+                Configurações
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <!-- CONTEÚDO -->
+    <main class="content">
+
+        <header class="topbar">
+
+            <div>
+                <h1>Bem-vindo!</h1>
+                <p>Aqui está um resumo do seu estoque.</p>
+            </div>
+
+            <div id="usuario">
+                <i class="fas fa-user-circle"></i>
+                Administrador
+            </div>
+
+        </header>
+
+        <!-- CARDS -->
+        <section class="cards">
+
+            <div class="card">
+                <h3>Produtos</h3>
+                <span>250</span>
+            </div>
+
+            <div class="card">
+                <h3>Estoque Baixo</h3>
+                <span>8</span>
+            </div>
+
+            <div class="card">
+                <h3>Vendas Hoje</h3>
+                <span>15</span>
+            </div>
+
+            <div class="card">
+                <h3>Alertas</h3>
+                <span>3</span>
+            </div>
+
+        </section>
+
+        <!-- TABELAS -->
+        <section class="tables">
+
+            <div class="table-box">
+
+                <h2>Produtos com Estoque Baixo</h2>
+
+                <table>
+
+                    <tr>
+                        <th>Produto</th>
+                        <th>Estoque</th>
+                    </tr>
+
+                    <tr>
+                        <td>Caneta Azul</td>
+                        <td>2</td>
+                    </tr>
+
+                    <tr>
+                        <td>Caderno</td>
+                        <td>1</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+            <div class="table-box">
+
+                <h2>Últimas Vendas</h2>
+
+                <table>
+
+                    <tr>
+                        <th>Produto</th>
+                        <th>Qtd.</th>
+                    </tr>
+
+                    <tr>
+                        <td>Mochila</td>
+                        <td>3</td>
+                    </tr>
+
+                    <tr>
+                        <td>Lápis</td>
+                        <td>5</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- ACESSO RÁPIDO -->
+        <section class="acoes">
+
+            <button>Cadastrar Produto</button>
+            <button>Realizar Venda</button>
+            <button>Consultar Estoque</button>
+            <button>Relatórios</button>
+
+        </section>
+
+    </main>
+
+</div>
+
 </body>
 </html>
+```

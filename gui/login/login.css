@@ -40,19 +40,29 @@ label{
 }
 input{
     width:80%;
+    text-align: center !important;
+    padding: 0;
     border: none;
     background-color: transparent;
-    cursor: pointer;
     border-bottom: 2px solid white;
     color: white;
-    justify-items: center;
     font: normal 16px "Roboto", sans-serif;
     transition: 0.3s;
 }
 input:focus{
-    border-bottom: 3px solid forestgreen;
+    border-bottom: 3px solid darkgray;
     border-radius: 3px;
     outline: none;
+    text-align: center !important;
+}
+input::-webkit-input-placeholder{
+    color: red;
+    font-style: italic;
+    text-align: center !important;
+}
+input:focus::placeholder{
+    color: transparent;
+    text-align: center !important;
 }
 button{
     background-color:#E76F51;
@@ -65,7 +75,7 @@ button{
     border-radius: 10px;
 }
 #loginbutton:hover{
-    background-color:#4CAF50;
+    background-color: #aa533f;
     color:white;
     font: bold 18px/1.5 Georgia, serif;
     cursor: pointer;
