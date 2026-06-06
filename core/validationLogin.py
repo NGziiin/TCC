@@ -1,8 +1,14 @@
-import pyodbc, os, jwt
+import pyodbc, os, jwt, hashlib
 from dotenv import load_dotenv
 import messagebox as msb
 
 class ITFunctionLogin:
+
+    @staticmethod
+    def creatingHash(password: str) -> str:
+        data = password.encode("utf-8")
+        hash_object = hashlib.sha256(data)
+        return hash_object.hexdigest()
 
     @staticmethod
     def GetUserDB():
@@ -27,20 +33,25 @@ class ITFunctionLogin:
 
     @staticmethod
     def login(username, password):
+        password = ITFunctionLogin.creatingHash(password) # cria a HASH para a senha
         AccountActive = True # variável para verificar se a conta está ativa
         Conn = ITFunctionLogin.GetUserDB()
         cursor = Conn.cursor()
-        cursor.execute("SELECT 1 FROM LoginAcess.AcessSystem WHERE "
+        cursor.execute("SELECT UserID, Username FROM LoginAcess.AcessSystem WHERE "
                        "Username = ? "
                        "AND Password = ? "
                        "AND Status = ?;", (username, password, AccountActive ))
-
+        result = cursor.fetchone()
+        cursor.close()
         #CRIAR O RETORNO DE TOKEN PARA VALIDAÇÃO NO RESTO DA API
-        if cursor.rowcount == 0:
-            print('nenhum acesso encontrado')
-            cursor.close()
-            return False
+        if result is None:
+            return {"Status" : False, "Token" : ''}
         else:
-            print('acesso encontrado')
-            cursor.close()
-            return True
+            tokenload = {
+                "UserID" : result[0],
+                "Username" : result[1],
+            }
+            Token_Acess = jwt.encode(tokenload,
+                                     os.getenv('TK_PASSWORD'),
+                                     algorithm='HS256')
+            return {"Status" : True, "Token" : Token_Acess}

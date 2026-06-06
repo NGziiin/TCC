@@ -1,4 +1,4 @@
-import subprocess
+import subprocess, socket
 from dotenv import load_dotenv
 import pyodbc, os, json, time, threading, messagebox, uvicorn
 from fastapi import FastAPI
@@ -240,48 +240,59 @@ class PackageTest:
             return
 
     def OpenServerLocal(self):
+        try:
+            self.StopStart_Count = False
+            threadCount = threading.Thread(target=InternalFunctions.count,
+                                           args=(self,),
+                                           daemon=True)
+            threadCount.start()
+            self.TextLoading.set('Iniciando server local')
 
-        self.StopStart_Count = False
-        threadCount = threading.Thread(target=InternalFunctions.count,
-                                       args=(self,),
-                                       daemon=True)
-        threadCount.start()
-        self.TextLoading.set('Iniciando server local')
+            #cria a porta automática
+            sock = socket.socket()
+            sock.bind(("127.0.0.1", 0))
+            porta = sock.getsockname()[1]
+            sock.close()
+            print(porta)
 
-        #Função para abrir o server
-        def start_server():
-
-            self.config = uvicorn.Config("tools.APILocal:app", host='127.0.0.1', port=8080, reload=False)
+            # Função para abrir o server
+            self.config = uvicorn.Config("tools.APILocal:app", host='127.0.0.1', port=porta, reload=False)
             self.server = uvicorn.Server(self.config)
-            self.server.run()
+            def start_server():
+                print('abrindo server')
+                self.server.run()
 
-        #abrindo o server
-        self.resultado = threading.Thread(target=start_server, daemon=True)
-        self.resultado.start()
+            #abrindo o server
+            self.resultado = threading.Thread(target=start_server, daemon=True)
+            self.resultado.start()
 
-        #anotando o ip no JSON
-        self.baseDir = os.path.dirname(os.path.abspath(__file__))
-        self.ReturnDir = os.path.dirname(self.baseDir)
-        self.JSONFile = os.path.join(self.ReturnDir, 'configs', "ConfigsSystem.json")
+            #anotando o ip no JSON
+            self.baseDir = os.path.dirname(os.path.abspath(__file__))
+            self.ReturnDir = os.path.dirname(self.baseDir)
+            self.JSONFile = os.path.join(self.ReturnDir, 'configs', "ConfigsSystem.json")
 
-        self.TextLoading.set("salvando informações")
-        #aqui verifica se já possui o arquivo json
-        if os.path.exists(self.JSONFile):
-            with open(self.JSONFile, "r", encoding="utf-8") as f:
-                dadosJSON = json.load(f)
+            self.TextLoading.set("salvando informações")
+            #aqui verifica se já possui o arquivo json
+            if os.path.exists(self.JSONFile):
+                with open(self.JSONFile, "r", encoding="utf-8") as f:
+                    dadosJSON = json.load(f)
 
-        else:
-            dadosJSON = {}
+            else:
+                dadosJSON = {}
 
-        #adiciona a informação do ip
-        dadosJSON["ip"] = 'http://127.0.0.1:8080'
+            #adiciona a informação do ip
+            dadosJSON["ip"] = f'http://{self.config.host}:{porta}'
 
-        #salva novamente
-        with open(self.JSONFile, "w", encoding="utf-8") as f:
-            json.dump(dadosJSON, f, indent=4)
+            #salva novamente
+            with open(self.JSONFile, "w", encoding="utf-8") as f:
+                json.dump(dadosJSON, f, indent=4)
 
-        self.StopStart_Count = True
-        threadCount.join()
+            self.StopStart_Count = True
+            threadCount.join()
+        except Exception as e:
+            import traceback
+            print(f"[DEBUG] Erro: {e}")
+            traceback.print_exc()
 
     def OpenSoftware(self):
         self.StopStart_Count = True

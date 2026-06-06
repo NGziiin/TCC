@@ -25,6 +25,9 @@ async def login(dados: LoginJSON):
     instancePy = ITFunctionLogin()
     VerPython = instancePy.login(dados.nome, dados.senha)#verifica no banco de dados o login
 
-    return {'status' : VerPython}
+    return {"Status" : VerPython['Status'], "Token" : VerPython['Token']}
 
 # ROTA PARA AS INFORMAÇÕES NA TELA INICIAL
+@app.get('/InfosMain')
+async def InfosMain(token: str):
+    pass
